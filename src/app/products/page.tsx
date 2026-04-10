@@ -35,7 +35,8 @@ export default function ProductsPage() {
     const q = search ? `?search=${encodeURIComponent(search)}` : "";
     fetch(`/api/products${q}`)
       .then((r) => r.json())
-      .then((d) => setProducts(d))
+      .then((d) => { if (Array.isArray(d)) setProducts(d); })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, [search]);
 

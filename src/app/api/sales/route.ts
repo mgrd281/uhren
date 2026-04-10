@@ -4,16 +4,20 @@ import { createSale } from "@/lib/services";
 import { saleSchema } from "@/lib/validations";
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = request.nextUrl;
-  const limit = parseInt(searchParams.get("limit") ?? "50", 10);
+  try {
+    const { searchParams } = request.nextUrl;
+    const limit = parseInt(searchParams.get("limit") ?? "50", 10);
 
-  const sales = await prisma.sale.findMany({
-    include: { product: true },
-    orderBy: { soldAt: "desc" },
-    take: limit,
-  });
+    const sales = await prisma.sale.findMany({
+      include: { product: true },
+      orderBy: { soldAt: "desc" },
+      take: limit,
+    });
 
-  return NextResponse.json(sales);
+    return NextResponse.json(sales);
+  } catch {
+    return NextResponse.json([]);
+  }
 }
 
 export async function POST(request: NextRequest) {

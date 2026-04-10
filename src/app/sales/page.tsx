@@ -56,12 +56,12 @@ export default function SalesPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/sales").then((r) => r.json()),
-      fetch("/api/products").then((r) => r.json()),
+      fetch("/api/sales").then((r) => r.json()).catch(() => []),
+      fetch("/api/products").then((r) => r.json()).catch(() => []),
     ])
       .then(([s, p]) => {
-        setSales(s);
-        setProducts(p);
+        if (Array.isArray(s)) setSales(s);
+        if (Array.isArray(p)) setProducts(p);
       })
       .finally(() => setLoading(false));
   }, []);

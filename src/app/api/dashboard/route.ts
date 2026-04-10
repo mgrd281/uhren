@@ -1,7 +1,27 @@
 import { NextResponse } from "next/server";
 import { getDashboardData } from "@/lib/services";
 
+const emptyDashboard = {
+  kpis: {
+    totalProducts: 0,
+    totalStock: 0,
+    lowStockItems: 0,
+    outOfStockItems: 0,
+    inventoryValueCost: 0,
+    expectedSalesValue: 0,
+    totalRevenue: 0,
+    totalProfit: 0,
+  },
+  charts: { salesOverTime: [], topProducts: [], topBrands: [] },
+  recentSales: [],
+  alerts: [],
+};
+
 export async function GET() {
-  const data = await getDashboardData();
-  return NextResponse.json(data);
+  try {
+    const data = await getDashboardData();
+    return NextResponse.json(data);
+  } catch {
+    return NextResponse.json(emptyDashboard);
+  }
 }

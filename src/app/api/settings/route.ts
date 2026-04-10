@@ -3,13 +3,23 @@ import { prisma } from "@/lib/prisma";
 import { settingsSchema } from "@/lib/validations";
 
 export async function GET() {
-  let settings = await prisma.storeSettings.findUnique({ where: { id: "default" } });
-  if (!settings) {
-    settings = await prisma.storeSettings.create({
-      data: { id: "default" },
+  try {
+    let settings = await prisma.storeSettings.findUnique({ where: { id: "default" } });
+    if (!settings) {
+      settings = await prisma.storeSettings.create({
+        data: { id: "default" },
+      });
+    }
+    return NextResponse.json(settings);
+  } catch {
+    return NextResponse.json({
+      id: "default",
+      storeName: "دار الساعات الفاخرة",
+      locale: "ar",
+      currencyCode: "AED",
+      rtlEnabled: true,
     });
   }
-  return NextResponse.json(settings);
 }
 
 export async function PATCH(request: NextRequest) {

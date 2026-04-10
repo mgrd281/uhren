@@ -7,21 +7,25 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  const product = await prisma.product.findUnique({
-    where: { id },
-    include: {
-      galleryImages: true,
-      sales: { orderBy: { soldAt: "desc" } },
-      inventoryMoves: { orderBy: { createdAt: "desc" } },
-    },
-  });
+  try {
+    const { id } = await params;
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: {
+        galleryImages: true,
+        sales: { orderBy: { soldAt: "desc" } },
+        inventoryMoves: { orderBy: { createdAt: "desc" } },
+      },
+    });
 
-  if (!product) {
-    return NextResponse.json({ error: "المنتج غير موجود" }, { status: 404 });
+    if (!product) {
+      return NextResponse.json({ error: "المنتج غير موجود" }, { status: 404 });
+    }
+
+    return NextResponse.json(product);
+  } catch {
+    return NextResponse.json({ error: "خطأ في الاتصال بقاعدة البيانات" }, { status: 500 });
   }
-
-  return NextResponse.json(product);
 }
 
 export async function PATCH(

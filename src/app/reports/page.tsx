@@ -49,7 +49,8 @@ export default function ReportsPage() {
 
     fetch(`/api/reports?${params}`)
       .then((r) => r.json())
-      .then((d) => setData(d))
+      .then((d) => { if (d && d.topProducts) setData(d); })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, [startDate, endDate, brand]);
 

@@ -73,7 +73,10 @@ export default function DashboardPage() {
   useEffect(() => {
     fetch("/api/dashboard")
       .then((r) => r.json())
-      .then((d) => setData(d))
+      .then((d) => {
+        if (d && d.kpis) setData(d);
+      })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
