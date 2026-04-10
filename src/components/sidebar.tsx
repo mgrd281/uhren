@@ -16,12 +16,12 @@ import {
 import { useState } from "react";
 
 const nav = [
-  { href: "/dashboard", label: "لوحة التحكم", icon: LayoutDashboard },
-  { href: "/products", label: "المنتجات", icon: Watch },
-  { href: "/products/add", label: "إضافة منتج", icon: PlusCircle },
-  { href: "/sales", label: "المبيعات", icon: ShoppingBag },
-  { href: "/reports", label: "التقارير", icon: BarChart3 },
-  { href: "/settings", label: "الإعدادات", icon: Settings },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/products", label: "Produkte", icon: Watch },
+  { href: "/products/add", label: "Produkt hinzufügen", icon: PlusCircle },
+  { href: "/sales", label: "Verkäufe", icon: ShoppingBag },
+  { href: "/reports", label: "Berichte", icon: BarChart3 },
+  { href: "/settings", label: "Einstellungen", icon: Settings },
 ];
 
 export default function Sidebar() {
@@ -33,7 +33,7 @@ export default function Sidebar() {
       {/* Mobile toggle */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed top-4 start-4 z-50 flex h-10 w-10 items-center justify-center rounded-xl bg-white/80 shadow-lg backdrop-blur-md lg:hidden"
+        className="fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-xl bg-white/80 shadow-lg backdrop-blur-md lg:hidden"
         aria-label="toggle menu"
       >
         {open ? <X size={20} /> : <Menu size={20} />}
@@ -49,8 +49,8 @@ export default function Sidebar() {
 
       <aside
         className={cn(
-          "fixed inset-y-0 start-0 z-40 flex w-[260px] flex-col border-e border-zinc-100 bg-white/70 px-4 py-8 backdrop-blur-xl transition-transform duration-300 lg:translate-x-0",
-          open ? "translate-x-0" : "-translate-x-full rtl:translate-x-full"
+          "fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col border-r border-zinc-100 bg-white/70 px-4 py-8 backdrop-blur-xl transition-transform duration-300 lg:translate-x-0",
+          open ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Brand */}
@@ -61,9 +61,9 @@ export default function Sidebar() {
             </div>
             <div>
               <h1 className="text-sm font-bold tracking-tight text-zinc-900">
-                دار الساعات
+                Luxusuhren
               </h1>
-              <p className="text-[11px] text-zinc-400">نظام إدارة فاخر</p>
+              <p className="text-[11px] text-zinc-400">Verwaltungssystem</p>
             </div>
           </Link>
         </div>

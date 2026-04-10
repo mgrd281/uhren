@@ -1,25 +1,25 @@
 import { z } from "zod";
 
 export const productSchema = z.object({
-  name: z.string().min(1, "اسم المنتج مطلوب"),
-  brand: z.string().min(1, "العلامة التجارية مطلوبة"),
-  model: z.string().min(1, "الموديل مطلوب"),
-  sku: z.string().min(1, "رقم المنتج مطلوب"),
-  category: z.string().min(1, "الفئة مطلوبة"),
-  color: z.string().min(1, "اللون مطلوب"),
-  description: z.string().min(1, "الوصف مطلوب"),
-  costPrice: z.coerce.number().positive("سعر التكلفة يجب أن يكون أكبر من صفر"),
-  salePriceExpected: z.coerce.number().positive("سعر البيع المتوقع يجب أن يكون أكبر من صفر"),
-  quantity: z.coerce.number().int().min(0, "الكمية لا يمكن أن تكون سالبة"),
+  name: z.string().min(1, "Produktname ist erforderlich"),
+  brand: z.string().min(1, "Marke ist erforderlich"),
+  model: z.string().min(1, "Modell ist erforderlich"),
+  sku: z.string().min(1, "Artikelnummer ist erforderlich"),
+  category: z.string().min(1, "Kategorie ist erforderlich"),
+  color: z.string().min(1, "Farbe ist erforderlich"),
+  description: z.string().min(1, "Beschreibung ist erforderlich"),
+  costPrice: z.coerce.number().positive("Einkaufspreis muss größer als Null sein"),
+  salePriceExpected: z.coerce.number().positive("Verkaufspreis muss größer als Null sein"),
+  quantity: z.coerce.number().int().min(0, "Menge darf nicht negativ sein"),
   lowStockThreshold: z.coerce.number().int().min(0).default(2),
   mainImage: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
 });
 
 export const saleSchema = z.object({
-  productId: z.string().min(1, "المنتج مطلوب"),
-  quantitySold: z.coerce.number().int().positive("الكمية المباعة يجب أن تكون أكبر من صفر"),
-  salePrice: z.coerce.number().positive("سعر البيع يجب أن يكون أكبر من صفر"),
+  productId: z.string().min(1, "Produkt ist erforderlich"),
+  quantitySold: z.coerce.number().int().positive("Verkaufsmenge muss größer als Null sein"),
+  salePrice: z.coerce.number().positive("Verkaufspreis muss größer als Null sein"),
   customerName: z.string().optional().nullable(),
   invoiceNumber: z.string().optional().nullable(),
   soldAt: z.coerce.date().optional(),

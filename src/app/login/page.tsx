@@ -26,35 +26,35 @@ export default function LoginPage() {
             <Watch size={28} />
           </div>
           <h1 className="text-xl font-bold text-zinc-900">
-            دار الساعات الفاخرة
+            Luxusuhren Verwaltung
           </h1>
           <p className="mt-1 text-[13px] text-zinc-400">
-            سجّل دخولك للمتابعة
+            Melden Sie sich an, um fortzufahren
           </p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <Input
-            label="البريد الإلكتروني"
+            label="E-Mail"
             type="email"
             placeholder="admin@luxurywatch.ae"
             defaultValue="admin@luxurywatch.ae"
             required
           />
           <Input
-            label="كلمة المرور"
+            label="Passwort"
             type="password"
             placeholder="••••••••"
             defaultValue="password"
             required
           />
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "جاري الدخول..." : "تسجيل الدخول"}
+            {loading ? "Anmeldung..." : "Anmelden"}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-[11px] text-zinc-300">
-          demo mode — أي بيانات تعمل
+          Demo-Modus — beliebige Daten funktionieren
         </p>
       </Card>
     </div>

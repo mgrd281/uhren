@@ -14,7 +14,7 @@ export async function GET() {
   } catch {
     return NextResponse.json({
       id: "default",
-      storeName: "دار الساعات الفاخرة",
+      storeName: "Luxusuhren Verwaltung",
       locale: "ar",
       currencyCode: "AED",
       rtlEnabled: true,

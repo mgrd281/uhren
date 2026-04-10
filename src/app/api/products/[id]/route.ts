@@ -19,12 +19,12 @@ export async function GET(
     });
 
     if (!product) {
-      return NextResponse.json({ error: "المنتج غير موجود" }, { status: 404 });
+      return NextResponse.json({ error: "Produkt nicht gefunden" }, { status: 404 });
     }
 
     return NextResponse.json(product);
   } catch {
-    return NextResponse.json({ error: "خطأ في الاتصال بقاعدة البيانات" }, { status: 500 });
+    return NextResponse.json({ error: "Datenbankverbindungsfehler" }, { status: 500 });
   }
 }
 
@@ -44,7 +44,7 @@ export async function PATCH(
     const product = await updateProduct(id, parsed.data);
     return NextResponse.json(product);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "خطأ في الخادم";
+    const message = err instanceof Error ? err.message : "Serverfehler";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
@@ -61,6 +61,6 @@ export async function DELETE(
     await prisma.product.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({ error: "فشل حذف المنتج" }, { status: 500 });
+    return NextResponse.json({ error: "Löschen fehlgeschlagen" }, { status: 500 });
   }
 }

@@ -32,7 +32,7 @@ const CATEGORIES = [
   "Pilot",
   "Field",
   "Complications",
-  "أخرى",
+  "Sonstige",
 ];
 
 const BRANDS = [
@@ -46,7 +46,7 @@ const BRANDS = [
   "Jaeger-LeCoultre",
   "Vacheron Constantin",
   "A. Lange & Söhne",
-  "أخرى",
+  "Sonstige",
 ];
 
 export default function ProductForm({
@@ -96,12 +96,12 @@ export default function ProductForm({
       const data = await res.json();
       if (res.ok) {
         updateField("mainImage", data.url);
-        toast.success("تم رفع الصورة");
+        toast.success("Bild hochgeladen");
       } else {
-        toast.error(data.error || "فشل رفع الصورة");
+        toast.error(data.error || "Bild-Upload fehlgeschlagen");
       }
     } catch {
-      toast.error("فشل رفع الصورة");
+      toast.error("Bild-Upload fehlgeschlagen");
     } finally {
       setUploading(false);
     }
@@ -141,16 +141,16 @@ export default function ProductForm({
           }
           setErrors(fieldErrors);
         } else {
-          toast.error(data.error || "خطأ في الحفظ");
+          toast.error(data.error || "Speichern fehlgeschlagen");
         }
         setSaving(false);
         return;
       }
 
-      toast.success(isEdit ? "تم تحديث المنتج" : "تم إضافة المنتج");
+      toast.success(isEdit ? "Produkt aktualisiert" : "Produkt hinzugefügt");
       router.push(`/products/${data.id}`);
     } catch {
-      toast.error("خطأ في الاتصال بالخادم");
+      toast.error("Verbindungsfehler");
       setSaving(false);
     }
   }
@@ -158,11 +158,11 @@ export default function ProductForm({
   return (
     <div className="space-y-8">
       <PageHeader
-        title={isEdit ? "تعديل المنتج" : "إضافة منتج جديد"}
+        title={isEdit ? "Produkt bearbeiten" : "Neues Produkt hinzufügen"}
         description={
           isEdit
-            ? "قم بتحديث بيانات المنتج"
-            : "أضف ساعة جديدة إلى مخزونك"
+            ? "Produktdaten aktualisieren"
+            : "Fügen Sie eine neue Uhr zum Bestand hinzu"
         }
       />
 
@@ -170,60 +170,60 @@ export default function ProductForm({
         {/* Basic info */}
         <Card>
           <h3 className="mb-6 text-sm font-semibold text-zinc-700">
-            المعلومات الأساسية
+            Grundinformationen
           </h3>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <Input
-              label="اسم المنتج"
-              placeholder="مثال: Rolex Submariner"
+              label="Produktname"
+              placeholder="z.B. Rolex Submariner"
               value={form.name}
               onChange={(e) => updateField("name", e.target.value)}
               error={errors.name}
               required
             />
             <Select
-              label="العلامة التجارية"
+              label="Marke"
               value={form.brand}
               onChange={(e) => updateField("brand", e.target.value)}
               error={errors.brand}
               required
             >
-              <option value="">اختر العلامة التجارية</option>
+              <option value="">Marke auswählen</option>
               {BRANDS.map((b) => (
                 <option key={b} value={b}>{b}</option>
               ))}
             </Select>
             <Input
-              label="الموديل"
-              placeholder="مثال: 126610LN"
+              label="Modell"
+              placeholder="z.B. 126610LN"
               value={form.model}
               onChange={(e) => updateField("model", e.target.value)}
               error={errors.model}
               required
             />
             <Input
-              label="رقم المنتج (SKU)"
-              placeholder="مثال: RLX-SUB-001"
+              label="Artikelnummer (SKU)"
+              placeholder="z.B. RLX-SUB-001"
               value={form.sku}
               onChange={(e) => updateField("sku", e.target.value)}
               error={errors.sku}
               required
             />
             <Select
-              label="الفئة"
+              label="Kategorie"
               value={form.category}
               onChange={(e) => updateField("category", e.target.value)}
               error={errors.category}
               required
             >
-              <option value="">اختر الفئة</option>
+              <option value="">Kategorie auswählen</option>
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </Select>
             <Input
-              label="اللون"
-              placeholder="مثال: أسود"
+              label="Farbe"
+              placeholder="z.B. Schwarz"
               value={form.color}
               onChange={(e) => updateField("color", e.target.value)}
               error={errors.color}
@@ -232,8 +232,8 @@ export default function ProductForm({
           </div>
           <div className="mt-5">
             <Textarea
-              label="الوصف"
-              placeholder="وصف تفصيلي للساعة..."
+              label="Beschreibung"
+              placeholder="Detaillierte Beschreibung der Uhr..."
               value={form.description}
               onChange={(e) => updateField("description", e.target.value)}
               error={errors.description}
@@ -245,11 +245,11 @@ export default function ProductForm({
         {/* Pricing + stock */}
         <Card>
           <h3 className="mb-6 text-sm font-semibold text-zinc-700">
-            التسعير والمخزون
+            Preise und Bestand
           </h3>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <Input
-              label="سعر التكلفة (AED)"
+              label="Einkaufspreis (EUR)"
               type="number"
               min="0"
               step="0.01"
@@ -259,7 +259,7 @@ export default function ProductForm({
               required
             />
             <Input
-              label="سعر البيع المتوقع (AED)"
+              label="Erwarteter VK-Preis (EUR)"
               type="number"
               min="0"
               step="0.01"
@@ -271,7 +271,7 @@ export default function ProductForm({
               required
             />
             <Input
-              label="الكمية"
+              label="Menge"
               type="number"
               min="0"
               value={form.quantity}
@@ -280,7 +280,7 @@ export default function ProductForm({
               required
             />
             <Input
-              label="حد التنبيه (مخزون منخفض)"
+              label="Warngrenze (niedriger Bestand)"
               type="number"
               min="0"
               value={form.lowStockThreshold}
@@ -294,7 +294,7 @@ export default function ProductForm({
         {/* Image */}
         <Card>
           <h3 className="mb-6 text-sm font-semibold text-zinc-700">
-            صورة المنتج
+            Produktbild
           </h3>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
             {form.mainImage && (
@@ -317,7 +317,7 @@ export default function ProductForm({
             )}
             <div>
               <Input
-                label="رابط الصورة (URL)"
+                label="Bild-URL"
                 placeholder="https://..."
                 value={form.mainImage}
                 onChange={(e) => updateField("mainImage", e.target.value)}
@@ -325,7 +325,7 @@ export default function ProductForm({
               <div className="mt-3">
                 <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-zinc-200 px-4 py-2 text-[12px] font-medium text-zinc-600 transition-colors hover:bg-zinc-50">
                   <Upload size={14} />
-                  {uploading ? "جاري الرفع..." : "رفع صورة"}
+                  {uploading ? "Wird hochgeladen..." : "Bild hochladen"}
                   <input
                     type="file"
                     accept="image/*"
@@ -342,8 +342,8 @@ export default function ProductForm({
         {/* Notes */}
         <Card>
           <Textarea
-            label="ملاحظات"
-            placeholder="ملاحظات داخلية..."
+            label="Notizen"
+            placeholder="Interne Notizen..."
             value={form.notes}
             onChange={(e) => updateField("notes", e.target.value)}
           />
@@ -356,15 +356,15 @@ export default function ProductForm({
             variant="ghost"
             onClick={() => router.back()}
           >
-            إلغاء
+            Abbrechen
           </Button>
           <Button type="submit" disabled={saving}>
             <Save size={16} />
             {saving
-              ? "جاري الحفظ..."
+              ? "Speichern..."
               : isEdit
-              ? "حفظ التعديلات"
-              : "إضافة المنتج"}
+              ? "Änderungen speichern"
+              : "Produkt hinzufügen"}
           </Button>
         </div>
       </form>

@@ -90,14 +90,14 @@ export default function ProductDetailPage({
   }, [id]);
 
   async function handleDelete() {
-    if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
+    if (!confirm("Sind Sie sicher, dass Sie dieses Produkt löschen möchten?")) return;
     setDeleting(true);
     const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
     if (res.ok) {
-      toast.success("تم حذف المنتج");
+      toast.success("Produkt gelöscht");
       router.push("/products");
     } else {
-      toast.error("فشل حذف المنتج");
+      toast.error("Löschen fehlgeschlagen");
       setDeleting(false);
     }
   }
@@ -113,7 +113,7 @@ export default function ProductDetailPage({
 
   if (!product) {
     return (
-      <div className="py-20 text-center text-zinc-400">المنتج غير موجود</div>
+      <div className="py-20 text-center text-zinc-400">Produkt nicht gefunden</div>
     );
   }
 
@@ -138,7 +138,7 @@ export default function ProductDetailPage({
             <Link href={`/products/${id}/edit`}>
               <Button variant="secondary" size="sm">
                 <Edit size={14} />
-                تعديل
+                Bearbeiten
               </Button>
             </Link>
             <Button
@@ -148,7 +148,7 @@ export default function ProductDetailPage({
               disabled={deleting}
             >
               <Trash2 size={14} />
-              حذف
+              Löschen
             </Button>
           </div>
         }
@@ -217,25 +217,25 @@ export default function ProductDetailPage({
 
           <div className="grid grid-cols-2 gap-4">
             <Card className="!p-4">
-              <p className="text-[11px] text-zinc-400">سعر التكلفة</p>
+              <p className="text-[11px] text-zinc-400">Einkaufspreis</p>
               <p className="text-lg font-bold text-zinc-900">
                 {formatCurrency(product.costPrice)}
               </p>
             </Card>
             <Card className="!p-4">
-              <p className="text-[11px] text-zinc-400">سعر البيع المتوقع</p>
+              <p className="text-[11px] text-zinc-400">Erwarteter VK-Preis</p>
               <p className="text-lg font-bold text-zinc-900">
                 {formatCurrency(product.salePriceExpected)}
               </p>
             </Card>
             <Card className="!p-4">
-              <p className="text-[11px] text-zinc-400">المخزون الحالي</p>
+              <p className="text-[11px] text-zinc-400">Aktueller Bestand</p>
               <p className="text-lg font-bold text-zinc-900">
-                {formatNumber(product.quantity)} قطعة
+                {formatNumber(product.quantity)} Stück
               </p>
             </Card>
             <Card className="!p-4">
-              <p className="text-[11px] text-zinc-400">قيمة المخزون</p>
+              <p className="text-[11px] text-zinc-400">Bestandswert</p>
               <p className="text-lg font-bold text-zinc-900">
                 {formatCurrency(inventoryValue)}
               </p>
@@ -244,19 +244,19 @@ export default function ProductDetailPage({
 
           <div className="grid grid-cols-3 gap-4">
             <div className="rounded-xl bg-zinc-50 p-4 text-center">
-              <p className="text-[11px] text-zinc-400">إجمالي الإيرادات</p>
+              <p className="text-[11px] text-zinc-400">Gesamtumsatz</p>
               <p className="mt-1 text-sm font-bold text-zinc-900">
                 {formatCurrency(totalSalesRevenue)}
               </p>
             </div>
             <div className="rounded-xl bg-emerald-50 p-4 text-center">
-              <p className="text-[11px] text-emerald-600">الأرباح المحققة</p>
+              <p className="text-[11px] text-emerald-600">Realisierter Gewinn</p>
               <p className="mt-1 text-sm font-bold text-emerald-700">
                 {formatCurrency(totalSalesProfit)}
               </p>
             </div>
             <div className="rounded-xl bg-blue-50 p-4 text-center">
-              <p className="text-[11px] text-blue-600">القيمة المتوقعة</p>
+              <p className="text-[11px] text-blue-600">Erwarteter Wert</p>
               <p className="mt-1 text-sm font-bold text-blue-700">
                 {formatCurrency(expectedValue)}
               </p>
@@ -265,17 +265,17 @@ export default function ProductDetailPage({
 
           {product.notes && (
             <div className="rounded-xl border border-zinc-100 p-4">
-              <p className="text-[11px] font-medium text-zinc-400">ملاحظات</p>
+              <p className="text-[11px] font-medium text-zinc-400">Notizen</p>
               <p className="mt-1 text-[13px] text-zinc-600">{product.notes}</p>
             </div>
           )}
 
           <div className="flex flex-wrap gap-3 text-[12px] text-zinc-400">
-            <span>الفئة: {product.category}</span>
+            <span>Kategorie: {product.category}</span>
             <span>·</span>
-            <span>اللون: {product.color}</span>
+            <span>Farbe: {product.color}</span>
             <span>·</span>
-            <span>حد التنبيه: {product.lowStockThreshold}</span>
+            <span>Warngrenze: {product.lowStockThreshold}</span>
           </div>
         </div>
       </div>
@@ -285,13 +285,13 @@ export default function ProductDetailPage({
         <div className="mb-6 flex items-center gap-2">
           <ShoppingBag size={18} className="text-zinc-400" />
           <h3 className="text-sm font-semibold text-zinc-700">
-            سجل المبيعات ({product.sales.length})
+            Verkaufshistorie ({product.sales.length})
           </h3>
         </div>
 
         {product.sales.length === 0 ? (
           <p className="py-8 text-center text-[13px] text-zinc-400">
-            لا توجد مبيعات لهذا المنتج بعد
+            Noch keine Verkäufe für dieses Produkt
           </p>
         ) : (
           <div className="relative space-y-0">
@@ -310,7 +310,7 @@ export default function ProductDetailPage({
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
                       <p className="text-[13px] font-medium text-zinc-800">
-                        {sale.quantitySold} قطعة × {formatCurrency(sale.salePrice)}
+                        {sale.quantitySold} Stück × {formatCurrency(sale.salePrice)}
                       </p>
                       <p className="text-[11px] text-zinc-400">
                         {formatDateTime(sale.soldAt)}
@@ -337,16 +337,16 @@ export default function ProductDetailPage({
       {/* Inventory movements */}
       <Card>
         <h3 className="mb-4 text-sm font-semibold text-zinc-700">
-          حركات المخزون
+          Bestandsbewegungen
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-zinc-100 text-[11px] text-zinc-400">
-                <th className="py-3 font-medium text-start">النوع</th>
-                <th className="py-3 font-medium text-start">الكمية</th>
-                <th className="py-3 font-medium text-start">ملاحظة</th>
-                <th className="py-3 font-medium text-start">التاريخ</th>
+                <th className="py-3 font-medium text-start">Typ</th>
+                <th className="py-3 font-medium text-start">Menge</th>
+                <th className="py-3 font-medium text-start">Notiz</th>
+                <th className="py-3 font-medium text-start">Datum</th>
               </tr>
             </thead>
             <tbody>

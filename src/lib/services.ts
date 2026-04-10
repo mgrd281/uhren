@@ -37,7 +37,7 @@ export async function createProduct(data: {
         productId: product.id,
         type: MovementType.ADD,
         quantity: data.quantity,
-        note: "المخزون الأولي",
+        note: "Anfangsbestand",
       },
     });
   }
@@ -82,7 +82,7 @@ export async function updateProduct(
         productId: id,
         type: diff > 0 ? MovementType.ADD : MovementType.ADJUSTMENT,
         quantity: Math.abs(diff),
-        note: diff > 0 ? "زيادة مخزون يدوية" : "تعديل مخزون يدوي",
+        note: diff > 0 ? "Manuelle Bestandserhöhung" : "Manuelle Bestandsanpassung",
       },
     });
   }
@@ -105,7 +105,7 @@ export async function createSale(data: {
 
   if (product.quantity < data.quantitySold) {
     throw new Error(
-      `الكمية المتاحة (${product.quantity}) أقل من الكمية المطلوبة (${data.quantitySold})`
+      `Verfügbare Menge (${product.quantity}) ist geringer als angeforderte Menge (${data.quantitySold})`
     );
   }
 
@@ -139,7 +139,7 @@ export async function createSale(data: {
       type: MovementType.SALE,
       quantity: data.quantitySold,
       referenceId: sale.id,
-      note: `بيع - فاتورة ${data.invoiceNumber ?? "بدون رقم"}`,
+      note: `Verkauf - Rechnung ${data.invoiceNumber ?? "ohne Nummer"}`,
     },
   });
 
@@ -188,7 +188,7 @@ export async function getDashboardData() {
       0
     );
     salesOverTime.push({
-      month: d.toLocaleDateString("ar-AE", { month: "short", year: "numeric" }),
+      month: d.toLocaleDateString("de-DE", { month: "short", year: "numeric" }),
       revenue,
       profit,
     });

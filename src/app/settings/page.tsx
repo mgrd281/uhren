@@ -34,12 +34,12 @@ export default function SettingsPage() {
         body: JSON.stringify(settings),
       });
       if (res.ok) {
-        toast.success("تم حفظ الإعدادات");
+        toast.success("Einstellungen gespeichert");
       } else {
-        toast.error("فشل حفظ الإعدادات");
+        toast.error("Speichern fehlgeschlagen");
       }
     } catch {
-      toast.error("خطأ في الاتصال");
+      toast.error("Verbindungsfehler");
     } finally {
       setSaving(false);
     }
@@ -59,17 +59,17 @@ export default function SettingsPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        title="الإعدادات"
-        description="إعدادات المتجر والنظام"
+        title="Einstellungen"
+        description="Shop- und Systemeinstellungen"
       />
 
       <Card className="max-w-2xl">
         <h3 className="mb-6 text-sm font-semibold text-zinc-700">
-          معلومات المتجر
+          Shop-Informationen
         </h3>
         <div className="space-y-5">
           <Input
-            label="اسم المتجر"
+            label="Shop-Name"
             value={settings.storeName}
             onChange={(e) =>
               setSettings((s) => s && { ...s, storeName: e.target.value })
@@ -77,14 +77,14 @@ export default function SettingsPage() {
           />
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="اللغة"
+              label="Sprache"
               value={settings.locale}
               onChange={(e) =>
                 setSettings((s) => s && { ...s, locale: e.target.value })
               }
             />
             <Input
-              label="العملة"
+              label="Währung"
               value={settings.currencyCode}
               onChange={(e) =>
                 setSettings((s) => s && { ...s, currencyCode: e.target.value })
@@ -101,14 +101,14 @@ export default function SettingsPage() {
               className="h-4 w-4 rounded border-zinc-300"
             />
             <span className="text-[13px] text-zinc-700">
-              تفعيل الاتجاه من اليمين لليسار (RTL)
+              Rechts-nach-Links-Richtung aktivieren (RTL)
             </span>
           </label>
         </div>
         <div className="mt-8 flex justify-end">
           <Button onClick={handleSave} disabled={saving}>
             <Save size={16} />
-            {saving ? "جاري الحفظ..." : "حفظ الإعدادات"}
+            {saving ? "Speichern..." : "Einstellungen speichern"}
           </Button>
         </div>
       </Card>

@@ -57,31 +57,31 @@ export default function ReportsPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        title="التقارير"
-        description="تحليل أداء المبيعات والمنتجات"
+        title="Berichte"
+        description="Verkaufs- und Produktanalyse"
       />
 
       {/* Filters */}
       <Card>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Input
-            label="من تاريخ"
+            label="Von Datum"
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
           />
           <Input
-            label="إلى تاريخ"
+            label="Bis Datum"
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
           />
           <Select
-            label="العلامة التجارية"
+            label="Marke"
             value={brand}
             onChange={(e) => setBrand(e.target.value)}
           >
-            <option value="">الكل</option>
+            <option value="">Alle</option>
             {data?.brands.map((b) => (
               <option key={b} value={b}>
                 {b}
@@ -102,21 +102,21 @@ export default function ReportsPage() {
           {/* KPIs */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Card className="text-center">
-              <p className="text-[12px] text-zinc-400">إجمالي الإيرادات</p>
+              <p className="text-[12px] text-zinc-400">Gesamtumsatz</p>
               <p className="mt-2 text-2xl font-bold text-zinc-900">
                 {formatCurrency(data.revenue)}
               </p>
               <p className="mt-1 text-[11px] text-zinc-400">
-                {formatNumber(data.salesCount)} عملية بيع
+                {formatNumber(data.salesCount)} Verkäufe
               </p>
             </Card>
             <Card className="text-center">
-              <p className="text-[12px] text-zinc-400">إجمالي الأرباح</p>
+              <p className="text-[12px] text-zinc-400">Gesamtgewinn</p>
               <p className="mt-2 text-2xl font-bold text-emerald-700">
                 {formatCurrency(data.profit)}
               </p>
               <p className="mt-1 text-[11px] text-zinc-400">
-                هامش الربح:{" "}
+                Gewinnmarge:{" "}
                 {data.revenue > 0
                   ? ((data.profit / data.revenue) * 100).toFixed(1)
                   : 0}
@@ -124,7 +124,7 @@ export default function ReportsPage() {
               </p>
             </Card>
             <Card className="text-center">
-              <p className="text-[12px] text-zinc-400">متوسط قيمة البيع</p>
+              <p className="text-[12px] text-zinc-400">Durchschn. Verkaufswert</p>
               <p className="mt-2 text-2xl font-bold text-zinc-900">
                 {data.salesCount > 0
                   ? formatCurrency(data.revenue / data.salesCount)
@@ -137,7 +137,7 @@ export default function ReportsPage() {
           {data.topProducts.length > 0 && (
             <Card>
               <h3 className="mb-6 text-sm font-semibold text-zinc-700">
-                أفضل المنتجات
+                Top-Produkte
               </h3>
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
@@ -159,13 +159,13 @@ export default function ReportsPage() {
                       dataKey="revenue"
                       fill="#18181b"
                       radius={[6, 6, 0, 0]}
-                      name="إيرادات"
+                      name="Umsatz"
                     />
                     <Bar
                       dataKey="profit"
                       fill="#10b981"
                       radius={[6, 6, 0, 0]}
-                      name="أرباح"
+                      name="Gewinn"
                     />
                   </BarChart>
                 </ResponsiveContainer>
@@ -178,16 +178,16 @@ export default function ReportsPage() {
             {/* Top products table */}
             <Card>
               <h3 className="mb-4 text-sm font-semibold text-zinc-700">
-                المنتجات الأكثر مبيعاً
+                Meistverkaufte Produkte
               </h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-[13px]">
                   <thead>
                     <tr className="border-b border-zinc-100 text-[11px] text-zinc-400">
-                      <th className="py-2 text-start font-medium">المنتج</th>
-                      <th className="py-2 text-start font-medium">المبيعات</th>
-                      <th className="py-2 text-start font-medium">الإيرادات</th>
-                      <th className="py-2 text-start font-medium">الأرباح</th>
+                      <th className="py-2 text-start font-medium">Produkt</th>
+                      <th className="py-2 text-start font-medium">Verkäufe</th>
+                      <th className="py-2 text-start font-medium">Umsatz</th>
+                      <th className="py-2 text-start font-medium">Gewinn</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -217,15 +217,15 @@ export default function ReportsPage() {
             {/* Slow movers */}
             <Card>
               <h3 className="mb-4 text-sm font-semibold text-zinc-700">
-                المنتجات بطيئة الحركة
+                Langsam verkaufte Produkte
               </h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-[13px]">
                   <thead>
                     <tr className="border-b border-zinc-100 text-[11px] text-zinc-400">
-                      <th className="py-2 text-start font-medium">المنتج</th>
-                      <th className="py-2 text-start font-medium">المبيعات</th>
-                      <th className="py-2 text-start font-medium">المخزون</th>
+                      <th className="py-2 text-start font-medium">Produkt</th>
+                      <th className="py-2 text-start font-medium">Verkäufe</th>
+                      <th className="py-2 text-start font-medium">Bestand</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -240,7 +240,7 @@ export default function ReportsPage() {
                         </td>
                         <td className="py-2.5">
                           {p.totalSold === 0 ? (
-                            <span className="text-red-500">لا مبيعات</span>
+                            <span className="text-red-500">Keine Verkäufe</span>
                           ) : (
                             p.totalSold
                           )}

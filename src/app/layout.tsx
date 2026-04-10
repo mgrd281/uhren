@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "دار الساعات الفاخرة",
-  description: "نظام إدارة المخزون والمبيعات للساعات الفاخرة",
+  title: "Luxusuhren Verwaltung",
+  description: "Bestands- und Verkaufsverwaltung für Luxusuhren",
 };
 
 export default function RootLayout({
@@ -27,20 +27,20 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="ar"
-      dir="rtl"
+      lang="de"
+      dir="ltr"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[#fafafa]">
         <SettingsProvider>
           <Sidebar />
-          <main className="min-h-screen transition-all duration-300 lg:ps-[260px]">
+          <main className="min-h-screen transition-all duration-300 lg:pl-[260px]">
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
               {children}
             </div>
           </main>
           <Toaster
-            position="bottom-left"
+            position="bottom-right"
             toastOptions={{
               className:
                 "!rounded-xl !border-zinc-100 !shadow-lg !text-[13px]",

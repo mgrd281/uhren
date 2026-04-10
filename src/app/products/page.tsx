@@ -43,13 +43,13 @@ export default function ProductsPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        title="المنتجات"
-        description={`${products.length} منتج في المخزون`}
+        title="Produkte"
+        description={`${products.length} Produkte im Bestand`}
         actions={
           <Link href="/products/add">
             <Button>
               <Plus size={16} />
-              إضافة منتج
+              Produkt hinzufügen
             </Button>
           </Link>
         }
@@ -57,7 +57,7 @@ export default function ProductsPage() {
 
       <div className="max-w-md">
         <Input
-          placeholder="بحث بالاسم، العلامة التجارية، أو SKU..."
+          placeholder="Suche nach Name, Marke oder SKU..."
           value={search}
           onChange={(e) => {
             setLoading(true);
@@ -76,13 +76,13 @@ export default function ProductsPage() {
       ) : products.length === 0 ? (
         <EmptyState
           icon={<Watch size={48} />}
-          title="لا توجد منتجات"
-          description="ابدأ بإضافة أول ساعة إلى مخزونك"
+          title="Keine Produkte"
+          description="Fügen Sie Ihre erste Uhr zum Bestand hinzu"
           action={
             <Link href="/products/add">
               <Button>
                 <Plus size={16} />
-                إضافة منتج
+                Produkt hinzufügen
               </Button>
             </Link>
           }
@@ -131,13 +131,13 @@ export default function ProductsPage() {
 
                 <div className="mt-4 flex items-end justify-between">
                   <div>
-                    <p className="text-[11px] text-zinc-400">سعر البيع</p>
+                    <p className="text-[11px] text-zinc-400">Verkaufspreis</p>
                     <p className="text-lg font-bold text-zinc-900">
                       {formatCurrency(p.salePriceExpected)}
                     </p>
                   </div>
                   <div className="text-left">
-                    <p className="text-[11px] text-zinc-400">المخزون</p>
+                    <p className="text-[11px] text-zinc-400">Bestand</p>
                     <p className="text-lg font-bold text-zinc-900">
                       {p.quantity}
                     </p>

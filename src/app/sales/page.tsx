@@ -97,12 +97,12 @@ export default function SalesPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        toast.error(data.error || "فشل تسجيل البيع");
+        toast.error(data.error || "Verkauf fehlgeschlagen");
         setSaving(false);
         return;
       }
 
-      toast.success("تم تسجيل البيع بنجاح");
+      toast.success("Verkauf erfolgreich erfasst");
       setShowForm(false);
       setForm({
         productId: "",
@@ -121,7 +121,7 @@ export default function SalesPage() {
       setSales(s);
       setProducts(p);
     } catch {
-      toast.error("خطأ في الاتصال بالخادم");
+      toast.error("Verbindungsfehler");
     } finally {
       setSaving(false);
     }
@@ -132,12 +132,12 @@ export default function SalesPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        title="المبيعات"
-        description={`${sales.length} عملية بيع مسجلة`}
+        title="Verkäufe"
+        description={`${sales.length} registrierte Verkäufe`}
         actions={
           <Button onClick={() => setShowForm(!showForm)}>
             {showForm ? <X size={16} /> : <Plus size={16} />}
-            {showForm ? "إلغاء" : "تسجيل بيع جديد"}
+            {showForm ? "Abbrechen" : "Neuen Verkauf erfassen"}
           </Button>
         }
       />
@@ -146,27 +146,27 @@ export default function SalesPage() {
       {showForm && (
         <Card className="border-zinc-200 shadow-md">
           <h3 className="mb-6 text-sm font-semibold text-zinc-700">
-            تسجيل بيع جديد
+            Neuen Verkauf erfassen
           </h3>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               <Select
-                label="المنتج"
+                label="Produkt"
                 value={form.productId}
                 onChange={(e) => onProductSelect(e.target.value)}
                 required
               >
-                <option value="">اختر المنتج</option>
+                <option value="">Produkt auswählen</option>
                 {products
                   .filter((p) => p.quantity > 0)
                   .map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.brand} - {p.name} (متوفر: {p.quantity})
+                      {p.brand} - {p.name} (verfügbar: {p.quantity})
                     </option>
                   ))}
               </Select>
               <Input
-                label="الكمية"
+                label="Menge"
                 type="number"
                 min="1"
                 max={selectedProduct?.quantity ?? 999}
@@ -177,7 +177,7 @@ export default function SalesPage() {
                 required
               />
               <Input
-                label="سعر البيع (AED)"
+                label="Verkaufspreis (EUR)"
                 type="number"
                 min="0"
                 step="0.01"
@@ -188,14 +188,14 @@ export default function SalesPage() {
                 required
               />
               <Input
-                label="اسم العميل (اختياري)"
+                label="Kundenname (optional)"
                 value={form.customerName}
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, customerName: e.target.value }))
                 }
               />
               <Input
-                label="رقم الفاتورة (اختياري)"
+                label="Rechnungsnr. (optional)"
                 value={form.invoiceNumber}
                 onChange={(e) =>
                   setForm((prev) => ({
@@ -206,7 +206,7 @@ export default function SalesPage() {
               />
             </div>
             <Textarea
-              label="ملاحظات"
+              label="Notizen"
               value={form.notes}
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, notes: e.target.value }))
@@ -215,9 +215,9 @@ export default function SalesPage() {
 
             {selectedProduct && form.salePrice && (
               <div className="rounded-xl bg-zinc-50 p-4">
-                <p className="text-[12px] text-zinc-400">ملخص العملية</p>
+                <p className="text-[12px] text-zinc-400">Zusammenfassung</p>
                 <p className="mt-1 text-lg font-bold text-zinc-900">
-                  الإجمالي:{" "}
+                  Gesamt:{" "}
                   {formatCurrency(
                     parseInt(form.quantitySold) * parseFloat(form.salePrice)
                   )}
@@ -227,7 +227,7 @@ export default function SalesPage() {
 
             <div className="flex justify-end">
               <Button type="submit" disabled={saving}>
-                {saving ? "جاري التسجيل..." : "تسجيل البيع"}
+                {saving ? "Wird erfasst..." : "Verkauf erfassen"}
               </Button>
             </div>
           </form>
@@ -244,8 +244,8 @@ export default function SalesPage() {
       ) : sales.length === 0 ? (
         <EmptyState
           icon={<ShoppingBag size={48} />}
-          title="لا توجد مبيعات"
-          description="قم بتسجيل أول عملية بيع"
+          title="Keine Verkäufe"
+          description="Erfassen Sie Ihren ersten Verkauf"
         />
       ) : (
         <div className="space-y-3">
@@ -262,7 +262,7 @@ export default function SalesPage() {
                   {sale.product.name}
                 </Link>
                 <p className="mt-0.5 text-[12px] text-zinc-400">
-                  {sale.product.brand} · {sale.quantitySold} قطعة ×{" "}
+                  {sale.product.brand} · {sale.quantitySold} Stück ×{" "}
                   {formatCurrency(sale.salePrice)}
                 </p>
                 <p className="text-[11px] text-zinc-400">

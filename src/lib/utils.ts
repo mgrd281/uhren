@@ -5,8 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatCurrency(value: number, currency = "AED") {
-  return new Intl.NumberFormat("ar-AE", {
+export function formatCurrency(value: number, currency = "EUR") {
+  return new Intl.NumberFormat("de-DE", {
     style: "currency",
     currency,
     minimumFractionDigits: 0,
@@ -15,11 +15,11 @@ export function formatCurrency(value: number, currency = "AED") {
 }
 
 export function formatNumber(value: number) {
-  return new Intl.NumberFormat("ar-AE").format(value);
+  return new Intl.NumberFormat("de-DE").format(value);
 }
 
 export function formatDate(date: Date | string) {
-  return new Intl.DateTimeFormat("ar-AE", {
+  return new Intl.DateTimeFormat("de-DE", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -27,7 +27,7 @@ export function formatDate(date: Date | string) {
 }
 
 export function formatDateTime(date: Date | string) {
-  return new Intl.DateTimeFormat("ar-AE", {
+  return new Intl.DateTimeFormat("de-DE", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -38,9 +38,9 @@ export function formatDateTime(date: Date | string) {
 
 export function stockStatusLabel(status: string) {
   const map: Record<string, string> = {
-    IN_STOCK: "متوفر",
-    LOW_STOCK: "مخزون منخفض",
-    OUT_OF_STOCK: "نفد المخزون",
+    IN_STOCK: "Auf Lager",
+    LOW_STOCK: "Niedriger Bestand",
+    OUT_OF_STOCK: "Ausverkauft",
   };
   return map[status] ?? status;
 }
@@ -56,9 +56,9 @@ export function stockStatusColor(status: string) {
 
 export function movementTypeLabel(type: string) {
   const map: Record<string, string> = {
-    ADD: "إضافة",
-    SALE: "بيع",
-    ADJUSTMENT: "تعديل",
+    ADD: "Hinzugefügt",
+    SALE: "Verkauf",
+    ADJUSTMENT: "Anpassung",
   };
   return map[type] ?? type;
 }

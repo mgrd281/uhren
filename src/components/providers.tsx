@@ -10,10 +10,10 @@ interface StoreSettings {
 }
 
 const defaults: StoreSettings = {
-  storeName: "دار الساعات الفاخرة",
-  locale: "ar",
-  currencyCode: "AED",
-  rtlEnabled: true,
+  storeName: "Luxusuhren Verwaltung",
+  locale: "de",
+  currencyCode: "EUR",
+  rtlEnabled: false,
 };
 
 const Ctx = createContext<StoreSettings>(defaults);

@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const sale = await createSale(parsed.data);
     return NextResponse.json(sale, { status: 201 });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "خطأ في الخادم";
+    const message = err instanceof Error ? err.message : "Serverfehler";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
