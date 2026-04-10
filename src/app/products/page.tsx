@@ -24,6 +24,7 @@ interface Product {
   status: string;
   mainImage: string | null;
   _count: { sales: number };
+  totalRevenue: number;
 }
 
 export default function ProductsPage() {
@@ -144,6 +145,17 @@ export default function ProductsPage() {
                     </p>
                   </div>
                 </div>
+
+                {p._count.sales > 0 && (
+                  <div className="mt-3 flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-2">
+                    <span className="text-[12px] font-medium text-emerald-700">
+                      {p._count.sales} {p._count.sales === 1 ? "Verkauf" : "Verkäufe"}
+                    </span>
+                    <span className="text-[13px] font-bold text-emerald-700">
+                      {formatCurrency(p.totalRevenue)}
+                    </span>
+                  </div>
+                )}
               </div>
             </Link>
           ))}

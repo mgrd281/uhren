@@ -24,11 +24,20 @@ export async function GET(request: NextRequest) {
 
     const products = await prisma.product.findMany({
       where,
-      include: { _count: { select: { sales: true } } },
+      include: {
+        _count: { select: { sales: true } },
+        sales: { select: { totalAmount: true } },
+      },
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(products);
+    const result = products.map((p) => {
+      const totalRevenue = p.sales.reduce((s, sale) => s + sale.totalAmount, 0);
+      const { sales, ...rest } = p;
+      return { ...rest, totalRevenue };
+    });
+
+    return NextResponse.json(result);
   } catch {
     return NextResponse.json([]);
   }
