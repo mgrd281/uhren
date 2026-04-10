@@ -164,7 +164,7 @@ export default function ProductDetailPage({
                 src={product.mainImage}
                 alt={product.name}
                 fill
-                className="object-cover"
+                className="object-contain p-6"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 priority
                 unoptimized={product.mainImage.startsWith("data:")}
