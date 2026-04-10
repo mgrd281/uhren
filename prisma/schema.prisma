@@ -18,6 +18,7 @@ enum MovementType {
   ADD
   SALE
   ADJUSTMENT
+  SHIPPING
 }
 
 model Product {

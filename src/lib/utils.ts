@@ -59,6 +59,7 @@ export function movementTypeLabel(type: string) {
     ADD: "Hinzugefügt",
     SALE: "Verkauf",
     ADJUSTMENT: "Anpassung",
+    SHIPPING: "Versand",
   };
   return map[type] ?? type;
 }
