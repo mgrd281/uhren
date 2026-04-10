@@ -91,6 +91,8 @@ export default function ProductDetailPage({
     soldAt: "",
   });
   const [saleSaving, setSaleSaving] = useState(false);
+  const [editingField, setEditingField] = useState<"costPrice" | "salePriceExpected" | null>(null);
+  const [editValue, setEditValue] = useState("");
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -103,6 +105,24 @@ export default function ProductDetailPage({
     fetch(`/api/products/${id}`)
       .then((r) => r.json())
       .then((d) => setProduct(d));
+  }
+
+  async function savePrice() {
+    if (!editingField || !product) return;
+    const val = parseFloat(editValue);
+    if (isNaN(val) || val < 0) { toast.error("Ungültiger Preis"); return; }
+    const res = await fetch(`/api/products/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ [editingField]: val }),
+    });
+    if (res.ok) {
+      toast.success("Preis gespeichert");
+      setEditingField(null);
+      reloadProduct();
+    } else {
+      toast.error("Fehler beim Speichern");
+    }
   }
 
   async function handleSale(e: React.FormEvent) {
@@ -294,18 +314,58 @@ export default function ProductDetailPage({
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Card className="!p-4">
-              <p className="text-[11px] text-zinc-400">Einkaufspreis</p>
-              <p className="text-lg font-bold text-zinc-900">
-                {formatCurrency(product.costPrice)}
-              </p>
-            </Card>
-            <Card className="!p-4">
-              <p className="text-[11px] text-zinc-400">Erwarteter VK-Preis</p>
-              <p className="text-lg font-bold text-zinc-900">
-                {formatCurrency(product.salePriceExpected)}
-              </p>
-            </Card>
+            <div
+              className="rounded-xl border border-zinc-100 bg-white p-4 cursor-pointer transition-colors hover:border-amber-200 hover:bg-amber-50/30"
+              onClick={() => { setEditingField("costPrice"); setEditValue(String(product.costPrice)); }}
+            >
+              <p className="text-[11px] text-zinc-400">Einkaufspreis <span className="text-amber-500">✎</span></p>
+              {editingField === "costPrice" ? (
+                <form onSubmit={(e) => { e.preventDefault(); savePrice(); }} className="mt-1 flex gap-2">
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    autoFocus
+                    className="w-full rounded-lg border border-zinc-200 px-2 py-1 text-lg font-bold text-zinc-900 focus:border-amber-400 focus:outline-none"
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => { if (e.key === "Escape") setEditingField(null); }}
+                  />
+                  <button type="submit" onClick={(e) => e.stopPropagation()} className="rounded-lg bg-zinc-900 px-3 py-1 text-xs font-medium text-white hover:bg-zinc-700">OK</button>
+                </form>
+              ) : (
+                <p className="text-lg font-bold text-zinc-900">
+                  {formatCurrency(product.costPrice)}
+                </p>
+              )}
+            </div>
+            <div
+              className="rounded-xl border border-zinc-100 bg-white p-4 cursor-pointer transition-colors hover:border-amber-200 hover:bg-amber-50/30"
+              onClick={() => { setEditingField("salePriceExpected"); setEditValue(String(product.salePriceExpected)); }}
+            >
+              <p className="text-[11px] text-zinc-400">Erwarteter VK-Preis <span className="text-amber-500">✎</span></p>
+              {editingField === "salePriceExpected" ? (
+                <form onSubmit={(e) => { e.preventDefault(); savePrice(); }} className="mt-1 flex gap-2">
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    autoFocus
+                    className="w-full rounded-lg border border-zinc-200 px-2 py-1 text-lg font-bold text-zinc-900 focus:border-amber-400 focus:outline-none"
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => { if (e.key === "Escape") setEditingField(null); }}
+                  />
+                  <button type="submit" onClick={(e) => e.stopPropagation()} className="rounded-lg bg-zinc-900 px-3 py-1 text-xs font-medium text-white hover:bg-zinc-700">OK</button>
+                </form>
+              ) : (
+                <p className="text-lg font-bold text-zinc-900">
+                  {formatCurrency(product.salePriceExpected)}
+                </p>
+              )}
+            </div>
             <Card className="!p-4">
               <p className="text-[11px] text-zinc-400">Aktueller Bestand</p>
               <p className="text-lg font-bold text-zinc-900">
