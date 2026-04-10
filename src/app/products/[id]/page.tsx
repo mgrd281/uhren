@@ -167,6 +167,7 @@ export default function ProductDetailPage({
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 priority
+                unoptimized={product.mainImage.startsWith("data:")}
               />
             ) : (
               <div className="flex h-full items-center justify-center">

@@ -85,23 +85,55 @@ export default function ProductForm({
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/avif"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Nur JPEG, PNG oder WebP erlaubt");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Maximal 10 MB");
+      return;
+    }
+
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      const data = await res.json();
-      if (res.ok) {
-        updateField("mainImage", data.url);
-        toast.success("Bild hochgeladen");
-      } else {
-        toast.error(data.error || "Bild-Upload fehlgeschlagen");
-      }
+      const dataUrl = await compressImage(file, 800, 0.75);
+      updateField("mainImage", dataUrl);
+      toast.success("Bild geladen");
     } catch {
-      toast.error("Bild-Upload fehlgeschlagen");
+      toast.error("Bild konnte nicht geladen werden");
     } finally {
       setUploading(false);
     }
+  }
+
+  function compressImage(file: File, maxWidth: number, quality: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = document.createElement("img");
+      const reader = new FileReader();
+      reader.onload = () => {
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let w = img.width;
+          let h = img.height;
+          if (w > maxWidth) {
+            h = Math.round((h * maxWidth) / w);
+            w = maxWidth;
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return reject(new Error("Canvas error"));
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = reject;
+        img.src = reader.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -224,7 +256,6 @@ export default function ProductForm({
               value={form.color}
               onChange={(e) => updateField("color", e.target.value)}
               error={errors.color}
-              required
             />
           </div>
           <div className="mt-5">
@@ -234,7 +265,6 @@ export default function ProductForm({
               value={form.description}
               onChange={(e) => updateField("description", e.target.value)}
               error={errors.description}
-              required
             />
           </div>
         </Card>
@@ -302,6 +332,7 @@ export default function ProductForm({
                   fill
                   className="object-cover"
                   sizes="128px"
+                  unoptimized={form.mainImage.startsWith("data:")}
                 />
                 <button
                   type="button"
