@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum StockStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+}
+
+enum MovementType {
+  ADD
+  SALE
+  ADJUSTMENT
+}
+
+model Product {
+  id                String              @id @default(cuid())
+  name              String
+  brand             String
+  model             String
+  sku               String              @unique
+  category          String
+  color             String
+  description       String
+  costPrice         Float
+  salePriceExpected Float
+  quantity          Int                 @default(0)
+  lowStockThreshold Int                 @default(2)
+  status            StockStatus         @default(IN_STOCK)
+  mainImage         String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  notes             String?
+  galleryImages     ProductImage[]
+  sales             Sale[]
+  inventoryMoves    InventoryMovement[]
+
+  @@index([brand])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  imageUrl  String
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model Sale {
+  id            String   @id @default(cuid())
+  productId     String
+  quantitySold  Int
+  salePrice     Float
+  totalAmount   Float
+  customerName  String?
+  invoiceNumber String?
+  soldAt        DateTime @default(now())
+  notes         String?
+  createdAt     DateTime @default(now())
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([productId])
+  @@index([soldAt])
+}
+
+model InventoryMovement {
+  id          String       @id @default(cuid())
+  productId   String
+  type        MovementType
+  quantity    Int
+  referenceId String?
+  note        String?
+  createdAt   DateTime     @default(now())
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([productId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model StoreSettings {
+  id           String   @id @default("default")
+  storeName    String   @default("دار الساعات الفاخرة")
+  locale       String   @default("ar")
+  currencyCode String   @default("AED")
+  rtlEnabled   Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
