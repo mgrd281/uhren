@@ -19,7 +19,7 @@ import {
   stockStatusColor,
   movementTypeLabel,
 } from "@/lib/utils";
-import { ArrowRight, Trash2, Edit, Watch, ShoppingBag, DollarSign, X, Truck } from "lucide-react";
+import { ArrowRight, Trash2, Edit, Watch, ShoppingBag, DollarSign, X } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { use } from "react";
@@ -89,13 +89,11 @@ export default function ProductDetailPage({
     customerName: "",
     notes: "",
     soldAt: "",
+    versand: false,
   });
   const [saleSaving, setSaleSaving] = useState(false);
   const [editingField, setEditingField] = useState<"costPrice" | "salePriceExpected" | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [showShipModal, setShowShipModal] = useState(false);
-  const [shipForm, setShipForm] = useState({ quantity: "1", note: "" });
-  const [shipSaving, setShipSaving] = useState(false);
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -146,11 +144,24 @@ export default function ProductDetailPage({
         }),
       });
       if (res.ok) {
+        // If Versand checked, create shipping movement
+        if (saleForm.versand) {
+          await fetch("/api/inventory-movements", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              productId: product.id,
+              type: "SHIPPING",
+              quantity: parseInt(saleForm.quantitySold),
+              note: "Versand" + (saleForm.customerName ? ` an ${saleForm.customerName}` : ""),
+            }),
+          });
+        }
         // eBay-style cha-ching sound
         try { new Audio("/cha-ching.mp3").play(); } catch {}
-        toast.success("Verkauf erfolgreich gespeichert");
+        toast.success(saleForm.versand ? "Verkauf + Versand gespeichert" : "Verkauf erfolgreich gespeichert");
         setShowSaleModal(false);
-        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "" });
+        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false });
         reloadProduct();
       } else {
         const err = await res.json();
@@ -195,42 +206,6 @@ export default function ProductDetailPage({
       reloadProduct();
     } else {
       toast.error("Löschen fehlgeschlagen");
-    }
-  }
-
-  async function handleShip(e: React.FormEvent) {
-    e.preventDefault();
-    if (!product) return;
-    setShipSaving(true);
-    const qty = parseInt(shipForm.quantity);
-    try {
-      const res = await fetch(`/api/products/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quantity: product.quantity - qty }),
-      });
-      if (res.ok) {
-        await fetch("/api/inventory-movements", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productId: product.id,
-            type: "SHIPPING",
-            quantity: qty,
-            note: shipForm.note || "Versand",
-          }),
-        });
-        toast.success("Versand erfasst");
-        setShowShipModal(false);
-        setShipForm({ quantity: "1", note: "" });
-        reloadProduct();
-      } else {
-        toast.error("Fehler beim Speichern");
-      }
-    } catch {
-      toast.error("Netzwerkfehler");
-    } finally {
-      setShipSaving(false);
     }
   }
 
@@ -280,16 +255,6 @@ export default function ProductDetailPage({
               >
                 <DollarSign size={14} />
                 Verkauf erfassen
-              </Button>
-            )}
-            {product.quantity > 0 && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setShowShipModal(true)}
-              >
-                <Truck size={14} />
-                Versand
               </Button>
             )}
             <Link href={`/products/${id}/edit`}>
@@ -668,6 +633,18 @@ export default function ProductDetailPage({
                   onChange={(e) => setSaleForm((f) => ({ ...f, notes: e.target.value }))}
                 />
               </div>
+              <label className="flex items-center gap-3 rounded-xl border border-zinc-100 p-3 cursor-pointer transition-colors hover:bg-blue-50">
+                <input
+                  type="checkbox"
+                  checked={saleForm.versand}
+                  onChange={(e) => setSaleForm((f) => ({ ...f, versand: e.target.checked }))}
+                  className="h-5 w-5 rounded border-zinc-300 text-blue-600 accent-blue-600"
+                />
+                <div>
+                  <p className="text-[13px] font-medium text-zinc-700">📦 Versand</p>
+                  <p className="text-[11px] text-zinc-400">Ware wird auch als versendet markiert</p>
+                </div>
+              </label>
               <div className="flex gap-3 pt-2">
                 <Button type="submit" disabled={saleSaving} className="flex-1">
                   {saleSaving ? "Speichern..." : "Verkauf speichern"}
@@ -676,55 +653,6 @@ export default function ProductDetailPage({
                   type="button"
                   variant="secondary"
                   onClick={() => setShowSaleModal(false)}
-                >
-                  Abbrechen
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Ship Modal */}
-      {showShipModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-zinc-900">Versand erfassen</h3>
-            <p className="mt-1 text-[13px] text-zinc-400">
-              {product.name} — Bestand: {product.quantity} Stück
-            </p>
-            <form onSubmit={handleShip} className="mt-5 space-y-4">
-              <div>
-                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
-                  Menge *
-                </label>
-                <Input
-                  type="number"
-                  min="1"
-                  max={product.quantity}
-                  required
-                  value={shipForm.quantity}
-                  onChange={(e) => setShipForm((f) => ({ ...f, quantity: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
-                  Notiz (optional)
-                </label>
-                <Input
-                  placeholder="z.B. Versand an Kunde XY"
-                  value={shipForm.note}
-                  onChange={(e) => setShipForm((f) => ({ ...f, note: e.target.value }))}
-                />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <Button type="submit" disabled={shipSaving} className="flex-1">
-                  {shipSaving ? "Speichern..." : "Versand speichern"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setShowShipModal(false)}
                 >
                   Abbrechen
                 </Button>
