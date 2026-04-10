@@ -19,7 +19,7 @@ import {
   stockStatusColor,
   movementTypeLabel,
 } from "@/lib/utils";
-import { ArrowRight, Trash2, Edit, Watch, ShoppingBag, DollarSign } from "lucide-react";
+import { ArrowRight, Trash2, Edit, Watch, ShoppingBag, DollarSign, X } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { use } from "react";
@@ -123,33 +123,44 @@ export default function ProductDetailPage({
         }),
       });
       if (res.ok) {
-        // Play cash register sound
+        // eBay-style cha-ching sound
         try {
           const ctx = new AudioContext();
-          const g = ctx.createGain();
-          g.connect(ctx.destination);
-          g.gain.setValueAtTime(0.3, ctx.currentTime);
-          g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
-          [800, 1200, 1600].forEach((freq, i) => {
+          const t = ctx.currentTime;
+          // "Cha" - bright metallic hit
+          const cha = ctx.createOscillator();
+          cha.type = "square";
+          cha.frequency.setValueAtTime(1318, t); // E6
+          const chaGain = ctx.createGain();
+          chaGain.gain.setValueAtTime(0.15, t);
+          chaGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+          cha.connect(chaGain).connect(ctx.destination);
+          cha.start(t);
+          cha.stop(t + 0.08);
+
+          // "Ching" - two-tone rising
+          [1568, 2093].forEach((freq, i) => { // G6, C7
             const o = ctx.createOscillator();
             o.type = "sine";
-            o.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
-            o.connect(g);
-            o.start(ctx.currentTime + i * 0.12);
-            o.stop(ctx.currentTime + i * 0.12 + 0.15);
+            o.frequency.setValueAtTime(freq, t + 0.1 + i * 0.08);
+            const g = ctx.createGain();
+            g.gain.setValueAtTime(0.25, t + 0.1 + i * 0.08);
+            g.gain.exponentialRampToValueAtTime(0.001, t + 0.1 + i * 0.08 + 0.35);
+            o.connect(g).connect(ctx.destination);
+            o.start(t + 0.1 + i * 0.08);
+            o.stop(t + 0.1 + i * 0.08 + 0.35);
           });
-          // Coin drop
-          const o2 = ctx.createOscillator();
-          o2.type = "sine";
-          o2.frequency.setValueAtTime(2400, ctx.currentTime + 0.4);
-          o2.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.7);
-          const g2 = ctx.createGain();
-          g2.connect(ctx.destination);
-          g2.gain.setValueAtTime(0.2, ctx.currentTime + 0.4);
-          g2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
-          o2.connect(g2);
-          o2.start(ctx.currentTime + 0.4);
-          o2.stop(ctx.currentTime + 0.8);
+
+          // Shimmer overlay
+          const shimmer = ctx.createOscillator();
+          shimmer.type = "sine";
+          shimmer.frequency.setValueAtTime(4186, t + 0.15); // C8
+          const sGain = ctx.createGain();
+          sGain.gain.setValueAtTime(0.06, t + 0.15);
+          sGain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+          shimmer.connect(sGain).connect(ctx.destination);
+          shimmer.start(t + 0.15);
+          shimmer.stop(t + 0.6);
         } catch {}
         toast.success("Verkauf erfolgreich gespeichert");
         setShowSaleModal(false);
@@ -176,6 +187,17 @@ export default function ProductDetailPage({
     } else {
       toast.error("Löschen fehlgeschlagen");
       setDeleting(false);
+    }
+  }
+
+  async function handleDeleteSale(saleId: string) {
+    if (!confirm("Verkauf wirklich löschen? Der Bestand wird wiederhergestellt.")) return;
+    const res = await fetch(`/api/sales/${saleId}`, { method: "DELETE" });
+    if (res.ok) {
+      toast.success("Verkauf gelöscht, Bestand wiederhergestellt");
+      reloadProduct();
+    } else {
+      toast.error("Löschen fehlgeschlagen");
     }
   }
 
@@ -411,9 +433,21 @@ export default function ProductDetailPage({
                         {sale.invoiceNumber && ` · ${sale.invoiceNumber}`}
                       </p>
                     </div>
-                    <p className="text-[15px] font-bold text-zinc-900">
-                      {formatCurrency(sale.totalAmount)}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[15px] font-bold text-zinc-900">
+                        {formatCurrency(sale.totalAmount)}
+                      </p>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleDeleteSale(sale.id);
+                        }}
+                        className="rounded-lg p-1.5 text-zinc-300 transition-colors hover:bg-red-50 hover:text-red-500"
+                        title="Verkauf löschen"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
                   </div>
                   {sale.notes && (
                     <p className="mt-2 text-[11px] text-zinc-400">

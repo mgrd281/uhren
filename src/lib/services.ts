@@ -146,6 +146,33 @@ export async function createSale(data: {
   return sale;
 }
 
+export async function deleteSale(saleId: string) {
+  const sale = await prisma.sale.findUniqueOrThrow({
+    where: { id: saleId },
+    include: { product: true },
+  });
+
+  // Restore product quantity
+  const newQty = sale.product.quantity + sale.quantitySold;
+  await prisma.product.update({
+    where: { id: sale.productId },
+    data: {
+      quantity: newQty,
+      status: statusFromQty(newQty, sale.product.lowStockThreshold),
+    },
+  });
+
+  // Remove linked inventory movement
+  await prisma.inventoryMovement.deleteMany({
+    where: { referenceId: saleId },
+  });
+
+  // Delete the sale
+  await prisma.sale.delete({ where: { id: saleId } });
+
+  return sale;
+}
+
 export async function getDashboardData() {
   const [products, sales, lowStockProducts] = await Promise.all([
     prisma.product.findMany(),
