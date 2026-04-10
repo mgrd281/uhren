@@ -96,6 +96,8 @@ export async function createSale(data: {
   salePrice: number;
   customerName?: string | null;
   invoiceNumber?: string | null;
+  paymentMethod?: string | null;
+  shippingCost?: number;
   soldAt?: Date;
   notes?: string | null;
 }) {
@@ -119,6 +121,8 @@ export async function createSale(data: {
       totalAmount,
       customerName: data.customerName,
       invoiceNumber: data.invoiceNumber,
+      paymentMethod: data.paymentMethod,
+      shippingCost: data.shippingCost ?? 0,
       soldAt: data.soldAt ?? new Date(),
       notes: data.notes,
     },

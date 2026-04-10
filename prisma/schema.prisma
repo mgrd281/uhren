@@ -67,6 +67,8 @@ model Sale {
   totalAmount   Float
   customerName  String?
   invoiceNumber String?
+  paymentMethod String?
+  shippingCost  Float    @default(0)
   soldAt        DateTime @default(now())
   notes         String?
   createdAt     DateTime @default(now())

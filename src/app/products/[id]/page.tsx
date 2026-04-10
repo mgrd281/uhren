@@ -31,6 +31,8 @@ interface Sale {
   totalAmount: number;
   customerName: string | null;
   invoiceNumber: string | null;
+  paymentMethod: string | null;
+  shippingCost: number;
   soldAt: string;
   notes: string | null;
 }
@@ -90,6 +92,8 @@ export default function ProductDetailPage({
     notes: "",
     soldAt: "",
     versand: false,
+    shippingCost: "",
+    paymentMethod: "",
   });
   const [saleSaving, setSaleSaving] = useState(false);
   const [editingField, setEditingField] = useState<"costPrice" | "salePriceExpected" | null>(null);
@@ -140,6 +144,8 @@ export default function ProductDetailPage({
           quantitySold: parseInt(saleForm.quantitySold),
           customerName: saleForm.customerName || null,
           notes: saleForm.notes || null,
+          paymentMethod: saleForm.paymentMethod || null,
+          shippingCost: saleForm.shippingCost ? parseFloat(saleForm.shippingCost) : 0,
           soldAt: saleForm.soldAt ? new Date(saleForm.soldAt).toISOString() : new Date().toISOString(),
         }),
       });
@@ -161,7 +167,7 @@ export default function ProductDetailPage({
         try { new Audio("/cha-ching.mp3").play(); } catch {}
         toast.success(saleForm.versand ? "Verkauf + Versand gespeichert" : "Verkauf erfolgreich gespeichert");
         setShowSaleModal(false);
-        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false });
+        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false, shippingCost: "", paymentMethod: "" });
         reloadProduct();
       } else {
         const err = await res.json();
@@ -478,6 +484,8 @@ export default function ProductDetailPage({
                       <p className="text-[11px] text-zinc-400">
                         {formatDateTime(sale.soldAt)}
                         {sale.customerName && ` · ${sale.customerName}`}
+                        {sale.paymentMethod && ` · ${sale.paymentMethod}`}
+                        {sale.shippingCost > 0 && ` · Versand ${formatCurrency(sale.shippingCost)}`}
                         {sale.invoiceNumber && ` · ${sale.invoiceNumber}`}
                       </p>
                     </div>
@@ -633,6 +641,27 @@ export default function ProductDetailPage({
                   onChange={(e) => setSaleForm((f) => ({ ...f, notes: e.target.value }))}
                 />
               </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
+                  Zahlungsart
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {["Bar", "PayPal", "eBay Kleinanzeigen", "Vorkasse"].map((method) => (
+                    <button
+                      key={method}
+                      type="button"
+                      onClick={() => setSaleForm((f) => ({ ...f, paymentMethod: f.paymentMethod === method ? "" : method }))}
+                      className={`rounded-lg border px-3 py-2 text-[12px] font-medium transition-colors ${
+                        saleForm.paymentMethod === method
+                          ? "border-zinc-900 bg-zinc-900 text-white"
+                          : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-400"
+                      }`}
+                    >
+                      {method}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <label className="flex items-center gap-3 rounded-xl border border-zinc-100 p-3 cursor-pointer transition-colors hover:bg-blue-50">
                 <input
                   type="checkbox"
@@ -640,11 +669,26 @@ export default function ProductDetailPage({
                   onChange={(e) => setSaleForm((f) => ({ ...f, versand: e.target.checked }))}
                   className="h-5 w-5 rounded border-zinc-300 text-blue-600 accent-blue-600"
                 />
-                <div>
+                <div className="flex-1">
                   <p className="text-[13px] font-medium text-zinc-700">📦 Versand</p>
                   <p className="text-[11px] text-zinc-400">Ware wird auch als versendet markiert</p>
                 </div>
               </label>
+              {saleForm.versand && (
+                <div>
+                  <label className="mb-1 block text-[12px] font-medium text-zinc-600">
+                    Versandkosten (€)
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="z.B. 5.99"
+                    value={saleForm.shippingCost}
+                    onChange={(e) => setSaleForm((f) => ({ ...f, shippingCost: e.target.value }))}
+                  />
+                </div>
+              )}
               <div className="flex gap-3 pt-2">
                 <Button type="submit" disabled={saleSaving} className="flex-1">
                   {saleSaving ? "Speichern..." : "Verkauf speichern"}
