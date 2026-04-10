@@ -29,6 +29,7 @@ export default function EditProductPage({
           quantity: String(p.quantity),
           lowStockThreshold: String(p.lowStockThreshold),
           mainImage: p.mainImage ?? "",
+          ebayStatus: p.ebayStatus ?? "Nicht gepostet",
           notes: p.notes ?? "",
         })
       );

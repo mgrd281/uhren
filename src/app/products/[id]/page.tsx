@@ -66,6 +66,7 @@ interface Product {
   lowStockThreshold: number;
   status: string;
   mainImage: string | null;
+  ebayStatus: string;
   createdAt: string;
   updatedAt: string;
   notes: string | null;
@@ -240,6 +241,9 @@ export default function ProductDetailPage({
     (sum, s) => sum + (s.salePrice - product.costPrice) * s.quantitySold,
     0
   );
+  const isPostedOnEbay =
+    product.ebayStatus === "eBay Kleinanzeigen" ||
+    product.ebayStatus === "eBay Kleinanzeige";
 
   return (
     <div className="space-y-10">
@@ -328,6 +332,15 @@ export default function ProductDetailPage({
           <div className="flex items-center gap-3">
             <Badge className={stockStatusColor(product.status)}>
               {stockStatusLabel(product.status)}
+            </Badge>
+            <Badge
+              className={
+                isPostedOnEbay
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  : "border-zinc-200 bg-zinc-50 text-zinc-500"
+              }
+            >
+              {isPostedOnEbay ? "eBay Kleinanzeige" : "Nicht gepostet"}
             </Badge>
             <span className="text-[12px] text-zinc-400">{product.sku}</span>
           </div>
@@ -445,6 +458,8 @@ export default function ProductDetailPage({
             <span>Farbe: {product.color}</span>
             <span>·</span>
             <span>Warngrenze: {product.lowStockThreshold}</span>
+            <span>·</span>
+            <span>eBay: {isPostedOnEbay ? "Kleinanzeige" : "Nicht gepostet"}</span>
           </div>
         </div>
       </div>

@@ -20,8 +20,11 @@ interface ProductFormData {
   quantity: string;
   lowStockThreshold: string;
   mainImage: string;
+  ebayStatus: string;
   notes: string;
 }
+
+const EBAY_STATUSES = ["Nicht gepostet", "eBay Kleinanzeige"];
 
 const CATEGORIES = [
   "Armbanduhr",
@@ -69,6 +72,7 @@ export default function ProductForm({
     quantity: "0",
     lowStockThreshold: "2",
     mainImage: "",
+    ebayStatus: "Nicht gepostet",
     notes: "",
     ...initialData,
   });
@@ -436,6 +440,31 @@ export default function ProductForm({
             value={form.notes}
             onChange={(e) => updateField("notes", e.target.value)}
           />
+        </Card>
+
+        {/* eBay Kleinanzeigen Status */}
+        <Card>
+          <h3 className="mb-4 text-sm font-semibold text-zinc-700">
+            eBay Kleinanzeigen
+          </h3>
+          <div className="flex gap-3">
+            {EBAY_STATUSES.map((status) => (
+              <button
+                key={status}
+                type="button"
+                onClick={() => updateField("ebayStatus", status)}
+                className={`rounded-xl border px-5 py-2.5 text-[13px] font-medium transition-all ${
+                  form.ebayStatus === status
+                    ? status === "eBay Kleinanzeige"
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                      : "border-zinc-800 bg-zinc-800 text-white"
+                    : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300"
+                }`}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
         </Card>
 
         {/* Actions */}

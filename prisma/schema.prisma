@@ -36,6 +36,7 @@ model Product {
   lowStockThreshold Int                 @default(2)
   status            StockStatus         @default(IN_STOCK)
   mainImage         String?
+  ebayStatus        String              @default("Nicht gepostet")
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   notes             String?

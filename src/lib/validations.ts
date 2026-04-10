@@ -13,6 +13,7 @@ export const productSchema = z.object({
   quantity: z.coerce.number().int().min(0, "Menge darf nicht negativ sein"),
   lowStockThreshold: z.coerce.number().int().min(0).default(2),
   mainImage: z.string().optional().nullable(),
+  ebayStatus: z.string().default("Nicht gepostet"),
   notes: z.string().optional().nullable(),
 });
 

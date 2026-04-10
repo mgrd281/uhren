@@ -23,6 +23,7 @@ interface Product {
   quantity: number;
   status: string;
   mainImage: string | null;
+  ebayStatus: string;
   _count: { sales: number };
   totalRevenue: number;
 }
@@ -126,6 +127,13 @@ export default function ProductsPage() {
                     {stockStatusLabel(p.status)}
                   </Badge>
                 </div>
+                {(p.ebayStatus === "eBay Kleinanzeigen" || p.ebayStatus === "eBay Kleinanzeige") && (
+                  <div className="absolute end-3 top-3">
+                    <Badge className="border-emerald-200 bg-emerald-50 text-emerald-700">
+                      eBay
+                    </Badge>
+                  </div>
+                )}
               </div>
 
               {/* Details */}
