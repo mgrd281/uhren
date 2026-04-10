@@ -88,6 +88,7 @@ export default function ProductDetailPage({
     quantitySold: "1",
     customerName: "",
     notes: "",
+    soldAt: "",
   });
   const [saleSaving, setSaleSaving] = useState(false);
 
@@ -118,13 +119,41 @@ export default function ProductDetailPage({
           quantitySold: parseInt(saleForm.quantitySold),
           customerName: saleForm.customerName || null,
           notes: saleForm.notes || null,
-          soldAt: new Date().toISOString(),
+          soldAt: saleForm.soldAt ? new Date(saleForm.soldAt).toISOString() : new Date().toISOString(),
         }),
       });
       if (res.ok) {
+        // Play cash register sound
+        try {
+          const ctx = new AudioContext();
+          const g = ctx.createGain();
+          g.connect(ctx.destination);
+          g.gain.setValueAtTime(0.3, ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+          [800, 1200, 1600].forEach((freq, i) => {
+            const o = ctx.createOscillator();
+            o.type = "sine";
+            o.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
+            o.connect(g);
+            o.start(ctx.currentTime + i * 0.12);
+            o.stop(ctx.currentTime + i * 0.12 + 0.15);
+          });
+          // Coin drop
+          const o2 = ctx.createOscillator();
+          o2.type = "sine";
+          o2.frequency.setValueAtTime(2400, ctx.currentTime + 0.4);
+          o2.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.7);
+          const g2 = ctx.createGain();
+          g2.connect(ctx.destination);
+          g2.gain.setValueAtTime(0.2, ctx.currentTime + 0.4);
+          g2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+          o2.connect(g2);
+          o2.start(ctx.currentTime + 0.4);
+          o2.stop(ctx.currentTime + 0.8);
+        } catch {}
         toast.success("Verkauf erfolgreich gespeichert");
         setShowSaleModal(false);
-        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "" });
+        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "" });
         reloadProduct();
       } else {
         const err = await res.json();
@@ -478,6 +507,16 @@ export default function ProductDetailPage({
                   required
                   value={saleForm.quantitySold}
                   onChange={(e) => setSaleForm((f) => ({ ...f, quantitySold: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
+                  Verkaufsdatum (leer = heute)
+                </label>
+                <Input
+                  type="date"
+                  value={saleForm.soldAt}
+                  onChange={(e) => setSaleForm((f) => ({ ...f, soldAt: e.target.value }))}
                 />
               </div>
               <div>
