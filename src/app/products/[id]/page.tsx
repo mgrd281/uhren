@@ -124,44 +124,7 @@ export default function ProductDetailPage({
       });
       if (res.ok) {
         // eBay-style cha-ching sound
-        try {
-          const ctx = new AudioContext();
-          const t = ctx.currentTime;
-          // "Cha" - bright metallic hit
-          const cha = ctx.createOscillator();
-          cha.type = "square";
-          cha.frequency.setValueAtTime(1318, t); // E6
-          const chaGain = ctx.createGain();
-          chaGain.gain.setValueAtTime(0.15, t);
-          chaGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
-          cha.connect(chaGain).connect(ctx.destination);
-          cha.start(t);
-          cha.stop(t + 0.08);
-
-          // "Ching" - two-tone rising
-          [1568, 2093].forEach((freq, i) => { // G6, C7
-            const o = ctx.createOscillator();
-            o.type = "sine";
-            o.frequency.setValueAtTime(freq, t + 0.1 + i * 0.08);
-            const g = ctx.createGain();
-            g.gain.setValueAtTime(0.25, t + 0.1 + i * 0.08);
-            g.gain.exponentialRampToValueAtTime(0.001, t + 0.1 + i * 0.08 + 0.35);
-            o.connect(g).connect(ctx.destination);
-            o.start(t + 0.1 + i * 0.08);
-            o.stop(t + 0.1 + i * 0.08 + 0.35);
-          });
-
-          // Shimmer overlay
-          const shimmer = ctx.createOscillator();
-          shimmer.type = "sine";
-          shimmer.frequency.setValueAtTime(4186, t + 0.15); // C8
-          const sGain = ctx.createGain();
-          sGain.gain.setValueAtTime(0.06, t + 0.15);
-          sGain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
-          shimmer.connect(sGain).connect(ctx.destination);
-          shimmer.start(t + 0.15);
-          shimmer.stop(t + 0.6);
-        } catch {}
+        try { new Audio("/cha-ching.mp3").play(); } catch {}
         toast.success("Verkauf erfolgreich gespeichert");
         setShowSaleModal(false);
         setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "" });
