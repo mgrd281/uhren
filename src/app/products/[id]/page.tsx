@@ -8,6 +8,7 @@ import {
   Card,
   Badge,
   Button,
+  Input,
   Skeleton,
 } from "@/components/ui";
 import {
@@ -18,7 +19,7 @@ import {
   stockStatusColor,
   movementTypeLabel,
 } from "@/lib/utils";
-import { ArrowRight, Trash2, Edit, Watch, ShoppingBag } from "lucide-react";
+import { ArrowRight, Trash2, Edit, Watch, ShoppingBag, DollarSign } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { use } from "react";
@@ -81,6 +82,14 @@ export default function ProductDetailPage({
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [showSaleModal, setShowSaleModal] = useState(false);
+  const [saleForm, setSaleForm] = useState({
+    salePrice: "",
+    quantitySold: "1",
+    customerName: "",
+    notes: "",
+  });
+  const [saleSaving, setSaleSaving] = useState(false);
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -88,6 +97,45 @@ export default function ProductDetailPage({
       .then((d) => setProduct(d))
       .finally(() => setLoading(false));
   }, [id]);
+
+  function reloadProduct() {
+    fetch(`/api/products/${id}`)
+      .then((r) => r.json())
+      .then((d) => setProduct(d));
+  }
+
+  async function handleSale(e: React.FormEvent) {
+    e.preventDefault();
+    if (!product) return;
+    setSaleSaving(true);
+    try {
+      const res = await fetch("/api/sales", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.id,
+          salePrice: parseFloat(saleForm.salePrice),
+          quantitySold: parseInt(saleForm.quantitySold),
+          customerName: saleForm.customerName || null,
+          notes: saleForm.notes || null,
+          soldAt: new Date().toISOString(),
+        }),
+      });
+      if (res.ok) {
+        toast.success("Verkauf erfolgreich gespeichert");
+        setShowSaleModal(false);
+        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "" });
+        reloadProduct();
+      } else {
+        const err = await res.json();
+        toast.error(err.error || "Fehler beim Speichern");
+      }
+    } catch {
+      toast.error("Netzwerkfehler");
+    } finally {
+      setSaleSaving(false);
+    }
+  }
 
   async function handleDelete() {
     if (!confirm("Sind Sie sicher, dass Sie dieses Produkt löschen möchten?")) return;
@@ -135,6 +183,21 @@ export default function ProductDetailPage({
         description={`${product.brand} · ${product.model}`}
         actions={
           <div className="flex gap-2">
+            {product.quantity > 0 && (
+              <Button
+                size="sm"
+                onClick={() => {
+                  setSaleForm((f) => ({
+                    ...f,
+                    salePrice: product.salePriceExpected > 0 ? String(product.salePriceExpected) : "",
+                  }));
+                  setShowSaleModal(true);
+                }}
+              >
+                <DollarSign size={14} />
+                Verkauf erfassen
+              </Button>
+            )}
             <Link href={`/products/${id}/edit`}>
               <Button variant="secondary" size="sm">
                 <Edit size={14} />
@@ -380,6 +443,79 @@ export default function ProductDetailPage({
           </table>
         </div>
       </Card>
+
+      {/* Sale Modal */}
+      {showSaleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <h3 className="text-lg font-bold text-zinc-900">Verkauf erfassen</h3>
+            <p className="mt-1 text-[13px] text-zinc-400">
+              {product.name} — Bestand: {product.quantity} Stück
+            </p>
+            <form onSubmit={handleSale} className="mt-5 space-y-4">
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
+                  Verkaufspreis (€) *
+                </label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  required
+                  placeholder="z.B. 149.00"
+                  value={saleForm.salePrice}
+                  onChange={(e) => setSaleForm((f) => ({ ...f, salePrice: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
+                  Menge *
+                </label>
+                <Input
+                  type="number"
+                  min="1"
+                  max={product.quantity}
+                  required
+                  value={saleForm.quantitySold}
+                  onChange={(e) => setSaleForm((f) => ({ ...f, quantitySold: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
+                  Kunde (optional)
+                </label>
+                <Input
+                  placeholder="Kundenname"
+                  value={saleForm.customerName}
+                  onChange={(e) => setSaleForm((f) => ({ ...f, customerName: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
+                  Notiz (optional)
+                </label>
+                <Input
+                  placeholder="z.B. Bar bezahlt"
+                  value={saleForm.notes}
+                  onChange={(e) => setSaleForm((f) => ({ ...f, notes: e.target.value }))}
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button type="submit" disabled={saleSaving} className="flex-1">
+                  {saleSaving ? "Speichern..." : "Verkauf speichern"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setShowSaleModal(false)}
+                >
+                  Abbrechen
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
