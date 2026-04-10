@@ -184,6 +184,17 @@ export default function ProductDetailPage({
     }
   }
 
+  async function handleDeleteMovement(moveId: string) {
+    if (!confirm("Bestandsbewegung wirklich löschen?")) return;
+    const res = await fetch(`/api/inventory-movements/${moveId}`, { method: "DELETE" });
+    if (res.ok) {
+      toast.success("Bestandsbewegung gelöscht");
+      reloadProduct();
+    } else {
+      toast.error("Löschen fehlgeschlagen");
+    }
+  }
+
   if (loading) {
     return (
       <div className="space-y-8">
@@ -497,6 +508,7 @@ export default function ProductDetailPage({
                 <th className="py-3 font-medium text-start">Menge</th>
                 <th className="py-3 font-medium text-start">Notiz</th>
                 <th className="py-3 font-medium text-start">Datum</th>
+                <th className="py-3 font-medium text-end w-10"></th>
               </tr>
             </thead>
             <tbody>
@@ -522,6 +534,15 @@ export default function ProductDetailPage({
                   <td className="py-3 text-zinc-500">{m.note ?? "—"}</td>
                   <td className="py-3 text-zinc-400">
                     {formatDateTime(m.createdAt)}
+                  </td>
+                  <td className="py-3 text-end">
+                    <button
+                      onClick={() => handleDeleteMovement(m.id)}
+                      className="rounded-lg p-1.5 text-zinc-300 transition-colors hover:bg-red-50 hover:text-red-500"
+                      title="Bewegung löschen"
+                    >
+                      <X size={14} />
+                    </button>
                   </td>
                 </tr>
               ))}

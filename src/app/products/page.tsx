@@ -89,8 +89,17 @@ export default function ProductsPage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {products.map((p) => (
+        <div className="space-y-10">
+          {Object.entries(
+            products.reduce<Record<string, Product[]>>((acc, p) => {
+              (acc[p.brand] ??= []).push(p);
+              return acc;
+            }, {})
+          ).map(([brand, items]) => (
+            <div key={brand}>
+              <h2 className="mb-4 text-lg font-bold text-zinc-800">{brand} <span className="text-[13px] font-normal text-zinc-400">({items.reduce((s, p) => s + p.quantity, 0)} Stück)</span></h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {items.map((p) => (
             <Link
               key={p.id}
               href={`/products/${p.id}`}
@@ -158,6 +167,9 @@ export default function ProductsPage() {
                 )}
               </div>
             </Link>
+          ))}
+              </div>
+            </div>
           ))}
         </div>
       )}
