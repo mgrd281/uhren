@@ -68,8 +68,8 @@ export default function ProductsPage() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
             <Skeleton key={i} className="h-72" />
           ))}
         </div>
@@ -88,7 +88,7 @@ export default function ProductsPage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((p) => (
             <Link
               key={p.id}
@@ -96,14 +96,14 @@ export default function ProductsPage() {
               className="group overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
               {/* Image */}
-              <div className="relative aspect-[4/3] overflow-hidden bg-zinc-50">
+              <div className="relative aspect-square overflow-hidden bg-zinc-50">
                 {p.mainImage ? (
                   <Image
                     src={p.mainImage}
                     alt={p.name}
                     fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                     unoptimized={p.mainImage.startsWith("data:")}
                   />
                 ) : (
