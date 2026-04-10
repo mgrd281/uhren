@@ -24,28 +24,25 @@ interface ProductFormData {
 }
 
 const CATEGORIES = [
-  "Dive",
-  "Sport Luxury",
-  "Dress",
-  "Icon",
+  "Armbanduhr",
   "Chronograph",
-  "Pilot",
-  "Field",
-  "Complications",
+  "Automatik",
+  "Quarz",
+  "Smartwatch",
+  "Zubehör",
   "Sonstige",
 ];
 
 const BRANDS = [
+  "Michael Kors",
+  "BOSS",
+  "Emporio Armani",
+  "Armani Exchange",
+  "Daniel Wellington",
+  "Maserati",
+  "Diesel",
   "Rolex",
-  "Patek Philippe",
-  "Audemars Piguet",
-  "Richard Mille",
   "Omega",
-  "Cartier",
-  "IWC",
-  "Jaeger-LeCoultre",
-  "Vacheron Constantin",
-  "A. Lange & Söhne",
   "Sonstige",
 ];
 

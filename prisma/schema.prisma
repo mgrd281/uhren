@@ -92,10 +92,10 @@ model InventoryMovement {
 
 model StoreSettings {
   id           String   @id @default("default")
-  storeName    String   @default("دار الساعات الفاخرة")
-  locale       String   @default("ar")
-  currencyCode String   @default("AED")
-  rtlEnabled   Boolean  @default(true)
+  storeName    String   @default("Luxusuhren Verwaltung")
+  locale       String   @default("de")
+  currencyCode String   @default("EUR")
+  rtlEnabled   Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
