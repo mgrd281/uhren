@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { StockStatus, MovementType } from "@/generated/prisma/client";
+import { StockStatus, MovementType } from "@prisma/client";
 
 function statusFromQty(quantity: number, threshold: number): StockStatus {
   if (quantity <= 0) return StockStatus.OUT_OF_STOCK;

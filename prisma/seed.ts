@@ -1,8 +1,6 @@
-import { PrismaClient, StockStatus, MovementType } from "../src/generated/prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient, StockStatus, MovementType } from "@prisma/client";
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 const statusFromQty = (quantity: number, threshold = 2): StockStatus => {
   if (quantity <= 0) return StockStatus.OUT_OF_STOCK;
@@ -36,7 +34,8 @@ async function main() {
       sku: "RLX-SUB-126610LN",
       category: "Dive",
       color: "Black",
-      description: "Stainless steel icon with Cerachrom bezel and timeless profile.",
+      description:
+        "Stainless steel icon with Cerachrom bezel and timeless profile.",
       costPrice: 36000,
       salePriceExpected: 44900,
       quantity: 3,
@@ -55,7 +54,8 @@ async function main() {
       sku: "PP-NAU-5711",
       category: "Sport Luxury",
       color: "Blue",
-      description: "Highly collectible steel sport watch with integrated bracelet.",
+      description:
+        "Highly collectible steel sport watch with integrated bracelet.",
       costPrice: 285000,
       salePriceExpected: 329000,
       quantity: 1,
