@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Card, Button, Input, Textarea, Select, PageHeader } from "@/components/ui";
 import { toast } from "sonner";
-import { Save, Upload, X } from "lucide-react";
+import { Save, Upload, X, Check, Loader2 } from "lucide-react";
 import Image from "next/image";
 
 interface ProductFormData {
@@ -76,11 +76,55 @@ export default function ProductForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const hasChanged = useRef(false);
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function updateField(key: keyof ProductFormData, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: "" }));
+    if (isEdit) hasChanged.current = true;
   }
+
+  const autoSave = useCallback(async (formData: ProductFormData) => {
+    if (!isEdit || !productId) return;
+    setAutoSaveStatus("saving");
+    const payload = {
+      ...formData,
+      costPrice: parseFloat(formData.costPrice) || 0,
+      salePriceExpected: parseFloat(formData.salePriceExpected) || 0,
+      quantity: parseInt(formData.quantity, 10) || 0,
+      lowStockThreshold: parseInt(formData.lowStockThreshold, 10) || 0,
+      mainImage: formData.mainImage || null,
+      notes: formData.notes || null,
+    };
+    try {
+      const res = await fetch(`/api/products/${productId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        setAutoSaveStatus("saved");
+        setTimeout(() => setAutoSaveStatus("idle"), 2000);
+      } else {
+        setAutoSaveStatus("idle");
+      }
+    } catch {
+      setAutoSaveStatus("idle");
+    }
+  }, [isEdit, productId]);
+
+  useEffect(() => {
+    if (!isEdit || !hasChanged.current) return;
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      autoSave(form);
+    }, 1200);
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+  }, [form, isEdit, autoSave]);
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -190,10 +234,27 @@ export default function ProductForm({
         title={isEdit ? "Produkt bearbeiten" : "Neues Produkt hinzufügen"}
         description={
           isEdit
-            ? "Produktdaten aktualisieren"
+            ? "Änderungen werden automatisch gespeichert"
             : "Fügen Sie eine neue Uhr zum Bestand hinzu"
         }
       />
+
+      {isEdit && autoSaveStatus !== "idle" && (
+        <div className="flex items-center gap-2 text-sm">
+          {autoSaveStatus === "saving" && (
+            <>
+              <Loader2 size={14} className="animate-spin text-zinc-400" />
+              <span className="text-zinc-400">Speichern...</span>
+            </>
+          )}
+          {autoSaveStatus === "saved" && (
+            <>
+              <Check size={14} className="text-emerald-500" />
+              <span className="text-emerald-500">Gespeichert</span>
+            </>
+          )}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic info */}
@@ -384,16 +445,14 @@ export default function ProductForm({
             variant="ghost"
             onClick={() => router.back()}
           >
-            Abbrechen
+            {isEdit ? "Zurück" : "Abbrechen"}
           </Button>
-          <Button type="submit" disabled={saving}>
-            <Save size={16} />
-            {saving
-              ? "Speichern..."
-              : isEdit
-              ? "Änderungen speichern"
-              : "Produkt hinzufügen"}
-          </Button>
+          {!isEdit && (
+            <Button type="submit" disabled={saving}>
+              <Save size={16} />
+              {saving ? "Speichern..." : "Produkt hinzufügen"}
+            </Button>
+          )}
         </div>
       </form>
     </div>
