@@ -776,7 +776,7 @@ export default function ProductDetailPage({
                   Zahlungsart
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {["Bar", "PayPal", "eBay Kleinanzeigen", "Vorkasse"].map((method) => (
+                  {["Bar", "PayPal", "eBay Kleinanzeigen", "Vorkasse", "Geschenk", "Shopify"].map((method) => (
                     <button
                       key={method}
                       type="button"
