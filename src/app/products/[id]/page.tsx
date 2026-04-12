@@ -375,7 +375,7 @@ export default function ProductDetailPage({
                 className="object-contain p-6"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 priority
-                unoptimized={product.mainImage.startsWith("data:")}
+                unoptimized={product.mainImage.startsWith("data:") || product.mainImage.startsWith("http")}
               />
             ) : (
               <div className="flex h-full items-center justify-center">
@@ -411,6 +411,7 @@ export default function ProductDetailPage({
                     fill
                     className="object-cover"
                     sizes="80px"
+                    unoptimized={img.imageUrl.startsWith("http")}
                   />
                   <div className="absolute inset-0 flex items-end justify-center gap-1 bg-black/0 opacity-0 transition-all group-hover:bg-black/30 group-hover:opacity-100">
                     {!img.isPrimary && (
