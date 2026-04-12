@@ -20,7 +20,7 @@ export const productSchema = z.object({
 export const saleSchema = z.object({
   productId: z.string().min(1, "Produkt ist erforderlich"),
   quantitySold: z.coerce.number().int().positive("Verkaufsmenge muss größer als Null sein"),
-  salePrice: z.coerce.number().positive("Verkaufspreis muss größer als Null sein"),
+  salePrice: z.coerce.number().min(0, "Verkaufspreis darf nicht negativ sein"),
   customerName: z.string().optional().nullable(),
   invoiceNumber: z.string().optional().nullable(),
   paymentMethod: z.string().optional().nullable(),

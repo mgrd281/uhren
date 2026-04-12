@@ -716,18 +716,46 @@ export default function ProductDetailPage({
             <form onSubmit={handleSale} className="mt-5 space-y-4">
               <div>
                 <label className="mb-1 block text-[12px] font-medium text-zinc-600">
-                  Verkaufspreis (€) *
+                  Zahlungsart
                 </label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  required
-                  placeholder="z.B. 149.00"
-                  value={saleForm.salePrice}
-                  onChange={(e) => setSaleForm((f) => ({ ...f, salePrice: e.target.value }))}
-                />
+                <div className="grid grid-cols-2 gap-2">
+                  {["Bar", "PayPal", "eBay Kleinanzeigen", "Vorkasse", "Geschenk", "Shopify"].map((method) => (
+                    <button
+                      key={method}
+                      type="button"
+                      onClick={() => setSaleForm((f) => ({ ...f, paymentMethod: f.paymentMethod === method ? "" : method, salePrice: method === "Geschenk" ? "0" : f.salePrice }))}
+                      className={`rounded-lg border px-3 py-2 text-[12px] font-medium transition-colors ${
+                        saleForm.paymentMethod === method
+                          ? "border-zinc-900 bg-zinc-900 text-white"
+                          : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-400"
+                      }`}
+                    >
+                      {method}
+                    </button>
+                  ))}
+                </div>
               </div>
+              {saleForm.paymentMethod !== "Geschenk" && (
+                <div>
+                  <label className="mb-1 block text-[12px] font-medium text-zinc-600">
+                    Verkaufspreis (€) *
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    required
+                    placeholder="z.B. 149.00"
+                    value={saleForm.salePrice}
+                    onChange={(e) => setSaleForm((f) => ({ ...f, salePrice: e.target.value }))}
+                  />
+                </div>
+              )}
+              {saleForm.paymentMethod === "Geschenk" && (
+                <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-3">
+                  <p className="text-[13px] font-medium text-emerald-700">🎁 Geschenk — Verkaufspreis: 0,00 €</p>
+                </div>
+              )}
               <div>
                 <label className="mb-1 block text-[12px] font-medium text-zinc-600">
                   Menge *
@@ -770,27 +798,6 @@ export default function ProductDetailPage({
                   value={saleForm.notes}
                   onChange={(e) => setSaleForm((f) => ({ ...f, notes: e.target.value }))}
                 />
-              </div>
-              <div>
-                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
-                  Zahlungsart
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {["Bar", "PayPal", "eBay Kleinanzeigen", "Vorkasse", "Geschenk", "Shopify"].map((method) => (
-                    <button
-                      key={method}
-                      type="button"
-                      onClick={() => setSaleForm((f) => ({ ...f, paymentMethod: f.paymentMethod === method ? "" : method }))}
-                      className={`rounded-lg border px-3 py-2 text-[12px] font-medium transition-colors ${
-                        saleForm.paymentMethod === method
-                          ? "border-zinc-900 bg-zinc-900 text-white"
-                          : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-400"
-                      }`}
-                    >
-                      {method}
-                    </button>
-                  ))}
-                </div>
               </div>
               <label className="flex items-center gap-3 rounded-xl border border-zinc-100 p-3 cursor-pointer transition-colors hover:bg-blue-50">
                 <input
