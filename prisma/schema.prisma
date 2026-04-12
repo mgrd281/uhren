@@ -37,6 +37,7 @@ model Product {
   status            StockStatus         @default(IN_STOCK)
   mainImage         String?
   ebayStatus        String              @default("Nicht gepostet")
+  shopifyStatus     String?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   notes             String?

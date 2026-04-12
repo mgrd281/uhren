@@ -67,6 +67,7 @@ interface Product {
   status: string;
   mainImage: string | null;
   ebayStatus: string;
+  shopifyStatus: string | null;
   createdAt: string;
   updatedAt: string;
   notes: string | null;
@@ -320,6 +321,7 @@ export default function ProductDetailPage({
   const isPostedOnEbay =
     product.ebayStatus === "eBay Kleinanzeigen" ||
     product.ebayStatus === "eBay Kleinanzeige";
+  const isPostedOnShopify = product.shopifyStatus === "Shopify";
 
   return (
     <div className="space-y-10">
@@ -458,6 +460,11 @@ export default function ProductDetailPage({
             >
               {isPostedOnEbay ? "eBay Kleinanzeige" : "Nicht gepostet"}
             </Badge>
+            {isPostedOnShopify && (
+              <Badge className="border-purple-200 bg-purple-50 text-purple-700">
+                Shopify
+              </Badge>
+            )}
             <span className="text-[12px] text-zinc-400">{product.sku}</span>
           </div>
 
@@ -576,6 +583,12 @@ export default function ProductDetailPage({
             <span>Warngrenze: {product.lowStockThreshold}</span>
             <span>·</span>
             <span>eBay: {isPostedOnEbay ? "Kleinanzeige" : "Nicht gepostet"}</span>
+            {product.shopifyStatus && (
+              <>
+                <span>·</span>
+                <span>Shopify: {isPostedOnShopify ? "Gepostet" : product.shopifyStatus}</span>
+              </>
+            )}
           </div>
         </div>
       </div>

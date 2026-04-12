@@ -25,6 +25,7 @@ interface Product {
   status: string;
   mainImage: string | null;
   ebayStatus: string;
+  shopifyStatus: string | null;
   _count: { sales: number };
   totalRevenue: number;
 }
@@ -163,6 +164,13 @@ export default function ProductsPage() {
                   <div className="absolute end-3 top-3">
                     <Badge className="border-emerald-200 bg-emerald-50 text-emerald-700">
                       eBay
+                    </Badge>
+                  </div>
+                )}
+                {p.shopifyStatus === "Shopify" && (
+                  <div className="absolute end-3 top-[44px]">
+                    <Badge className="border-purple-200 bg-purple-50 text-purple-700">
+                      Shopify
                     </Badge>
                   </div>
                 )}

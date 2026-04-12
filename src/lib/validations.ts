@@ -14,6 +14,7 @@ export const productSchema = z.object({
   lowStockThreshold: z.coerce.number().int().min(0).default(2),
   mainImage: z.string().optional().nullable(),
   ebayStatus: z.string().default("Nicht gepostet"),
+  shopifyStatus: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
 });
 
