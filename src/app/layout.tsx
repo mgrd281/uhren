@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { SettingsProvider } from "@/components/providers";
 import Sidebar from "@/components/sidebar";
+import ServiceWorker from "@/components/service-worker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,6 +19,24 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Luxusuhren Verwaltung",
   description: "Bestands- und Verkaufsverwaltung für Luxusuhren",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Uhren",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Luxusuhren Verwaltung",
+  },
+  twitter: {
+    card: "summary",
+    title: "Luxusuhren Verwaltung",
+    description: "Bestands- und Verkaufsverwaltung für Luxusuhren",
+  },
 };
 
 export default function RootLayout({
@@ -32,6 +51,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[#fafafa]">
+        <ServiceWorker />
         <SettingsProvider>
           <Sidebar />
           <main className="min-h-screen transition-all duration-300 lg:pl-[260px]">
