@@ -19,7 +19,7 @@ import {
   stockStatusColor,
   movementTypeLabel,
 } from "@/lib/utils";
-import { ArrowRight, Trash2, Edit, Watch, ShoppingBag, DollarSign, X } from "lucide-react";
+import { ArrowRight, Trash2, Edit, Watch, ShoppingBag, DollarSign, X, ImagePlus, Star } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { use } from "react";
@@ -99,6 +99,10 @@ export default function ProductDetailPage({
   const [saleSaving, setSaleSaving] = useState(false);
   const [editingField, setEditingField] = useState<"costPrice" | "salePriceExpected" | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [showChristImport, setShowChristImport] = useState(false);
+  const [christUrls, setChristUrls] = useState("");
+  const [christImporting, setChristImporting] = useState(false);
+  const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -216,6 +220,78 @@ export default function ProductDetailPage({
     }
   }
 
+  async function handleChristImport(e: React.FormEvent) {
+    e.preventDefault();
+    if (!product) return;
+    setChristImporting(true);
+    const urls = christUrls
+      .split("\n")
+      .map((u: string) => u.trim())
+      .filter((u: string) => u.length > 0);
+    if (urls.length === 0) {
+      toast.error("Keine URLs angegeben");
+      setChristImporting(false);
+      return;
+    }
+    try {
+      const res = await fetch("/api/products/import-christ-images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product.id, imageUrls: urls }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        toast.success(`${data.imported} Christ-Bilder importiert`);
+        setShowChristImport(false);
+        setChristUrls("");
+        reloadProduct();
+      } else {
+        const err = await res.json();
+        toast.error(err.error || "Import fehlgeschlagen");
+      }
+    } catch {
+      toast.error("Netzwerkfehler");
+    } finally {
+      setChristImporting(false);
+    }
+  }
+
+  async function handleDeleteGalleryImage(imageId: string) {
+    if (!confirm("Bild wirklich löschen?")) return;
+    setDeletingImageId(imageId);
+    try {
+      const res = await fetch(`/api/gallery-images/${imageId}`, { method: "DELETE" });
+      if (res.ok) {
+        toast.success("Bild gelöscht");
+        reloadProduct();
+      } else {
+        toast.error("Löschen fehlgeschlagen");
+      }
+    } catch {
+      toast.error("Netzwerkfehler");
+    } finally {
+      setDeletingImageId(null);
+    }
+  }
+
+  async function handleSetPrimaryImage(imageId: string, imageUrl: string) {
+    try {
+      const res = await fetch(`/api/gallery-images/${imageId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPrimary: true }),
+      });
+      if (res.ok) {
+        toast.success("Als Hauptbild gesetzt");
+        reloadProduct();
+      } else {
+        toast.error("Fehler beim Setzen des Hauptbilds");
+      }
+    } catch {
+      toast.error("Netzwerkfehler");
+    }
+  }
+
   if (loading) {
     return (
       <div className="space-y-8">
@@ -307,12 +383,27 @@ export default function ProductDetailPage({
               </div>
             )}
           </div>
+          <div className="flex items-center gap-3">
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setShowChristImport(true)}
+            >
+              <ImagePlus size={14} />
+              Christ-Bilder importieren
+            </Button>
+            {product.galleryImages.length > 0 && (
+              <span className="text-[12px] text-zinc-400">
+                {product.galleryImages.length} Galerie-Bilder
+              </span>
+            )}
+          </div>
           {product.galleryImages.length > 0 && (
             <div className="flex gap-3 overflow-x-auto pb-2">
               {product.galleryImages.map((img) => (
                 <div
                   key={img.id}
-                  className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-zinc-50"
+                  className={`group relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-zinc-50 ${img.isPrimary ? "ring-2 ring-amber-400" : ""}`}
                 >
                   <Image
                     src={img.imageUrl}
@@ -321,6 +412,30 @@ export default function ProductDetailPage({
                     className="object-cover"
                     sizes="80px"
                   />
+                  <div className="absolute inset-0 flex items-end justify-center gap-1 bg-black/0 opacity-0 transition-all group-hover:bg-black/30 group-hover:opacity-100">
+                    {!img.isPrimary && (
+                      <button
+                        onClick={(e) => { e.preventDefault(); handleSetPrimaryImage(img.id, img.imageUrl); }}
+                        className="rounded bg-white/90 p-1 text-amber-600 hover:bg-amber-100"
+                        title="Als Hauptbild setzen"
+                      >
+                        <Star size={12} />
+                      </button>
+                    )}
+                    <button
+                      onClick={(e) => { e.preventDefault(); handleDeleteGalleryImage(img.id); }}
+                      className="rounded bg-white/90 p-1 text-red-500 hover:bg-red-100"
+                      title="Bild löschen"
+                      disabled={deletingImageId === img.id}
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                  {img.isPrimary && (
+                    <div className="absolute start-1 top-1">
+                      <Star size={12} className="fill-amber-400 text-amber-400" />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -712,6 +827,44 @@ export default function ProductDetailPage({
                   type="button"
                   variant="secondary"
                   onClick={() => setShowSaleModal(false)}
+                >
+                  Abbrechen
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Christ Image Import Modal */}
+      {showChristImport && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <h3 className="text-lg font-bold text-zinc-900">Christ-Bilder importieren</h3>
+            <p className="mt-1 text-[13px] text-zinc-400">
+              Bild-URLs zeilenweise einfügen
+            </p>
+            <form onSubmit={handleChristImport} className="mt-5 space-y-4">
+              <div>
+                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
+                  Bild-URLs (eine pro Zeile)
+                </label>
+                <textarea
+                  className="w-full rounded-xl border border-zinc-200 px-4 py-3 text-[13px] text-zinc-800 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                  rows={6}
+                  placeholder={"https://www.christ.de/media/...\nhttps://www.christ.de/media/...\nhttps://www.christ.de/media/..."}
+                  value={christUrls}
+                  onChange={(e) => setChristUrls(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button type="submit" disabled={christImporting} className="flex-1">
+                  {christImporting ? "Importiere..." : "Bilder importieren"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => { setShowChristImport(false); setChristUrls(""); }}
                 >
                   Abbrechen
                 </Button>
