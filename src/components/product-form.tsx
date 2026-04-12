@@ -21,10 +21,12 @@ interface ProductFormData {
   lowStockThreshold: string;
   mainImage: string;
   ebayStatus: string;
+  shopifyStatus: string;
   notes: string;
 }
 
 const EBAY_STATUSES = ["Nicht gepostet", "eBay Kleinanzeige"];
+const SHOPIFY_STATUSES = ["Nicht gepostet", "Shopify"];
 
 const CATEGORIES = [
   "Armbanduhr",
@@ -73,6 +75,7 @@ export default function ProductForm({
     lowStockThreshold: "2",
     mainImage: "",
     ebayStatus: "Nicht gepostet",
+    shopifyStatus: "Nicht gepostet",
     notes: "",
     ...initialData,
   });
@@ -457,6 +460,31 @@ export default function ProductForm({
                   form.ebayStatus === status
                     ? status === "eBay Kleinanzeige"
                       ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                      : "border-zinc-800 bg-zinc-800 text-white"
+                    : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300"
+                }`}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
+        </Card>
+
+        {/* Shopify Status */}
+        <Card>
+          <h3 className="mb-4 text-sm font-semibold text-zinc-700">
+            Shopify
+          </h3>
+          <div className="flex gap-3">
+            {SHOPIFY_STATUSES.map((status) => (
+              <button
+                key={status}
+                type="button"
+                onClick={() => updateField("shopifyStatus", status)}
+                className={`rounded-xl border px-5 py-2.5 text-[13px] font-medium transition-all ${
+                  form.shopifyStatus === status
+                    ? status === "Shopify"
+                      ? "border-purple-500 bg-purple-50 text-purple-700"
                       : "border-zinc-800 bg-zinc-800 text-white"
                     : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300"
                 }`}
