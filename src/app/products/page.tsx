@@ -9,7 +9,8 @@ import {
   stockStatusLabel,
   stockStatusColor,
 } from "@/lib/utils";
-import { Plus, Search, Watch } from "lucide-react";
+import { Plus, Search, Watch, ImagePlus } from "lucide-react";
+import { toast } from "sonner";
 
 interface Product {
   id: string;
@@ -32,6 +33,7 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [importingBoss, setImportingBoss] = useState(false);
 
   useEffect(() => {
     const q = search ? `?search=${encodeURIComponent(search)}` : "";
@@ -48,12 +50,42 @@ export default function ProductsPage() {
         title="Produkte"
         description={`${products.length} Produkte im Bestand`}
         actions={
-          <Link href="/products/add">
-            <Button>
-              <Plus size={16} />
-              Produkt hinzufügen
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              onClick={async () => {
+                setImportingBoss(true);
+                try {
+                  const res = await fetch("/api/products/import-shopify-boss-images", { method: "POST" });
+                  const data = await res.json();
+                  if (res.ok) {
+                    toast.success(`${data.totalImported} BOSS-Bilder importiert`);
+                    // Refresh products to show new images
+                    const q = search ? `?search=${encodeURIComponent(search)}` : "";
+                    fetch(`/api/products${q}`)
+                      .then((r) => r.json())
+                      .then((d) => { if (Array.isArray(d)) setProducts(d); });
+                  } else {
+                    toast.error(data.error || "Import fehlgeschlagen");
+                  }
+                } catch {
+                  toast.error("Netzwerkfehler");
+                } finally {
+                  setImportingBoss(false);
+                }
+              }}
+              disabled={importingBoss}
+            >
+              <ImagePlus size={16} />
+              {importingBoss ? "Importiere..." : "BOSS Bilder"}
             </Button>
-          </Link>
+            <Link href="/products/add">
+              <Button>
+                <Plus size={16} />
+                Produkt hinzufügen
+              </Button>
+            </Link>
+          </div>
         }
       />
 
