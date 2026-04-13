@@ -356,7 +356,7 @@ export default function ProductDetailPage({
               {product.galleryImages.map((img) => (
                 <div
                   key={img.id}
-                  className={`group relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-zinc-50 ${img.isPrimary ? "ring-2 ring-amber-400" : ""}`}
+                  className={`group relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-zinc-50 border-2 ${img.isPrimary ? "border-black shadow-[0_0_0_3px_rgba(245,158,11,0.8)] bg-black/5" : "border-zinc-200"}`}
                 >
                   <Image
                     src={img.imageUrl}
