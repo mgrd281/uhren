@@ -7,7 +7,7 @@ const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
 interface ShopifyImage {
   id: string;
   src: string;
-  alt?: string;
+  altText?: string;
 }
 
 interface ShopifyProduct {
@@ -29,7 +29,7 @@ async function fetchShopifyProducts(query: string): Promise<ShopifyProduct[]> {
                 node {
                   id
                   src
-                  alt
+                  altText
                 }
               }
             }
@@ -64,7 +64,7 @@ async function fetchShopifyProducts(query: string): Promise<ShopifyProduct[]> {
     images: edge.node.images.edges.map((imgEdge: any) => ({
       id: imgEdge.node.id,
       src: imgEdge.node.src,
-      alt: imgEdge.node.alt,
+      altText: imgEdge.node.altText,
     })),
   }));
 }
