@@ -99,9 +99,6 @@ export default function ProductDetailPage({
   const [saleSaving, setSaleSaving] = useState(false);
   const [editingField, setEditingField] = useState<"costPrice" | "salePriceExpected" | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [showChristImport, setShowChristImport] = useState(false);
-  const [christUrls, setChristUrls] = useState("");
-  const [christImporting, setChristImporting] = useState(false);
   const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
   const [bulkDeletingImages, setBulkDeletingImages] = useState(false);
 
@@ -218,42 +215,6 @@ export default function ProductDetailPage({
       reloadProduct();
     } else {
       toast.error("Löschen fehlgeschlagen");
-    }
-  }
-
-  async function handleChristImport(e: React.FormEvent) {
-    e.preventDefault();
-    if (!product) return;
-    setChristImporting(true);
-    const urls = christUrls
-      .split("\n")
-      .map((u: string) => u.trim())
-      .filter((u: string) => u.length > 0);
-    if (urls.length === 0) {
-      toast.error("Keine URLs angegeben");
-      setChristImporting(false);
-      return;
-    }
-    try {
-      const res = await fetch("/api/products/import-christ-images", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: product.id, imageUrls: urls }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        toast.success(`${data.imported} Christ-Bilder importiert`);
-        setShowChristImport(false);
-        setChristUrls("");
-        reloadProduct();
-      } else {
-        const err = await res.json();
-        toast.error(err.error || "Import fehlgeschlagen");
-      }
-    } catch {
-      toast.error("Netzwerkfehler");
-    } finally {
-      setChristImporting(false);
     }
   }
 
@@ -404,14 +365,6 @@ export default function ProductDetailPage({
             )}
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => setShowChristImport(true)}
-            >
-              <ImagePlus size={14} />
-              Christ-Bilder importieren
-            </Button>
             {product.galleryImages.length > 0 && (
               <Button
                 size="sm"
@@ -875,42 +828,6 @@ export default function ProductDetailPage({
       )}
 
       {/* Christ Image Import Modal */}
-      {showChristImport && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-zinc-900">Christ-Bilder importieren</h3>
-            <p className="mt-1 text-[13px] text-zinc-400">
-              Bild-URLs zeilenweise einfügen
-            </p>
-            <form onSubmit={handleChristImport} className="mt-5 space-y-4">
-              <div>
-                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
-                  Bild-URLs (eine pro Zeile)
-                </label>
-                <textarea
-                  className="w-full rounded-xl border border-zinc-200 px-4 py-3 text-[13px] text-zinc-800 focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
-                  rows={6}
-                  placeholder={"https://www.christ.de/media/...\nhttps://www.christ.de/media/...\nhttps://www.christ.de/media/..."}
-                  value={christUrls}
-                  onChange={(e) => setChristUrls(e.target.value)}
-                />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <Button type="submit" disabled={christImporting} className="flex-1">
-                  {christImporting ? "Importiere..." : "Bilder importieren"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => { setShowChristImport(false); setChristUrls(""); }}
-                >
-                  Abbrechen
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
