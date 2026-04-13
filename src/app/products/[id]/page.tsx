@@ -716,91 +716,186 @@ export default function ProductDetailPage({
       </Card>
 
       {/* Sale Modal */}
-      {showSaleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-zinc-900">Verkauf erfassen</h3>
-            <p className="mt-1 text-[13px] text-zinc-400">
-              {product.name} — Bestand: {product.quantity} Stück
-            </p>
-            <form onSubmit={handleSale} className="mt-5 space-y-4">
+      {showSaleModal && product && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowSaleModal(false); }}
+        >
+          <div className="mx-4 w-full max-w-lg rounded-3xl bg-white shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-start gap-4 border-b border-zinc-100 p-6">
+              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-50">
+                {product.mainImage ? (
+                  <Image
+                    src={product.mainImage}
+                    alt={product.name}
+                    fill
+                    className="object-contain p-1"
+                    sizes="56px"
+                    unoptimized={product.mainImage.startsWith("data:") || product.mainImage.startsWith("http")}
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <Watch size={24} className="text-zinc-300" />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-bold text-zinc-900">Verkauf erfassen</h3>
+                <p className="mt-0.5 text-[13px] text-zinc-500 truncate">
+                  {product.brand} · {product.name}
+                </p>
+                <div className="mt-1.5 flex items-center gap-2">
+                  <Badge className="bg-zinc-100 text-zinc-600 text-[10px]">
+                    Bestand: {product.quantity} Stück
+                  </Badge>
+                  <Badge className="bg-amber-50 text-amber-700 text-[10px]">
+                    EK: {formatCurrency(product.costPrice)}
+                  </Badge>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowSaleModal(false)}
+                className="rounded-xl p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Scrollable form */}
+            <form id="sale-form" onSubmit={handleSale} className="flex-1 overflow-y-auto p-6 space-y-5">
+              {/* Zahlungsart */}
               <div>
-                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
+                <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
                   Zahlungsart
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {["Bar", "PayPal", "eBay Kleinanzeigen", "Vorkasse", "Geschenk", "Shopify"].map((method) => (
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { key: "Bar", icon: "💵" },
+                    { key: "PayPal", icon: "🅿️" },
+                    { key: "eBay Kleinanzeigen", icon: "🏷️" },
+                    { key: "Vorkasse", icon: "🏦" },
+                    { key: "Geschenk", icon: "🎁" },
+                    { key: "Shopify", icon: "🛒" },
+                  ].map(({ key, icon }) => (
                     <button
-                      key={method}
+                      key={key}
                       type="button"
-                      onClick={() => setSaleForm((f) => ({ ...f, paymentMethod: f.paymentMethod === method ? "" : method, salePrice: method === "Geschenk" ? "0" : f.salePrice }))}
-                      className={`rounded-lg border px-3 py-2 text-[12px] font-medium transition-colors ${
-                        saleForm.paymentMethod === method
-                          ? "border-zinc-900 bg-zinc-900 text-white"
-                          : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-400"
+                      onClick={() => setSaleForm((f) => ({ ...f, paymentMethod: f.paymentMethod === key ? "" : key, salePrice: key === "Geschenk" ? "0" : f.salePrice }))}
+                      className={`flex flex-col items-center gap-1 rounded-xl border px-2 py-2.5 text-[11px] font-medium transition-all ${
+                        saleForm.paymentMethod === key
+                          ? "border-zinc-900 bg-zinc-900 text-white shadow-lg shadow-zinc-900/20 scale-[1.02]"
+                          : "border-zinc-150 bg-white text-zinc-500 hover:border-zinc-300 hover:bg-zinc-50"
                       }`}
                     >
-                      {method}
+                      <span className="text-base">{icon}</span>
+                      <span className="leading-tight text-center">{key}</span>
                     </button>
                   ))}
                 </div>
               </div>
-              {saleForm.paymentMethod !== "Geschenk" && (
+
+              {/* Preis & Menge */}
+              <div className="grid grid-cols-2 gap-3">
+                {saleForm.paymentMethod !== "Geschenk" ? (
+                  <div>
+                    <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                      Verkaufspreis (€) *
+                    </label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      required
+                      placeholder="z.B. 149.00"
+                      value={saleForm.salePrice}
+                      onChange={(e) => setSaleForm((f) => ({ ...f, salePrice: e.target.value }))}
+                      className="text-lg font-bold"
+                    />
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 flex items-center justify-center">
+                    <p className="text-[13px] font-semibold text-emerald-700">🎁 Geschenk — 0,00 €</p>
+                  </div>
+                )}
                 <div>
-                  <label className="mb-1 block text-[12px] font-medium text-zinc-600">
-                    Verkaufspreis (€) *
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                    Menge *
                   </label>
                   <Input
                     type="number"
-                    step="0.01"
-                    min="0.01"
+                    min="1"
+                    max={product.quantity}
                     required
-                    placeholder="z.B. 149.00"
-                    value={saleForm.salePrice}
-                    onChange={(e) => setSaleForm((f) => ({ ...f, salePrice: e.target.value }))}
+                    value={saleForm.quantitySold}
+                    onChange={(e) => setSaleForm((f) => ({ ...f, quantitySold: e.target.value }))}
+                    className="text-lg font-bold"
                   />
                 </div>
-              )}
-              {saleForm.paymentMethod === "Geschenk" && (
-                <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-3">
-                  <p className="text-[13px] font-medium text-emerald-700">🎁 Geschenk — Verkaufspreis: 0,00 €</p>
+              </div>
+
+              {/* Live-Vorschau */}
+              {saleForm.salePrice && saleForm.quantitySold && saleForm.paymentMethod !== "Geschenk" && (
+                <div className="rounded-2xl border border-zinc-100 bg-gradient-to-br from-zinc-50 to-white p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[11px] text-zinc-400">Gesamtbetrag</p>
+                      <p className="text-2xl font-bold text-zinc-900">
+                        {formatCurrency(parseFloat(saleForm.salePrice || "0") * parseInt(saleForm.quantitySold || "1"))}
+                      </p>
+                    </div>
+                    <div className="text-end">
+                      <p className="text-[11px] text-zinc-400">Gewinn</p>
+                      <p className={`text-lg font-bold ${
+                        (parseFloat(saleForm.salePrice || "0") - product.costPrice) >= 0
+                          ? "text-emerald-600"
+                          : "text-red-500"
+                      }`}>
+                        {formatCurrency((parseFloat(saleForm.salePrice || "0") - product.costPrice) * parseInt(saleForm.quantitySold || "1"))}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex gap-4 text-[11px] text-zinc-400">
+                    <span>{saleForm.quantitySold}× {formatCurrency(parseFloat(saleForm.salePrice || "0"))}</span>
+                    <span>·</span>
+                    <span>EK: {formatCurrency(product.costPrice)}/St.</span>
+                    {saleForm.versand && saleForm.shippingCost && (
+                      <>
+                        <span>·</span>
+                        <span>Versand: {formatCurrency(parseFloat(saleForm.shippingCost))}</span>
+                      </>
+                    )}
+                  </div>
                 </div>
               )}
-              <div>
-                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
-                  Menge *
-                </label>
-                <Input
-                  type="number"
-                  min="1"
-                  max={product.quantity}
-                  required
-                  value={saleForm.quantitySold}
-                  onChange={(e) => setSaleForm((f) => ({ ...f, quantitySold: e.target.value }))}
-                />
+
+              {/* Datum & Kunde */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                    Verkaufsdatum
+                  </label>
+                  <Input
+                    type="date"
+                    value={saleForm.soldAt}
+                    onChange={(e) => setSaleForm((f) => ({ ...f, soldAt: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                    Kunde (optional)
+                  </label>
+                  <Input
+                    placeholder="Kundenname"
+                    value={saleForm.customerName}
+                    onChange={(e) => setSaleForm((f) => ({ ...f, customerName: e.target.value }))}
+                  />
+                </div>
               </div>
+
+              {/* Notiz */}
               <div>
-                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
-                  Verkaufsdatum (leer = heute)
-                </label>
-                <Input
-                  type="date"
-                  value={saleForm.soldAt}
-                  onChange={(e) => setSaleForm((f) => ({ ...f, soldAt: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
-                  Kunde (optional)
-                </label>
-                <Input
-                  placeholder="Kundenname"
-                  value={saleForm.customerName}
-                  onChange={(e) => setSaleForm((f) => ({ ...f, customerName: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-[12px] font-medium text-zinc-600">
+                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
                   Notiz (optional)
                 </label>
                 <Input
@@ -809,7 +904,9 @@ export default function ProductDetailPage({
                   onChange={(e) => setSaleForm((f) => ({ ...f, notes: e.target.value }))}
                 />
               </div>
-              <label className="flex items-center gap-3 rounded-xl border border-zinc-100 p-3 cursor-pointer transition-colors hover:bg-blue-50">
+
+              {/* Versand */}
+              <label className="flex items-center gap-3 rounded-xl border border-zinc-100 p-3.5 cursor-pointer transition-all hover:border-blue-200 hover:bg-blue-50/30">
                 <input
                   type="checkbox"
                   checked={saleForm.versand}
@@ -823,7 +920,7 @@ export default function ProductDetailPage({
               </label>
               {saleForm.versand && (
                 <div>
-                  <label className="mb-1 block text-[12px] font-medium text-zinc-600">
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
                     Versandkosten (€)
                   </label>
                   <Input
@@ -836,19 +933,32 @@ export default function ProductDetailPage({
                   />
                 </div>
               )}
-              <div className="flex gap-3 pt-2">
-                <Button type="submit" disabled={saleSaving} className="flex-1">
-                  {saleSaving ? "Speichern..." : "Verkauf speichern"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setShowSaleModal(false)}
-                >
-                  Abbrechen
-                </Button>
-              </div>
             </form>
+
+            {/* Footer */}
+            <div className="border-t border-zinc-100 p-4 flex gap-3">
+              <Button type="submit" form="sale-form" disabled={saleSaving} className="flex-1 h-11 text-[14px] font-semibold">
+                {saleSaving ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Speichern...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <DollarSign size={16} />
+                    Verkauf speichern
+                  </span>
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setShowSaleModal(false)}
+                className="h-11 px-6"
+              >
+                Abbrechen
+              </Button>
+            </div>
           </div>
         </div>
       )}
