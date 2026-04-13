@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import ProductForm from "@/components/product-form";
 import { Skeleton } from "@/components/ui";
 
 export default function EditProductPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = use(params);
   const [data, setData] = useState<Record<string, string> | null>(null);
 
   useEffect(() => {
