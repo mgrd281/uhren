@@ -11,6 +11,9 @@ const BRANDS = [
   { name: "Armani", value: "Armani" },
   { name: "Diesel", value: "Diesel" },
   { name: "Armani Exchange", value: "Armani Exchange" },
+  { name: "Maserati", value: "Maserati" },
+  { name: "Daniel Wellington", value: "Daniel Wellington" },
+  { name: "Michael Kors", value: "Michael Kors" },
 ];
 
 interface ImportResult {
