@@ -457,7 +457,7 @@ export default function ProductDetailPage({
               className="rounded-xl border border-zinc-100 bg-white p-4 cursor-pointer transition-colors hover:border-amber-200 hover:bg-amber-50/30"
               onClick={() => { setEditingField("salePriceExpected"); setEditValue(String(product.salePriceExpected)); }}
             >
-              <p className="text-[11px] text-zinc-400">Erwarteter VK-Preis <span className="text-amber-500">✎</span></p>
+              <p className="text-[11px] text-zinc-400">Verkauf Preis <span className="text-amber-500">✎</span></p>
               {editingField === "salePriceExpected" ? (
                 <form onSubmit={(e) => { e.preventDefault(); savePrice(); }} className="mt-1 flex gap-2">
                   <input
