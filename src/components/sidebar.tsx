@@ -10,6 +10,7 @@ import {
   BarChart3,
   Settings,
   PlusCircle,
+  Image,
   Menu,
   X,
 } from "lucide-react";
@@ -19,6 +20,7 @@ const nav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/products", label: "Produkte", icon: Watch },
   { href: "/products/add", label: "Produkt hinzufügen", icon: PlusCircle },
+  { href: "/import-images", label: "Shopify Bilder", icon: Image },
   { href: "/sales", label: "Verkäufe", icon: ShoppingBag },
   { href: "/reports", label: "Berichte", icon: BarChart3 },
   { href: "/settings", label: "Einstellungen", icon: Settings },
