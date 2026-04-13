@@ -356,7 +356,7 @@ export default function ProductDetailPage({
               {product.galleryImages.map((img) => (
                 <div
                   key={img.id}
-                  className={`group relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-zinc-50 border-2 ${img.isPrimary ? "border-black shadow-[0_0_0_3px_rgba(245,158,11,0.8)] bg-black/5" : "border-zinc-200"}`}
+                  className={`group relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-zinc-50 border-2 ${img.isPrimary ? "border-black bg-black/5" : "border-zinc-200"}`}
                 >
                   <Image
                     src={img.imageUrl}
@@ -370,10 +370,10 @@ export default function ProductDetailPage({
                     {!img.isPrimary && (
                       <button
                         onClick={(e) => { e.preventDefault(); handleSetPrimaryImage(img.id, img.imageUrl); }}
-                        className="rounded bg-white/90 p-1 text-amber-600 hover:bg-amber-100"
+                        className="rounded bg-white/90 p-1 text-zinc-900 hover:bg-zinc-100"
                         title="Als Hauptbild setzen"
                       >
-                        <Star size={12} />
+                        <Star size={12} className="fill-black text-black" />
                       </button>
                     )}
                     <button
@@ -387,7 +387,7 @@ export default function ProductDetailPage({
                   </div>
                   {img.isPrimary && (
                     <div className="absolute start-1 top-1">
-                      <Star size={12} className="fill-amber-400 text-amber-400" />
+                      <Star size={12} className="fill-black text-black" />
                     </div>
                   )}
                 </div>
