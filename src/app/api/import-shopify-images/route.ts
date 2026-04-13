@@ -119,6 +119,9 @@ export async function POST(request: NextRequest) {
           .filter((img) => img.shopifyImageId)
           .map((img) => [img.shopifyImageId, img])
       );
+      const replaceableImages = localProduct.galleryImages.filter(
+        (img) => !img.shopifyImageId
+      );
 
       const hasPrimary = localProduct.galleryImages.some((img) => img.isPrimary);
       let primarySet = hasPrimary;
@@ -146,6 +149,19 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
+        const replacementImage = replaceableImages.shift();
+        if (replacementImage) {
+          await prisma.productImage.update({
+            where: { id: replacementImage.id },
+            data: {
+              imageUrl: shopImage.src,
+              shopifyImageId: shopImage.id,
+            },
+          });
+          totalImported++;
+          continue;
+        }
+
         await prisma.productImage.create({
           data: {
             productId: localProduct.id,
@@ -166,6 +182,16 @@ export async function POST(request: NextRequest) {
         }
 
         totalImported++;
+      }
+
+      if (shopProduct.images.length > 0 && localProduct.mainImage) {
+        const firstShopImage = shopProduct.images[0].src;
+        if (firstShopImage && localProduct.mainImage !== firstShopImage) {
+          await prisma.product.update({
+            where: { id: localProduct.id },
+            data: { mainImage: firstShopImage },
+          });
+        }
       }
     }
 
