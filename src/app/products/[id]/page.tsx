@@ -103,6 +103,7 @@ export default function ProductDetailPage({
   const [christUrls, setChristUrls] = useState("");
   const [christImporting, setChristImporting] = useState(false);
   const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
+  const [bulkDeletingImages, setBulkDeletingImages] = useState(false);
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -274,6 +275,25 @@ export default function ProductDetailPage({
     }
   }
 
+  async function handleDeleteAllGalleryImages() {
+    if (!confirm("Alle Galerie-Bilder wirklich löschen?")) return;
+    setBulkDeletingImages(true);
+    try {
+      const res = await fetch(`/api/products/${id}/gallery-images`, { method: "DELETE" });
+      if (res.ok) {
+        const data = await res.json();
+        toast.success(`${data.deleted} Bilder gelöscht`);
+        reloadProduct();
+      } else {
+        toast.error("Löschen fehlgeschlagen");
+      }
+    } catch {
+      toast.error("Netzwerkfehler");
+    } finally {
+      setBulkDeletingImages(false);
+    }
+  }
+
   async function handleSetPrimaryImage(imageId: string, imageUrl: string) {
     try {
       const res = await fetch(`/api/gallery-images/${imageId}`, {
@@ -383,7 +403,7 @@ export default function ProductDetailPage({
               </div>
             )}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <Button
               size="sm"
               variant="secondary"
@@ -392,6 +412,16 @@ export default function ProductDetailPage({
               <ImagePlus size={14} />
               Christ-Bilder importieren
             </Button>
+            {product.galleryImages.length > 0 && (
+              <Button
+                size="sm"
+                variant="danger"
+                onClick={handleDeleteAllGalleryImages}
+                disabled={bulkDeletingImages}
+              >
+                {bulkDeletingImages ? "Lösche..." : "Alle Galerie-Bilder löschen"}
+              </Button>
+            )}
             {product.galleryImages.length > 0 && (
               <span className="text-[12px] text-zinc-400">
                 {product.galleryImages.length} Galerie-Bilder
