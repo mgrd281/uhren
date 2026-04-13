@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-const SHOPIFY_STORE = "45dv93-bk.myshopify.com";
+const SHOPIFY_STORE = process.env.SHOPIFY_STORE || "45dv93-bk.myshopify.com";
 const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
 
 interface ShopifyImage {
