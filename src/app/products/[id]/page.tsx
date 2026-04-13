@@ -84,6 +84,7 @@ export default function ProductDetailPage({
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [showSaleModal, setShowSaleModal] = useState(false);
   const [saleForm, setSaleForm] = useState({
@@ -102,16 +103,39 @@ export default function ProductDetailPage({
   const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
 
   useEffect(() => {
+    setLoadError(null);
+    setLoading(true);
+
     fetch(`/api/products/${id}`)
-      .then((r) => r.json())
-      .then((d) => setProduct(d))
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) {
+          throw new Error(data.error || "Fehler beim Laden des Produkts");
+        }
+        setProduct(data);
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : "Fehler beim Laden des Produkts";
+        setLoadError(message);
+        setProduct(null);
+      })
       .finally(() => setLoading(false));
   }, [id]);
 
   function reloadProduct() {
     fetch(`/api/products/${id}`)
-      .then((r) => r.json())
-      .then((d) => setProduct(d));
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) {
+          throw new Error(data.error || "Fehler beim Laden des Produkts");
+        }
+        setProduct(data);
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : "Fehler beim Laden des Produkts";
+        setLoadError(message);
+        setProduct(null);
+      });
   }
 
   async function savePrice() {
@@ -261,6 +285,15 @@ export default function ProductDetailPage({
       <div className="space-y-8">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-96" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-center text-red-700">
+        <h2 className="mb-2 text-2xl font-semibold">Fehler beim Laden des Produkts</h2>
+        <p className="text-sm text-red-600">{loadError}</p>
       </div>
     );
   }

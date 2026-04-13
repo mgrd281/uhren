@@ -23,8 +23,9 @@ export async function GET(
     }
 
     return NextResponse.json(product);
-  } catch {
-    return NextResponse.json({ error: "Datenbankverbindungsfehler" }, { status: 500 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Datenbankverbindungsfehler";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
