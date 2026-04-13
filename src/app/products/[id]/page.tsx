@@ -97,7 +97,7 @@ export default function ProductDetailPage({
     paymentMethod: "",
   });
   const [saleSaving, setSaleSaving] = useState(false);
-  const [editingField, setEditingField] = useState<"costPrice" | "salePriceExpected" | null>(null);
+  const [editingField, setEditingField] = useState<"costPrice" | "salePriceExpected" | "quantity" | null>(null);
   const [editValue, setEditValue] = useState("");
   const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
 
@@ -116,15 +116,18 @@ export default function ProductDetailPage({
 
   async function savePrice() {
     if (!editingField || !product) return;
-    const val = parseFloat(editValue);
-    if (isNaN(val) || val < 0) { toast.error("Ungültiger Preis"); return; }
+    const val = editingField === "quantity" ? parseInt(editValue, 10) : parseFloat(editValue);
+    if (isNaN(val) || val < 0) {
+      toast.error(editingField === "quantity" ? "Ungültige Menge" : "Ungültiger Preis");
+      return;
+    }
     const res = await fetch(`/api/products/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ [editingField]: val }),
     });
     if (res.ok) {
-      toast.success("Preis gespeichert");
+      toast.success(editingField === "quantity" ? "Bestand gespeichert" : "Preis gespeichert");
       setEditingField(null);
       reloadProduct();
     } else {
@@ -479,12 +482,32 @@ export default function ProductDetailPage({
                 </p>
               )}
             </div>
-            <Card className="!p-4">
-              <p className="text-[11px] text-zinc-400">Aktueller Bestand</p>
-              <p className="text-lg font-bold text-zinc-900">
-                {formatNumber(product.quantity)} Stück
-              </p>
-            </Card>
+            <div
+              className="rounded-xl border border-zinc-100 bg-white p-4 cursor-pointer transition-colors hover:border-amber-200 hover:bg-amber-50/30"
+              onClick={() => { setEditingField("quantity"); setEditValue(String(product.quantity)); }}
+            >
+              <p className="text-[11px] text-zinc-400">Aktueller Bestand <span className="text-amber-500">✎</span></p>
+              {editingField === "quantity" ? (
+                <form onSubmit={(e) => { e.preventDefault(); savePrice(); }} className="mt-1 flex gap-2">
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    autoFocus
+                    className="w-full rounded-lg border border-zinc-200 px-2 py-1 text-lg font-bold text-zinc-900 focus:border-amber-400 focus:outline-none"
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => { if (e.key === "Escape") setEditingField(null); }}
+                  />
+                  <button type="submit" onClick={(e) => e.stopPropagation()} className="rounded-lg bg-zinc-900 px-3 py-1 text-xs font-medium text-white hover:bg-zinc-700">OK</button>
+                </form>
+              ) : (
+                <p className="text-lg font-bold text-zinc-900">
+                  {formatNumber(product.quantity)} Stück
+                </p>
+              )}
+            </div>
             <Card className="!p-4">
               <p className="text-[11px] text-zinc-400">Bestandswert</p>
               <p className="text-lg font-bold text-zinc-900">
