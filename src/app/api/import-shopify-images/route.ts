@@ -28,7 +28,7 @@ async function fetchShopifyProducts(query: string): Promise<ShopifyProduct[]> {
               edges {
                 node {
                   id
-                  src
+                  originalSrc
                   altText
                 }
               }
@@ -63,7 +63,7 @@ async function fetchShopifyProducts(query: string): Promise<ShopifyProduct[]> {
     title: edge.node.title,
     images: edge.node.images.edges.map((imgEdge: any) => ({
       id: imgEdge.node.id,
-      src: imgEdge.node.src,
+      src: imgEdge.node.originalSrc,
       altText: imgEdge.node.altText,
     })),
   }));
@@ -111,22 +111,46 @@ export async function POST(request: NextRequest) {
 
       if (!localProduct) continue;
 
-      // Check which images already exist
-      const existingUrls = new Set(
-        localProduct.galleryImages.map((img) => img.imageUrl)
+      const existingImagesByUrl = new Map(
+        localProduct.galleryImages.map((img) => [img.imageUrl, img])
+      );
+      const existingImagesByShopifyId = new Map(
+        localProduct.galleryImages
+          .filter((img) => img.shopifyImageId)
+          .map((img) => [img.shopifyImageId, img])
       );
 
-      // Import new images
       const hasPrimary = localProduct.galleryImages.some((img) => img.isPrimary);
       let primarySet = hasPrimary;
 
       for (const shopImage of shopProduct.images) {
-        if (existingUrls.has(shopImage.src)) continue;
+        const existingById = existingImagesByShopifyId.get(shopImage.id);
+        if (existingById) {
+          if (existingById.imageUrl !== shopImage.src) {
+            await prisma.productImage.update({
+              where: { id: existingById.id },
+              data: { imageUrl: shopImage.src },
+            });
+          }
+          continue;
+        }
+
+        const existingByUrl = existingImagesByUrl.get(shopImage.src);
+        if (existingByUrl) {
+          if (!existingByUrl.shopifyImageId) {
+            await prisma.productImage.update({
+              where: { id: existingByUrl.id },
+              data: { shopifyImageId: shopImage.id },
+            });
+          }
+          continue;
+        }
 
         await prisma.productImage.create({
           data: {
             productId: localProduct.id,
             imageUrl: shopImage.src,
+            shopifyImageId: shopImage.id,
             isPrimary: !primarySet,
           },
         });
