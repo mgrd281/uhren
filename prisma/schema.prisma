@@ -36,7 +36,8 @@ model Product {
   lowStockThreshold Int                 @default(2)
   status            StockStatus         @default(IN_STOCK)
   mainImage         String?
-  ebayStatus        String              @default("Nicht gepostet")
+  ebayStatus        String              @default("")
+  shopifyListed     Boolean             @default(false)
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   notes             String?
@@ -50,13 +51,12 @@ model Product {
 }
 
 model ProductImage {
-  id              String   @id @default(cuid())
-  productId       String
-  imageUrl        String
-  shopifyImageId  String?  @unique
-  isPrimary       Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  productId String
+  imageUrl  String
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
 }
@@ -69,12 +69,12 @@ model Sale {
   totalAmount   Float
   customerName  String?
   invoiceNumber String?
-  paymentMethod String?
-  shippingCost  Float    @default(0)
   soldAt        DateTime @default(now())
   notes         String?
   createdAt     DateTime @default(now())
-  product       Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  paymentMethod String?
+  shippingCost  Float    @default(0)
+  product       Product  @relation(fields: [productId], references: [id])
 
   @@index([productId])
   @@index([soldAt])
@@ -88,7 +88,7 @@ model InventoryMovement {
   referenceId String?
   note        String?
   createdAt   DateTime     @default(now())
-  product     Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  product     Product      @relation(fields: [productId], references: [id])
 
   @@index([productId])
   @@index([type])
@@ -103,4 +103,6 @@ model StoreSettings {
   rtlEnabled   Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  password     String
+  totpSecret   String?
 }

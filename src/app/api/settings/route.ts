@@ -7,7 +7,7 @@ export async function GET() {
     let settings = await prisma.storeSettings.findUnique({ where: { id: "default" } });
     if (!settings) {
       settings = await prisma.storeSettings.create({
-        data: { id: "default" },
+        data: { id: "default", password: "admin" },
       });
     }
     return NextResponse.json(settings);
@@ -31,7 +31,7 @@ export async function PATCH(request: NextRequest) {
   const settings = await prisma.storeSettings.upsert({
     where: { id: "default" },
     update: parsed.data,
-    create: { id: "default", ...parsed.data },
+    create: { id: "default", password: "admin", ...parsed.data },
   });
   return NextResponse.json(settings);
 }
