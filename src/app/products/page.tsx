@@ -59,10 +59,12 @@ export default function ProductsPage() {
                   const res = await fetch("/api/import-shopify-all-images", { method: "POST" });
                   const data = await res.json();
                   if (res.ok) {
-                    toast.success(`${data.totalImported} Bilder importiert (${data.results?.filter((r: { skipped: boolean }) => !r.skipped).length || 0} Produkte aktualisiert)`);
-                    // Refresh products to show new images
+                    const updated = data.results?.filter((r: { skipped: boolean }) => !r.skipped).length || 0;
+                    const skipped = data.results?.filter((r: { skipped: boolean }) => r.skipped).length || 0;
+                    toast.success(`${data.totalImported} Bilder importiert! ${updated} Produkte aktualisiert${skipped > 0 ? `, ${skipped} übersprungen (nicht im Shopify Store)` : ''}`);
+                    // Refresh products to show new images (with cache buster)
                     const q = search ? `?search=${encodeURIComponent(search)}` : "";
-                    fetch(`/api/products${q}`)
+                    fetch(`/api/products${q}${q ? '&' : '?'}_t=${Date.now()}`)
                       .then((r) => r.json())
                       .then((d) => { if (Array.isArray(d)) setProducts(d); });
                   } else {
