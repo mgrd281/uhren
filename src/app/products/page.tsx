@@ -33,7 +33,7 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [importingBoss, setImportingBoss] = useState(false);
+  const [importingImages, setImportingImages] = useState(false);
 
   useEffect(() => {
     const q = search ? `?search=${encodeURIComponent(search)}` : "";
@@ -54,12 +54,12 @@ export default function ProductsPage() {
             <Button
               variant="secondary"
               onClick={async () => {
-                setImportingBoss(true);
+                setImportingImages(true);
                 try {
-                  const res = await fetch("/api/products/import-shopify-boss-images", { method: "POST" });
+                  const res = await fetch("/api/import-shopify-all-images", { method: "POST" });
                   const data = await res.json();
                   if (res.ok) {
-                    toast.success(`${data.totalImported} BOSS-Bilder importiert`);
+                    toast.success(`${data.totalImported} Bilder importiert (${data.results?.filter((r: { skipped: boolean }) => !r.skipped).length || 0} Produkte aktualisiert)`);
                     // Refresh products to show new images
                     const q = search ? `?search=${encodeURIComponent(search)}` : "";
                     fetch(`/api/products${q}`)
@@ -71,13 +71,13 @@ export default function ProductsPage() {
                 } catch {
                   toast.error("Netzwerkfehler");
                 } finally {
-                  setImportingBoss(false);
+                  setImportingImages(false);
                 }
               }}
-              disabled={importingBoss}
+              disabled={importingImages}
             >
               <ImagePlus size={16} />
-              {importingBoss ? "Importiere..." : "BOSS Bilder"}
+              {importingImages ? "Importiere..." : "Bilder importieren"}
             </Button>
             <Link href="/products/add">
               <Button>
