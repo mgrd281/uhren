@@ -228,7 +228,7 @@ export default function SalesPage() {
 
             <div className="space-y-6 border-t border-zinc-200 pt-6">
               <div>
-                <h4 className="mb-4 text-sm font-semibold text-zinc-900">Zahlungsart *</h4>
+                <h4 className="mb-4 text-sm font-bold text-zinc-900">💳 Zahlungsart</h4>
                 <div className="grid grid-cols-3 gap-3">
                   {PAYMENT_METHODS.map((m) => (
                     <button
