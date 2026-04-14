@@ -15,7 +15,7 @@ import {
 } from "@/components/ui";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { ShoppingBag, Plus, X } from "lucide-react";
-// v3 - force rebuild
+// Updated: 2026-04-14 20:30 UTC - Payment and Marketplace sections separated
 const PAYMENT_METHODS = ["Bar", "PayPal", "Geschenk"];
 const MARKETPLACES = ["Shopify", "Kaufland", "eBay Kleinanzeigen"];
 import { toast } from "sonner";
