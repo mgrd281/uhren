@@ -214,15 +214,24 @@ export default function SalesPage() {
                   }))
                 }
               />
-              <div className="col-span-1 sm:col-span-2 lg:col-span-3">
-                <p className="mb-2 text-sm font-medium text-zinc-700">Zahlungsart</p>
-                <div className="flex gap-3">
+            </div>
+            <Textarea
+              label="Notizen"
+              value={form.notes}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, notes: e.target.value }))
+              }
+            />
+            <div className="space-y-5 border-t border-zinc-200 pt-5">
+              <div>
+                <h4 className="mb-3 text-sm font-semibold text-zinc-700">Zahlungsart</h4>
+                <div className="flex flex-wrap gap-2">
                   {PAYMENT_METHODS.map((m) => (
                     <button
                       key={m}
                       type="button"
                       onClick={() => setForm((prev) => ({ ...prev, paymentMethod: m }))}
-                      className={`rounded-xl border px-4 py-2.5 text-[13px] font-medium transition-all ${
+                      className={`rounded-lg border px-3 py-2 text-[13px] font-medium transition-all ${
                         form.paymentMethod === m
                           ? "border-zinc-800 bg-zinc-800 text-white"
                           : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300"
@@ -233,15 +242,15 @@ export default function SalesPage() {
                   ))}
                 </div>
               </div>
-              <div className="col-span-1 sm:col-span-2 lg:col-span-3">
-                <p className="mb-2 mt-3 text-sm font-medium text-zinc-700">Verkaufsplattform</p>
-                <div className="flex gap-3">
+              <div>
+                <h4 className="mb-3 text-sm font-semibold text-zinc-700">Verkaufsplattform</h4>
+                <div className="flex flex-wrap gap-2">
                   {MARKETPLACES.map((mp) => (
                     <button
                       key={mp}
                       type="button"
                       onClick={() => setForm((prev) => ({ ...prev, marketplace: mp }))}
-                      className={`rounded-xl border px-4 py-2.5 text-[13px] font-medium transition-all ${
+                      className={`rounded-lg border px-3 py-2 text-[13px] font-medium transition-all ${
                         form.marketplace === mp
                           ? "border-emerald-500 bg-emerald-50 text-emerald-700"
                           : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300"
@@ -253,13 +262,6 @@ export default function SalesPage() {
                 </div>
               </div>
             </div>
-            <Textarea
-              label="Notizen"
-              value={form.notes}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, notes: e.target.value }))
-              }
-            />
 
             {selectedProduct && form.salePrice && (
               <div className="rounded-xl bg-zinc-50 p-4">
