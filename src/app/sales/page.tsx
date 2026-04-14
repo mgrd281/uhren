@@ -215,6 +215,7 @@ export default function SalesPage() {
                 }
               />
             </div>
+
             <Textarea
               label="Notizen"
               value={form.notes}
@@ -222,19 +223,20 @@ export default function SalesPage() {
                 setForm((prev) => ({ ...prev, notes: e.target.value }))
               }
             />
-            <div className="space-y-5 border-t border-zinc-200 pt-5">
+
+            <div className="space-y-6 border-t border-zinc-200 pt-6">
               <div>
-                <h4 className="mb-3 text-sm font-semibold text-zinc-700">Zahlungsart</h4>
-                <div className="flex flex-wrap gap-2">
+                <h4 className="mb-4 text-sm font-semibold text-zinc-900">Zahlungsart *</h4>
+                <div className="grid grid-cols-3 gap-3">
                   {PAYMENT_METHODS.map((m) => (
                     <button
-                      key={m}
+                      key={`payment-${m}`}
                       type="button"
                       onClick={() => setForm((prev) => ({ ...prev, paymentMethod: m }))}
-                      className={`rounded-lg border px-3 py-2 text-[13px] font-medium transition-all ${
+                      className={`rounded-lg border-2 py-3 px-2 text-center text-sm font-medium transition-all ${
                         form.paymentMethod === m
-                          ? "border-zinc-800 bg-zinc-800 text-white"
-                          : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300"
+                          ? "border-zinc-900 bg-zinc-900 text-white"
+                          : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300"
                       }`}
                     >
                       {m}
@@ -242,18 +244,19 @@ export default function SalesPage() {
                   ))}
                 </div>
               </div>
+
               <div>
-                <h4 className="mb-3 text-sm font-semibold text-zinc-700">Verkaufsplattform</h4>
-                <div className="flex flex-wrap gap-2">
+                <h4 className="mb-4 text-sm font-semibold text-zinc-900">Verkaufsplattform *</h4>
+                <div className="grid grid-cols-3 gap-3">
                   {MARKETPLACES.map((mp) => (
                     <button
-                      key={mp}
+                      key={`marketplace-${mp}`}
                       type="button"
                       onClick={() => setForm((prev) => ({ ...prev, marketplace: mp }))}
-                      className={`rounded-lg border px-3 py-2 text-[13px] font-medium transition-all ${
+                      className={`rounded-lg border-2 py-3 px-2 text-center text-sm font-medium transition-all ${
                         form.marketplace === mp
-                          ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                          : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300"
+                          ? "border-emerald-600 bg-emerald-600 text-white"
+                          : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300"
                       }`}
                     >
                       {mp}
