@@ -15,6 +15,7 @@ import {
 } from "@/components/ui";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { ShoppingBag, Plus, X } from "lucide-react";
+// v3 - force rebuild
 const PAYMENT_METHODS = ["Bar", "PayPal", "Geschenk"];
 const MARKETPLACES = ["Shopify", "Kaufland", "eBay Kleinanzeigen"];
 import { toast } from "sonner";
