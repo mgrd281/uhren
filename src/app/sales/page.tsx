@@ -14,6 +14,8 @@ import {
 } from "@/components/ui";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
 import { ShoppingBag, Plus, X } from "lucide-react";
+const PAYMENT_METHODS = ["Bar", "PayPal", "Geschenk"];
+const MARKETPLACES = ["Shopify", "Kaufland", "eBay Kleinanzeigen"];
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -27,6 +29,8 @@ interface Sale {
   invoiceNumber: string | null;
   soldAt: string;
   notes: string | null;
+  paymentMethod?: string | null;
+  marketplace?: string | null;
   product: { name: string; brand: string; quantity: number };
 }
 
@@ -52,6 +56,8 @@ export default function SalesPage() {
     customerName: "",
     invoiceNumber: "",
     notes: "",
+    paymentMethod: "",
+    marketplace: "",
   });
 
   useEffect(() => {
@@ -85,6 +91,8 @@ export default function SalesPage() {
       salePrice: parseFloat(form.salePrice),
       customerName: form.customerName || null,
       invoiceNumber: form.invoiceNumber || null,
+      paymentMethod: form.paymentMethod || null,
+      marketplace: form.marketplace || null,
       notes: form.notes || null,
     };
 
@@ -204,6 +212,44 @@ export default function SalesPage() {
                   }))
                 }
               />
+              <div className="col-span-1 sm:col-span-2 lg:col-span-3">
+                <p className="mb-2 text-sm font-medium text-zinc-700">Zahlungsart</p>
+                <div className="flex gap-3">
+                  {PAYMENT_METHODS.map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setForm((prev) => ({ ...prev, paymentMethod: m }))}
+                      className={`rounded-xl border px-4 py-2.5 text-[13px] font-medium transition-all ${
+                        form.paymentMethod === m
+                          ? "border-zinc-800 bg-zinc-800 text-white"
+                          : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300"
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="col-span-1 sm:col-span-2 lg:col-span-3">
+                <p className="mb-2 mt-3 text-sm font-medium text-zinc-700">Verkaufsplattform</p>
+                <div className="flex gap-3">
+                  {MARKETPLACES.map((mp) => (
+                    <button
+                      key={mp}
+                      type="button"
+                      onClick={() => setForm((prev) => ({ ...prev, marketplace: mp }))}
+                      className={`rounded-xl border px-4 py-2.5 text-[13px] font-medium transition-all ${
+                        form.marketplace === mp
+                          ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                          : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300"
+                      }`}
+                    >
+                      {mp}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
             <Textarea
               label="Notizen"
@@ -269,6 +315,8 @@ export default function SalesPage() {
                   {formatDateTime(sale.soldAt)}
                   {sale.customerName && ` · ${sale.customerName}`}
                   {sale.invoiceNumber && ` · ${sale.invoiceNumber}`}
+                  {sale.paymentMethod && ` · ${sale.paymentMethod}`}
+                  {sale.marketplace && ` · ${sale.marketplace}`}
                 </p>
               </div>
               <div className="text-end">

@@ -24,6 +24,7 @@ export const saleSchema = z.object({
   customerName: z.string().optional().nullable(),
   invoiceNumber: z.string().optional().nullable(),
   paymentMethod: z.string().optional().nullable(),
+    marketplace: z.string().optional().nullable(),
   shippingCost: z.coerce.number().min(0).optional().default(0),
   soldAt: z.coerce.date().optional(),
   notes: z.string().optional().nullable(),
