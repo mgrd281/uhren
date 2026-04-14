@@ -119,6 +119,8 @@ export default function SalesPage() {
         customerName: "",
         invoiceNumber: "",
         notes: "",
+        paymentMethod: "",
+        marketplace: "",
       });
 
       // Refresh
