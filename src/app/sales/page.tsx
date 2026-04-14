@@ -1,5 +1,5 @@
 "use client";
-// Force rebuild: v2
+// FORCE REBUILD v4 - Payment: Bar, PayPal, Geschenk | Marketplace: Shopify, Kaufland, eBay Kleinanzeigen
 
 import { useEffect, useState } from "react";
 import {
