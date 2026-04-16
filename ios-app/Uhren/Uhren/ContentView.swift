@@ -121,11 +121,21 @@ struct WebView: UIViewRepresentable {
 
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             if let url = navigationAction.request.url,
-               let host = url.host,
-               !host.contains("uhren-mu.vercel.app") && !host.contains("localhost") {
-                UIApplication.shared.open(url)
-                decisionHandler(.cancel)
-                return
+               let host = url.host {
+                // Allow Google OAuth flow inside the WebView
+                let allowedHosts = [
+                    "uhren-mu.vercel.app",
+                    "localhost",
+                    "accounts.google.com",
+                    "googleapis.com",
+                    "google.com",
+                ]
+                let isAllowed = allowedHosts.contains(where: { host.contains($0) })
+                if !isAllowed {
+                    UIApplication.shared.open(url)
+                    decisionHandler(.cancel)
+                    return
+                }
             }
             decisionHandler(.allow)
         }
