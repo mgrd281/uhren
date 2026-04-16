@@ -2,9 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-import { SettingsProvider } from "@/components/providers";
+import { Providers } from "@/components/providers";
 import Sidebar from "@/components/sidebar";
 import ServiceWorker from "@/components/service-worker";
+import AppShell from "@/components/app-shell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -74,13 +75,9 @@ export default function RootLayout({
     >
       <body className="min-h-full bg-[#fafafa]">
         <ServiceWorker />
-        <SettingsProvider>
+        <Providers>
           <Sidebar />
-          <main className="min-h-screen transition-all duration-300 pb-20 lg:pb-0 lg:pl-[260px]">
-            <div className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
-              {children}
-            </div>
-          </main>
+          <AppShell>{children}</AppShell>
           <Toaster
             position="bottom-right"
             toastOptions={{
@@ -88,7 +85,7 @@ export default function RootLayout({
                 "!rounded-xl !border-zinc-100 !shadow-lg !text-[13px]",
             }}
           />
-        </SettingsProvider>
+        </Providers>
       </body>
     </html>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, createContext, useContext, type ReactNode } from "react";
+import { SessionProvider } from "next-auth/react";
 
 interface StoreSettings {
   storeName: string;
@@ -30,4 +31,12 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return <Ctx.Provider value={settings}>{children}</Ctx.Provider>;
+}
+
+export function Providers({ children }: { children: ReactNode }) {
+  return (
+    <SessionProvider>
+      <SettingsProvider>{children}</SettingsProvider>
+    </SessionProvider>
+  );
 }

@@ -107,3 +107,12 @@ model StoreSettings {
   password     String
   totpSecret   String?
 }
+
+model AuthorizedUser {
+  id        String   @id @default("owner")
+  googleUid String   @unique
+  email     String
+  name      String?
+  image     String?
+  createdAt DateTime @default(now())
+}

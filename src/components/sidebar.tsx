@@ -13,8 +13,10 @@ import {
   Image,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
 import { useState } from "react";
+import { signOut } from "next-auth/react";
 
 const nav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -38,6 +40,9 @@ const tabs = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
+  // Hide sidebar on login page
+  if (pathname === "/login") return null;
 
   return (
     <>
@@ -114,6 +119,15 @@ export default function Sidebar() {
                   </Link>
                 );
               })}
+
+            {/* Logout */}
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="flex items-center gap-3 rounded-xl px-4 py-3 text-[14px] font-medium text-red-500 transition-colors active:bg-red-50"
+            >
+              <LogOut size={20} />
+              Abmelden
+            </button>
           </div>
         </>
       )}
@@ -167,7 +181,14 @@ export default function Sidebar() {
 
         {/* Footer */}
         <div className="mt-auto border-t border-zinc-100 pt-4">
-          <p className="text-center text-[10px] text-zinc-300">
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium text-zinc-500 transition-all duration-200 hover:bg-red-50 hover:text-red-600"
+          >
+            <LogOut size={18} className="shrink-0 text-zinc-400 group-hover:text-red-500" />
+            Abmelden
+          </button>
+          <p className="mt-3 text-center text-[10px] text-zinc-300">
             Luxury Watch SaaS v1.0
           </p>
         </div>
