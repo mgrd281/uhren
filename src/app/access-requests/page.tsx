@@ -223,32 +223,29 @@ export default function AccessRequestsPage() {
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
-          { label: "Gesamt", value: stats.total, icon: Users, color: "text-zinc-600", bg: "bg-zinc-50" },
-          { label: "Ausstehend", value: stats.pending, icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
-          { label: "Genehmigt", value: stats.approved, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
-          { label: "Abgelehnt", value: stats.rejected, icon: XCircle, color: "text-red-500", bg: "bg-red-50" },
+          { label: "Gesamt", value: stats.total, icon: Users, color: "text-zinc-600", bg: "bg-zinc-50", ring: "ring-zinc-100" },
+          { label: "Ausstehend", value: stats.pending, icon: Clock, color: "text-amber-600", bg: "bg-amber-50", ring: "ring-amber-100" },
+          { label: "Genehmigt", value: stats.approved, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50", ring: "ring-emerald-100" },
+          { label: "Abgelehnt", value: stats.rejected, icon: XCircle, color: "text-red-500", bg: "bg-red-50", ring: "ring-red-100" },
         ].map((kpi) => (
-          <Card key={kpi.label} className="relative overflow-hidden">
+          <div key={kpi.label} className="rounded-2xl border border-zinc-100 bg-white px-5 py-5 transition-all hover:shadow-sm">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">{kpi.label}</p>
-                <p className={cn("mt-2 text-3xl font-bold", kpi.color)}>{kpi.value}</p>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">{kpi.label}</p>
+                <p className={cn("mt-2 text-3xl font-bold tracking-tight", kpi.color)}>{kpi.value}</p>
               </div>
-              <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", kpi.bg)}>
-                <kpi.icon size={20} className={kpi.color} />
+              <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl ring-1", kpi.bg, kpi.ring)}>
+                <kpi.icon size={18} className={kpi.color} strokeWidth={2.2} />
               </div>
             </div>
-            {kpi.label === "Ausstehend" && kpi.value > 0 && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 to-amber-500 animate-pulse" />
-            )}
-          </Card>
+          </div>
         ))}
       </div>
 
       {/* ── Filter Bar ── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {/* Status tabs */}
-        <div className="flex gap-1 rounded-2xl bg-zinc-100/80 p-1">
+        <div className="flex gap-1 rounded-2xl bg-zinc-100/60 p-1.5">
           {STATUS_TABS.map((tab) => {
             const active = statusFilter === tab.value;
             const count = tab.value === "all" ? stats.total
@@ -260,18 +257,18 @@ export default function AccessRequestsPage() {
                 key={tab.value}
                 onClick={() => setStatusFilter(tab.value)}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-xl px-3 py-2 text-[12px] font-semibold transition-all",
+                  "flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[12px] font-semibold transition-all",
                   active
-                    ? "bg-white text-zinc-900 shadow-sm"
+                    ? "bg-white text-zinc-900 shadow-sm ring-1 ring-zinc-200/60"
                     : "text-zinc-400 hover:text-zinc-600"
                 )}
               >
-                <tab.icon size={14} />
+                <tab.icon size={13} />
                 {tab.label}
                 {count > 0 && (
                   <span className={cn(
-                    "ml-0.5 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold",
-                    active ? "bg-zinc-900 text-white" : "bg-zinc-200 text-zinc-500"
+                    "ml-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[9px] font-bold",
+                    active ? "bg-zinc-900 text-white" : "bg-zinc-200/80 text-zinc-500"
                   )}>
                     {count}
                   </span>
@@ -283,13 +280,13 @@ export default function AccessRequestsPage() {
 
         {/* Search */}
         <div className="relative">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-300" />
+          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-300" />
           <input
             type="text"
             placeholder="Name, E-Mail oder IP suchen…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="h-10 w-full rounded-xl border border-zinc-200 bg-white pl-9 pr-4 text-[13px] text-zinc-700 outline-none transition-all placeholder:text-zinc-300 focus:border-zinc-300 focus:ring-2 focus:ring-zinc-100 sm:w-72"
+            className="h-10 w-full rounded-xl border border-zinc-200 bg-white/80 pl-10 pr-4 text-[13px] text-zinc-700 outline-none transition-all placeholder:text-zinc-300 focus:border-zinc-300 focus:ring-2 focus:ring-zinc-100 sm:w-72"
           />
         </div>
       </div>
@@ -344,15 +341,15 @@ export default function AccessRequestsPage() {
                 )}
 
                 {/* User rows */}
-                <div className="divide-y divide-zinc-100">
+                <div className="divide-y divide-zinc-50">
                   {group.members.map((req) => (
                     <div key={req.id} className="px-6 py-5">
                       <div className="flex items-start gap-4">
                         {/* Avatar */}
                         {req.image ? (
-                          <img src={req.image} alt="" className="h-11 w-11 shrink-0 rounded-full ring-2 ring-zinc-100" referrerPolicy="no-referrer" />
+                          <img src={req.image} alt="" className="h-11 w-11 shrink-0 rounded-full ring-2 ring-white shadow-sm" referrerPolicy="no-referrer" />
                         ) : (
-                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-zinc-100 to-zinc-200 text-[14px] font-bold text-zinc-500">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-zinc-200 to-zinc-300 text-[14px] font-bold text-white shadow-sm">
                             {(req.name || req.email)[0]?.toUpperCase()}
                           </div>
                         )}
@@ -424,8 +421,8 @@ export default function AccessRequestsPage() {
 
                       {/* Role selector */}
                       {(req.status === "approved" || req.status === "pending") && (
-                        <div className="mt-4 rounded-xl bg-zinc-50/80 px-4 py-3">
-                          <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Rolle zuweisen</p>
+                        <div className="mt-4 rounded-xl bg-zinc-50/50 px-4 py-3">
+                          <p className="mb-2.5 text-[10px] font-medium uppercase tracking-widest text-zinc-400">Rolle zuweisen</p>
                           <div className="flex flex-wrap gap-2">
                             {ROLES.map((role) => {
                               const RoleIcon = role.icon;
@@ -455,7 +452,7 @@ export default function AccessRequestsPage() {
                 </div>
 
                 {/* Shared device info */}
-                <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-zinc-100 bg-zinc-50/40 px-6 py-3 rounded-b-2xl">
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-zinc-50 bg-zinc-50/30 px-6 py-3 rounded-b-2xl">
                   {first.ip && (
                     <div className="flex items-center gap-1.5 text-[11px] text-zinc-400">
                       <Globe size={12} className="shrink-0 text-zinc-300" />
