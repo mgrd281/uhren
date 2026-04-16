@@ -120,73 +120,41 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Revenue Summary ── */}
-      <div className="grid grid-cols-3 gap-3 lg:gap-5">
+      <div className="grid grid-cols-3 gap-2 lg:gap-3">
         <Link
           href="/sales"
-          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-zinc-900 px-3.5 py-3 text-white transition-all duration-300 active:scale-[0.97] lg:px-6 lg:py-5 lg:hover:shadow-2xl lg:hover:shadow-zinc-900/30"
+          className="group flex items-center gap-2.5 rounded-xl bg-zinc-900 px-3 py-2.5 text-white transition-all duration-200 active:scale-[0.97] lg:px-4 lg:py-3 lg:hover:shadow-lg lg:hover:shadow-zinc-900/20"
         >
-          <div className="absolute -right-6 -top-6 hidden h-24 w-24 rounded-full bg-white/[0.04] lg:block" />
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="hidden h-7 w-7 items-center justify-center rounded-lg bg-white/10 lg:flex">
-                <Receipt size={14} className="text-zinc-300" />
-              </div>
-              <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-[11px]">
-                Umsatz
-              </span>
-            </div>
-            <span className="mt-1.5 block text-[16px] font-extrabold tracking-tight sm:text-lg lg:mt-3 lg:text-3xl">
-              {formatCurrency(kpis.totalRevenue)}
-            </span>
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10">
+            <Receipt size={14} className="text-zinc-300" />
           </div>
-          <span className="mt-1 flex items-center gap-0.5 text-[9px] text-zinc-500 lg:mt-4 lg:text-xs lg:group-hover:text-zinc-300">
-            Alle Verkäufe <ChevronRight size={9} className="transition-transform lg:h-3 lg:w-3 lg:group-hover:translate-x-0.5" />
-          </span>
+          <div className="min-w-0">
+            <span className="text-[9px] font-medium uppercase tracking-wider text-zinc-400 lg:text-[10px]">Umsatz</span>
+            <span className="block text-[15px] font-bold tracking-tight lg:text-lg">{formatCurrency(kpis.totalRevenue)}</span>
+          </div>
         </Link>
         <Link
           href="/sales"
-          className="group flex flex-col justify-between rounded-2xl border border-zinc-100/80 bg-white px-3.5 py-3 shadow-sm transition-all duration-300 active:scale-[0.97] lg:px-6 lg:py-5 lg:hover:-translate-y-0.5 lg:hover:shadow-lg lg:hover:shadow-zinc-200/60"
+          className="group flex items-center gap-2.5 rounded-xl border border-zinc-100/80 bg-white px-3 py-2.5 shadow-sm transition-all duration-200 active:scale-[0.97] lg:px-4 lg:py-3 lg:hover:-translate-y-0.5 lg:hover:shadow-md"
         >
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="hidden h-7 w-7 items-center justify-center rounded-lg bg-blue-50 lg:flex">
-                <TrendingUp size={14} className="text-blue-500" />
-              </div>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 lg:text-[11px]">
-                Umsatz 30 Tage
-              </span>
-            </div>
-            <span className="mt-1.5 block text-[16px] font-extrabold tracking-tight text-zinc-900 sm:text-lg lg:mt-3 lg:text-3xl">
-              {formatCurrency(kpis.revenueLast30Days)}
-            </span>
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50">
+            <TrendingUp size={14} className="text-blue-500" />
           </div>
-          <div className="mt-1 hidden items-center lg:mt-4 lg:flex">
-            <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold text-blue-600">
-              Letzte 30 Tage
-            </span>
+          <div className="min-w-0">
+            <span className="text-[9px] font-semibold uppercase tracking-wider text-zinc-400 lg:text-[10px]">30 Tage</span>
+            <span className="block text-[15px] font-bold tracking-tight text-zinc-900 lg:text-lg">{formatCurrency(kpis.revenueLast30Days)}</span>
           </div>
         </Link>
         <Link
           href="/products"
-          className="group flex flex-col justify-between rounded-2xl border border-zinc-100/80 bg-white px-3.5 py-3 shadow-sm transition-all duration-300 active:scale-[0.97] lg:px-6 lg:py-5 lg:hover:-translate-y-0.5 lg:hover:shadow-lg lg:hover:shadow-zinc-200/60"
+          className="group flex items-center gap-2.5 rounded-xl border border-zinc-100/80 bg-white px-3 py-2.5 shadow-sm transition-all duration-200 active:scale-[0.97] lg:px-4 lg:py-3 lg:hover:-translate-y-0.5 lg:hover:shadow-md"
         >
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="hidden h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 lg:flex">
-                <Gem size={14} className="text-zinc-500" />
-              </div>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 lg:text-[11px]">
-                Bestandswert
-              </span>
-            </div>
-            <span className="mt-1.5 block text-[16px] font-extrabold tracking-tight text-zinc-900 sm:text-lg lg:mt-3 lg:text-3xl">
-              {formatCurrency(kpis.expectedSalesValue)}
-            </span>
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100">
+            <Gem size={14} className="text-zinc-500" />
           </div>
-          <div className="mt-1 hidden items-center lg:mt-4 lg:flex">
-            <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-[11px] font-bold text-zinc-600">
-              {kpis.totalStock} Artikel
-            </span>
+          <div className="min-w-0">
+            <span className="text-[9px] font-semibold uppercase tracking-wider text-zinc-400 lg:text-[10px]">Bestand</span>
+            <span className="block text-[15px] font-bold tracking-tight text-zinc-900 lg:text-lg">{formatCurrency(kpis.expectedSalesValue)}</span>
           </div>
         </Link>
       </div>
