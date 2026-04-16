@@ -62,8 +62,7 @@ export default function StockAlerts() {
           body: lines.join("\n"),
           icon: "/icon-192.png",
           tag: "stock-alert",
-          renotify: true,
-        });
+        } as NotificationOptions);
       } catch {
         // silent
       } finally {
