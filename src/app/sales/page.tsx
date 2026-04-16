@@ -33,12 +33,18 @@ import Image from "next/image";
 const PAYMENT_METHODS = [
   { key: "Bar", label: "Bar", icon: Banknote },
   { key: "PayPal", label: "PayPal", icon: CreditCard },
+  { key: "Überweisung", label: "Überw.", icon: CreditCard },
+  { key: "Vorkasse", label: "Vorkasse", icon: Package },
+  { key: "Nachnahme", label: "Nachn.", icon: Package },
   { key: "Geschenk", label: "Geschenk", icon: Gift },
 ];
 const MARKETPLACES = [
   { key: "Shopify", label: "Shopify" },
   { key: "Kaufland", label: "Kaufland" },
   { key: "eBay Kleinanzeigen", label: "eBay KA" },
+  { key: "eBay", label: "eBay" },
+  { key: "Amazon", label: "Amazon" },
+  { key: "Laden", label: "Laden" },
 ];
 
 interface Sale {

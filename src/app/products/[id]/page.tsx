@@ -19,7 +19,7 @@ import {
   stockStatusColor,
   movementTypeLabel,
 } from "@/lib/utils";
-import { ArrowRight, Trash2, Edit, Watch, ShoppingBag, DollarSign, X, ImagePlus, Star } from "lucide-react";
+import { ArrowRight, Trash2, Edit, Watch, ShoppingBag, DollarSign, X, ImagePlus, Star, Plus } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { use } from "react";
@@ -97,6 +97,8 @@ export default function ProductDetailPage({
     shippingCost: "",
     paymentMethod: "",
     marketplace: "",
+    customPayment: "",
+    customMarketplace: "",
   });
   const [saleSaving, setSaleSaving] = useState(false);
   const [editingField, setEditingField] = useState<"costPrice" | "salePriceExpected" | "quantity" | null>(null);
@@ -174,8 +176,8 @@ export default function ProductDetailPage({
           quantitySold: parseInt(saleForm.quantitySold),
           customerName: saleForm.customerName || null,
           notes: saleForm.notes || null,
-          paymentMethod: saleForm.paymentMethod || null,
-          marketplace: saleForm.marketplace || null,
+          paymentMethod: (saleForm.paymentMethod === "__custom" ? saleForm.customPayment : saleForm.paymentMethod) || null,
+          marketplace: (saleForm.marketplace === "__custom" ? saleForm.customMarketplace : saleForm.marketplace) || null,
           shippingCost: saleForm.shippingCost ? parseFloat(saleForm.shippingCost) : 0,
           soldAt: saleForm.soldAt ? new Date(saleForm.soldAt).toISOString() : new Date().toISOString(),
         }),
@@ -198,7 +200,7 @@ export default function ProductDetailPage({
         try { new Audio("/cha-ching.mp3").play(); } catch {}
         toast.success(saleForm.versand ? "Verkauf + Versand gespeichert" : "Verkauf erfolgreich gespeichert");
         setShowSaleModal(false);
-        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false, shippingCost: "", paymentMethod: "", marketplace: "" });
+        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false, shippingCost: "", paymentMethod: "", marketplace: "", customPayment: "", customMarketplace: "" });
         reloadProduct();
       } else {
         const err = await res.json();
@@ -768,61 +770,105 @@ export default function ProductDetailPage({
             <form id="sale-form" onSubmit={handleSale} className="flex-1 overflow-y-auto p-6 space-y-5">
               {/* Zahlungsart */}
               <div>
-                <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                <label className="mb-2.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
                   Zahlungsart
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { key: "Bar", icon: "💵" },
-                    { key: "PayPal", icon: "🅿️" },
-                    { key: "Überweisung", icon: "🏦" },
-                    { key: "Vorkasse", icon: "📩" },
-                    { key: "Nachnahme", icon: "📦" },
-                    { key: "Geschenk", icon: "🎁" },
+                    { key: "Bar", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg> },
+                    { key: "PayPal", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 21H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.5L14 7.5V12"/><path d="M14 3v4.5H9.5"/><path d="M16 13h2a2 2 0 0 1 0 4h-2v3"/></svg> },
+                    { key: "Überweisung", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7h18M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7M3 7l2-4h14l2 4"/><path d="M8 11v2M16 11v2M12 11v2"/></svg> },
+                    { key: "Vorkasse", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v6l3-3"/><path d="M12 8 9 5"/><rect x="3" y="10" width="18" height="11" rx="2"/><path d="M7 10V8"/><path d="M17 10V8"/></svg> },
+                    { key: "Nachnahme", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="m7.5 4.27 9 5.15"/><path d="M3.29 7 12 12l8.71-5"/><path d="M12 22V12"/><circle cx="18.5" cy="15.5" r="2.5"/><path d="M20.27 17.27 22 19"/></svg> },
+                    { key: "Geschenk", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg> },
                   ].map(({ key, icon }) => (
                     <button
                       key={key}
                       type="button"
                       onClick={() => setSaleForm((f) => ({ ...f, paymentMethod: f.paymentMethod === key ? "" : key, salePrice: key === "Geschenk" ? "0" : f.salePrice }))}
-                      className={`flex flex-col items-center gap-1 rounded-xl border px-2 py-2.5 text-[11px] font-medium transition-all ${
+                      className={`group flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 text-[11px] font-medium transition-all duration-200 ${
                         saleForm.paymentMethod === key
-                          ? "border-zinc-900 bg-zinc-900 text-white shadow-lg shadow-zinc-900/20 scale-[1.02]"
-                          : "border-zinc-150 bg-white text-zinc-500 hover:border-zinc-300 hover:bg-zinc-50"
+                          ? "border-zinc-900 bg-zinc-900 text-white shadow-md shadow-zinc-900/25"
+                          : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-700"
                       }`}
                     >
-                      <span className="text-base">{icon}</span>
+                      <span className={`transition-transform duration-200 ${saleForm.paymentMethod === key ? "scale-110" : "group-hover:scale-105"}`}>{icon}</span>
                       <span className="leading-tight text-center">{key}</span>
                     </button>
                   ))}
                 </div>
+                {/* Custom payment method */}
+                {saleForm.paymentMethod === "__custom" && (
+                  <Input
+                    autoFocus
+                    placeholder="Zahlungsart eingeben…"
+                    className="mt-2"
+                    value={saleForm.customPayment || ""}
+                    onChange={(e) => setSaleForm((f) => ({ ...f, customPayment: e.target.value }))}
+                  />
+                )}
+                {saleForm.paymentMethod !== "__custom" && (
+                  <button
+                    type="button"
+                    onClick={() => setSaleForm((f) => ({ ...f, paymentMethod: "__custom", customPayment: "" }))}
+                    className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-zinc-200 py-2 text-[11px] font-medium text-zinc-400 transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-500"
+                  >
+                    <Plus size={12} />
+                    Andere Zahlungsart
+                  </button>
+                )}
               </div>
 
               {/* Marktplatz */}
               <div>
-                <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
-                  Marktplatz (optional)
+                <label className="mb-2.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                  Verkaufskanal
+                  <span className="ml-1.5 font-normal normal-case tracking-normal text-zinc-300">optional</span>
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { key: "Shopify", icon: "🛒" },
-                    { key: "eBay Kleinanzeigen", icon: "🏷️" },
-                    { key: "Kaufland", icon: "🏬" },
-                  ].map(({ key, icon }) => (
+                    { key: "Shopify", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57L23 6H6"/></svg> },
+                    { key: "eBay KA", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="m9 18 3-3-3-3"/></svg>, value: "eBay Kleinanzeigen" },
+                    { key: "Kaufland", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/><path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/><path d="M12 3v6"/></svg> },
+                    { key: "eBay", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> },
+                    { key: "Amazon", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg> },
+                    { key: "Laden", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 7h20l-2 13H4L2 7z"/><path d="M12 2v5"/><path d="M2 7l4-2"/><path d="M22 7l-4-2"/></svg> },
+                  ].map(({ key, icon, value }: { key: string; icon: React.ReactNode; value?: string }) => (
                     <button
                       key={key}
                       type="button"
-                      onClick={() => setSaleForm((f) => ({ ...f, marketplace: f.marketplace === key ? "" : key }))}
-                      className={`flex flex-col items-center gap-1 rounded-xl border px-2 py-2.5 text-[11px] font-medium transition-all ${
-                        saleForm.marketplace === key
-                          ? "border-zinc-900 bg-zinc-900 text-white shadow-lg shadow-zinc-900/20 scale-[1.02]"
-                          : "border-zinc-150 bg-white text-zinc-500 hover:border-zinc-300 hover:bg-zinc-50"
+                      onClick={() => setSaleForm((f) => ({ ...f, marketplace: f.marketplace === (value || key) ? "" : (value || key) }))}
+                      className={`group flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 text-[11px] font-medium transition-all duration-200 ${
+                        saleForm.marketplace === (value || key)
+                          ? "border-zinc-900 bg-zinc-900 text-white shadow-md shadow-zinc-900/25"
+                          : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-700"
                       }`}
                     >
-                      <span className="text-base">{icon}</span>
+                      <span className={`transition-transform duration-200 ${saleForm.marketplace === (value || key) ? "scale-110" : "group-hover:scale-105"}`}>{icon}</span>
                       <span className="leading-tight text-center">{key}</span>
                     </button>
                   ))}
                 </div>
+                {/* Custom marketplace */}
+                {saleForm.marketplace === "__custom" && (
+                  <Input
+                    autoFocus
+                    placeholder="Verkaufskanal eingeben…"
+                    className="mt-2"
+                    value={saleForm.customMarketplace || ""}
+                    onChange={(e) => setSaleForm((f) => ({ ...f, customMarketplace: e.target.value }))}
+                  />
+                )}
+                {saleForm.marketplace !== "__custom" && (
+                  <button
+                    type="button"
+                    onClick={() => setSaleForm((f) => ({ ...f, marketplace: "__custom", customMarketplace: "" }))}
+                    className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-zinc-200 py-2 text-[11px] font-medium text-zinc-400 transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-500"
+                  >
+                    <Plus size={12} />
+                    Anderer Verkaufskanal
+                  </button>
+                )}
               </div>
 
               {/* Preis & Menge */}
