@@ -14,9 +14,10 @@ import {
   Menu,
   X,
   LogOut,
+  UserCheck,
 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 const nav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -25,7 +26,8 @@ const nav = [
   { href: "/import-images", label: "Shopify Bilder", icon: Image },
   { href: "/sales", label: "Verkäufe", icon: ShoppingBag },
   { href: "/reports", label: "Berichte", icon: BarChart3 },
-  { href: "/settings", label: "Einstellungen", icon: Settings, badge: true },
+  { href: "/access-requests", label: "Zugriffsanfragen", icon: UserCheck, badge: true, ownerOnly: true },
+  { href: "/settings", label: "Einstellungen", icon: Settings },
 ];
 
 /* Bottom tab bar items (mobile app) */
@@ -42,6 +44,11 @@ export default function Sidebar() {
   const [open, setOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const prevCountRef = useRef(0);
+  const { data: session } = useSession();
+  const isOwner = (session as unknown as { role?: string })?.role === "owner";
+
+  /* Filter nav items based on role */
+  const visibleNav = nav.filter((item) => !(item as { ownerOnly?: boolean }).ownerOnly || isOwner);
 
   const playNotificationSound = useCallback(() => {
     try {
@@ -80,6 +87,7 @@ export default function Sidebar() {
   }, []);
 
   useEffect(() => {
+    if (!isOwner) return;
     // Ask for notification permission on first load
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
@@ -102,9 +110,9 @@ export default function Sidebar() {
         .catch(() => {});
     };
     check();
-    const interval = setInterval(check, 30_000); // Poll every 30s
+    const interval = setInterval(check, 30_000);
     return () => clearInterval(interval);
-  }, [playNotificationSound, showBrowserNotification]);
+  }, [isOwner, playNotificationSound, showBrowserNotification]);
 
   // Hide sidebar on login page
   if (pathname === "/login") return null;
@@ -166,7 +174,7 @@ export default function Sidebar() {
             onClick={() => setOpen(false)}
           />
           <div className="fixed bottom-[72px] left-3 right-3 z-50 rounded-3xl border border-zinc-100 bg-white/95 p-2 shadow-2xl shadow-black/20 backdrop-blur-2xl lg:hidden safe-area-bottom animate-fade-in-scale">
-            {nav
+            {visibleNav
               .filter((item) => !tabs.some((t) => t.href === item.href))
               .map((item) => {
                 const active = pathname === item.href || pathname.startsWith(item.href + "/");
@@ -224,7 +232,7 @@ export default function Sidebar() {
 
         {/* Links */}
         <nav className="flex flex-1 flex-col gap-0.5">
-          {nav.map((item) => {
+          {visibleNav.map((item) => {
             const active = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link
