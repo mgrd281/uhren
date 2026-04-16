@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { PageHeader, Card, Input, Button, Skeleton } from "@/components/ui";
 import { toast } from "sonner";
-import { Save } from "lucide-react";
+import { Save, Download, FileJson, FileSpreadsheet, Database } from "lucide-react";
 
 interface Settings {
   storeName: string;
@@ -16,6 +16,7 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState<"json" | "csv" | "">("");
 
   useEffect(() => {
     fetch("/api/settings")
@@ -42,6 +43,34 @@ export default function SettingsPage() {
       toast.error("Verbindungsfehler");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function downloadBackup(format: "json" | "csv") {
+    setDownloading(format);
+    try {
+      const res = await fetch(`/api/backup?format=${format}`);
+      if (!res.ok) {
+        toast.error("Backup fehlgeschlagen");
+        return;
+      }
+      const disposition = res.headers.get("Content-Disposition") || "";
+      const match = disposition.match(/filename="(.+?)"/);
+      const filename = match?.[1] || `uhren-backup.${format}`;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success(`Backup als ${format.toUpperCase()} heruntergeladen`);
+    } catch {
+      toast.error("Verbindungsfehler");
+    } finally {
+      setDownloading("");
     }
   }
 
@@ -110,6 +139,61 @@ export default function SettingsPage() {
             <Save size={16} />
             {saving ? "Speichern..." : "Einstellungen speichern"}
           </Button>
+        </div>
+      </Card>
+
+      {/* ── Backup / Export ── */}
+      <Card className="max-w-2xl">
+        <div className="mb-1 flex items-center gap-2.5">
+          <Database size={18} className="text-zinc-500" />
+          <h3 className="text-sm font-semibold text-zinc-700">
+            Daten-Backup
+          </h3>
+        </div>
+        <p className="mb-5 text-[12px] text-zinc-400">
+          Alle Produkte, Verkäufe und Lagerbewegungen exportieren
+        </p>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {/* JSON backup */}
+          <button
+            onClick={() => downloadBackup("json")}
+            disabled={!!downloading}
+            className="flex items-center gap-3.5 rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-left transition-all hover:border-zinc-300 hover:shadow-sm active:scale-[0.98] disabled:opacity-50"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50">
+              <FileJson size={20} className="text-blue-600" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-semibold text-zinc-900">
+                {downloading === "json" ? "Wird heruntergeladen…" : "JSON-Backup"}
+              </p>
+              <p className="mt-0.5 text-[11px] text-zinc-400">
+                Komplett mit allen Details
+              </p>
+            </div>
+            <Download size={16} className="shrink-0 text-zinc-400" />
+          </button>
+
+          {/* CSV backup */}
+          <button
+            onClick={() => downloadBackup("csv")}
+            disabled={!!downloading}
+            className="flex items-center gap-3.5 rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-left transition-all hover:border-zinc-300 hover:shadow-sm active:scale-[0.98] disabled:opacity-50"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
+              <FileSpreadsheet size={20} className="text-emerald-600" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-semibold text-zinc-900">
+                {downloading === "csv" ? "Wird heruntergeladen…" : "CSV-Export"}
+              </p>
+              <p className="mt-0.5 text-[11px] text-zinc-400">
+                Für Excel / Google Sheets
+              </p>
+            </div>
+            <Download size={16} className="shrink-0 text-zinc-400" />
+          </button>
         </div>
       </Card>
     </div>
