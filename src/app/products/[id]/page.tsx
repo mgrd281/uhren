@@ -96,6 +96,7 @@ export default function ProductDetailPage({
     versand: false,
     shippingCost: "",
     paymentMethod: "",
+    marketplace: "",
   });
   const [saleSaving, setSaleSaving] = useState(false);
   const [editingField, setEditingField] = useState<"costPrice" | "salePriceExpected" | "quantity" | null>(null);
@@ -174,6 +175,7 @@ export default function ProductDetailPage({
           customerName: saleForm.customerName || null,
           notes: saleForm.notes || null,
           paymentMethod: saleForm.paymentMethod || null,
+          marketplace: saleForm.marketplace || null,
           shippingCost: saleForm.shippingCost ? parseFloat(saleForm.shippingCost) : 0,
           soldAt: saleForm.soldAt ? new Date(saleForm.soldAt).toISOString() : new Date().toISOString(),
         }),
@@ -196,7 +198,7 @@ export default function ProductDetailPage({
         try { new Audio("/cha-ching.mp3").play(); } catch {}
         toast.success(saleForm.versand ? "Verkauf + Versand gespeichert" : "Verkauf erfolgreich gespeichert");
         setShowSaleModal(false);
-        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false, shippingCost: "", paymentMethod: "" });
+        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false, shippingCost: "", paymentMethod: "", marketplace: "" });
         reloadProduct();
       } else {
         const err = await res.json();
@@ -773,10 +775,10 @@ export default function ProductDetailPage({
                   {[
                     { key: "Bar", icon: "💵" },
                     { key: "PayPal", icon: "🅿️" },
-                    { key: "eBay Kleinanzeigen", icon: "🏷️" },
-                    { key: "Vorkasse", icon: "🏦" },
+                    { key: "Überweisung", icon: "🏦" },
+                    { key: "Vorkasse", icon: "📩" },
+                    { key: "Nachnahme", icon: "📦" },
                     { key: "Geschenk", icon: "🎁" },
-                    { key: "Shopify", icon: "🛒" },
                   ].map(({ key, icon }) => (
                     <button
                       key={key}
@@ -784,6 +786,34 @@ export default function ProductDetailPage({
                       onClick={() => setSaleForm((f) => ({ ...f, paymentMethod: f.paymentMethod === key ? "" : key, salePrice: key === "Geschenk" ? "0" : f.salePrice }))}
                       className={`flex flex-col items-center gap-1 rounded-xl border px-2 py-2.5 text-[11px] font-medium transition-all ${
                         saleForm.paymentMethod === key
+                          ? "border-zinc-900 bg-zinc-900 text-white shadow-lg shadow-zinc-900/20 scale-[1.02]"
+                          : "border-zinc-150 bg-white text-zinc-500 hover:border-zinc-300 hover:bg-zinc-50"
+                      }`}
+                    >
+                      <span className="text-base">{icon}</span>
+                      <span className="leading-tight text-center">{key}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Marktplatz */}
+              <div>
+                <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                  Marktplatz (optional)
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { key: "Shopify", icon: "🛒" },
+                    { key: "eBay Kleinanzeigen", icon: "🏷️" },
+                    { key: "Kaufland", icon: "🏬" },
+                  ].map(({ key, icon }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setSaleForm((f) => ({ ...f, marketplace: f.marketplace === key ? "" : key }))}
+                      className={`flex flex-col items-center gap-1 rounded-xl border px-2 py-2.5 text-[11px] font-medium transition-all ${
+                        saleForm.marketplace === key
                           ? "border-zinc-900 bg-zinc-900 text-white shadow-lg shadow-zinc-900/20 scale-[1.02]"
                           : "border-zinc-150 bg-white text-zinc-500 hover:border-zinc-300 hover:bg-zinc-50"
                       }`}
