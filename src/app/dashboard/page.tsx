@@ -119,61 +119,80 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Revenue Summary ── */}
-      <div className="grid grid-cols-3 gap-3 lg:gap-5">
+      <div className="grid grid-cols-3 gap-3 lg:grid-cols-3 lg:gap-6">
         <Link
           href="/sales"
-          className="group relative flex flex-col overflow-hidden rounded-2xl bg-zinc-900 px-3.5 py-3 text-white transition-all active:scale-[0.98] lg:px-7 lg:py-6 lg:hover:shadow-2xl lg:hover:shadow-zinc-900/20"
+          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-zinc-900 px-3.5 py-3 text-white transition-all active:scale-[0.98] lg:rounded-3xl lg:px-8 lg:py-8 lg:hover:shadow-2xl lg:hover:shadow-zinc-900/25"
         >
-          <div className="absolute -right-6 -top-6 hidden h-24 w-24 rounded-full bg-white/[0.04] lg:block" />
-          <div className="absolute -right-2 top-8 hidden h-16 w-16 rounded-full bg-white/[0.03] lg:block" />
-          <div className="flex items-center gap-2">
-            <Receipt size={13} className="hidden text-zinc-500 lg:block lg:h-4 lg:w-4" />
-            <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
-              Umsatz
+          <div className="absolute -right-10 -top-10 hidden h-40 w-40 rounded-full bg-white/[0.04] lg:block" />
+          <div className="absolute right-8 top-20 hidden h-20 w-20 rounded-full bg-white/[0.03] lg:block" />
+          <div className="absolute bottom-0 left-0 hidden h-1 w-full bg-gradient-to-r from-white/10 via-white/5 to-transparent lg:block" />
+          <div>
+            <div className="flex items-center gap-2">
+              <div className="hidden h-8 w-8 items-center justify-center rounded-lg bg-white/10 lg:flex">
+                <Receipt size={15} className="text-zinc-300" />
+              </div>
+              <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-[11px]">
+                Umsatz
+              </span>
+            </div>
+            <span className="mt-1.5 block text-[16px] font-extrabold tracking-tight sm:text-lg lg:mt-4 lg:text-4xl">
+              {formatCurrency(kpis.totalRevenue)}
             </span>
           </div>
-          <span className="mt-1 text-[16px] font-bold tracking-tight sm:text-lg lg:mt-3 lg:text-3xl">
-            {formatCurrency(kpis.totalRevenue)}
-          </span>
-          <span className="mt-0.5 flex items-center gap-0.5 text-[9px] text-zinc-500 lg:mt-3 lg:text-xs lg:group-hover:text-zinc-300">
-            Ansehen <ChevronRight size={9} className="transition-transform lg:h-3 lg:w-3 lg:group-hover:translate-x-0.5" />
+          <span className="mt-1 flex items-center gap-0.5 text-[9px] text-zinc-500 lg:mt-6 lg:text-[13px] lg:group-hover:text-zinc-300">
+            Alle Verkäufe <ChevronRight size={9} className="transition-transform lg:h-4 lg:w-4 lg:group-hover:translate-x-1" />
           </span>
         </Link>
         <Link
           href="/sales"
-          className="group relative flex flex-col overflow-hidden rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98] lg:px-7 lg:py-6 lg:hover:-translate-y-0.5 lg:hover:shadow-lg"
+          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98] lg:rounded-3xl lg:border-emerald-100 lg:px-8 lg:py-8 lg:hover:-translate-y-1 lg:hover:shadow-xl lg:hover:shadow-emerald-500/10"
         >
-          <div className="absolute left-0 top-0 hidden h-full w-1 rounded-l-2xl bg-emerald-500 lg:block" />
-          <div className="flex items-center gap-2">
-            <TrendingUp size={13} className="hidden text-emerald-500 lg:block lg:h-4 lg:w-4" />
-            <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
-              Gewinn
+          <div className="absolute left-0 top-0 hidden h-full w-1.5 rounded-l-3xl bg-gradient-to-b from-emerald-400 to-emerald-600 lg:block" />
+          <div className="absolute -right-8 -bottom-8 hidden h-32 w-32 rounded-full bg-emerald-50 lg:block" />
+          <div>
+            <div className="flex items-center gap-2">
+              <div className="hidden h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 lg:flex">
+                <TrendingUp size={15} className="text-emerald-500" />
+              </div>
+              <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-[11px]">
+                Gewinn
+              </span>
+            </div>
+            <span className="mt-1.5 block text-[16px] font-extrabold tracking-tight text-emerald-600 sm:text-lg lg:mt-4 lg:text-4xl">
+              {formatCurrency(kpis.totalProfit)}
             </span>
           </div>
-          <span className="mt-1 text-[16px] font-bold tracking-tight text-emerald-600 sm:text-lg lg:mt-3 lg:text-3xl">
-            {formatCurrency(kpis.totalProfit)}
-          </span>
-          <span className="mt-0.5 hidden text-[11px] text-zinc-400 lg:mt-3 lg:block">
-            {kpis.totalRevenue > 0 ? `${Math.round((kpis.totalProfit / kpis.totalRevenue) * 100)}% Marge` : "—"}
-          </span>
+          <div className="mt-1 hidden items-center gap-3 lg:mt-6 lg:flex">
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[12px] font-bold text-emerald-600">
+              {kpis.totalRevenue > 0 ? `${Math.round((kpis.totalProfit / kpis.totalRevenue) * 100)}%` : "—"} Marge
+            </span>
+          </div>
         </Link>
         <Link
           href="/products"
-          className="group relative flex flex-col overflow-hidden rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98] lg:px-7 lg:py-6 lg:hover:-translate-y-0.5 lg:hover:shadow-lg"
+          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98] lg:rounded-3xl lg:px-8 lg:py-8 lg:hover:-translate-y-1 lg:hover:shadow-xl"
         >
-          <div className="absolute left-0 top-0 hidden h-full w-1 rounded-l-2xl bg-zinc-900 lg:block" />
-          <div className="flex items-center gap-2">
-            <Gem size={13} className="hidden text-zinc-400 lg:block lg:h-4 lg:w-4" />
-            <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
-              Bestandswert
+          <div className="absolute left-0 top-0 hidden h-full w-1.5 rounded-l-3xl bg-gradient-to-b from-zinc-700 to-zinc-900 lg:block" />
+          <div className="absolute -right-8 -bottom-8 hidden h-32 w-32 rounded-full bg-zinc-50 lg:block" />
+          <div>
+            <div className="flex items-center gap-2">
+              <div className="hidden h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 lg:flex">
+                <Gem size={15} className="text-zinc-500" />
+              </div>
+              <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-[11px]">
+                Bestandswert
+              </span>
+            </div>
+            <span className="mt-1.5 block text-[16px] font-extrabold tracking-tight text-zinc-900 sm:text-lg lg:mt-4 lg:text-4xl">
+              {formatCurrency(kpis.expectedSalesValue)}
             </span>
           </div>
-          <span className="mt-1 text-[16px] font-bold tracking-tight text-zinc-900 sm:text-lg lg:mt-3 lg:text-3xl">
-            {formatCurrency(kpis.expectedSalesValue)}
-          </span>
-          <span className="mt-0.5 hidden text-[11px] text-zinc-400 lg:mt-3 lg:block">
-            {kpis.totalStock} Artikel
-          </span>
+          <div className="mt-1 hidden items-center gap-2 lg:mt-6 lg:flex">
+            <span className="rounded-full bg-zinc-100 px-3 py-1 text-[12px] font-bold text-zinc-600">
+              {kpis.totalStock} Artikel
+            </span>
+          </div>
         </Link>
       </div>
 
