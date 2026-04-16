@@ -51,9 +51,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const { prisma } = await import("./prisma");
       const googleUid = account.providerAccountId;
 
-      const owner = await prisma.authorizedUser.findUnique({
-        where: { id: "owner" },
-      });
+      let owner;
+      try {
+        owner = await prisma.authorizedUser.findUnique({
+          where: { id: "owner" },
+        });
+      } catch (error) {
+        // Self-heal if the table was not created yet in production.
+        const msg = error instanceof Error ? error.message : String(error);
+        if (
+          msg.includes("AuthorizedUser") ||
+          msg.includes("does not exist") ||
+          msg.includes("relation")
+        ) {
+          await prisma.$executeRawUnsafe(
+            `CREATE TABLE IF NOT EXISTS "AuthorizedUser" ("id" TEXT NOT NULL DEFAULT 'owner', "googleUid" TEXT NOT NULL, "email" TEXT NOT NULL, "name" TEXT, "image" TEXT, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "AuthorizedUser_pkey" PRIMARY KEY ("id"));`
+          );
+          await prisma.$executeRawUnsafe(
+            'CREATE UNIQUE INDEX IF NOT EXISTS "AuthorizedUser_googleUid_key" ON "AuthorizedUser"("googleUid");'
+          );
+          owner = await prisma.authorizedUser.findUnique({
+            where: { id: "owner" },
+          });
+        } else {
+          console.error("[auth] signIn failed:", error);
+          return false;
+        }
+      }
 
       if (!owner) {
         await prisma.authorizedUser.create({
