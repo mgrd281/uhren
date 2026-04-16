@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { settingsSchema } from "@/lib/validations";
+import { getUserRole, canManageUsers } from "@/lib/permissions";
 
 export async function GET() {
   try {
@@ -23,6 +24,8 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
+  const role = await getUserRole();
+  if (!canManageUsers(role)) return NextResponse.json({ error: "Keine Berechtigung" }, { status: 403 });
   const body = await request.json();
   const parsed = settingsSchema.partial().safeParse(body);
   if (!parsed.success) {

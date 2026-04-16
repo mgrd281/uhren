@@ -3,6 +3,9 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createProduct } from "@/lib/services";
 import { productSchema } from "@/lib/validations";
+import { getUserRole, canEdit } from "@/lib/permissions";
+
+const FORBIDDEN = NextResponse.json({ error: "Keine Berechtigung" }, { status: 403 });
 
 export async function GET(request: NextRequest) {
   try {
@@ -45,6 +48,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const role = await getUserRole();
+  if (!canEdit(role)) return FORBIDDEN;
   const body = await request.json();
   const parsed = productSchema.safeParse(body);
 
@@ -76,6 +81,8 @@ const bulkUpdateSchema = z.object({
 });
 
 export async function PATCH(request: NextRequest) {
+  const role = await getUserRole();
+  if (!canEdit(role)) return FORBIDDEN;
   const body = await request.json();
   const parsed = bulkUpdateSchema.safeParse(body);
 

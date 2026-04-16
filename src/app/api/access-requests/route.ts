@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getUserRole, canManageUsers } from "@/lib/permissions";
 
 export async function GET() {
+  const role = await getUserRole();
+  if (!canManageUsers(role)) return NextResponse.json([], { status: 403 });
   try {
     const requests = await prisma.accessRequest.findMany({
       orderBy: { createdAt: "desc" },
@@ -13,6 +16,8 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
+  const userRole = await getUserRole();
+  if (!canManageUsers(userRole)) return NextResponse.json({ error: "Keine Berechtigung" }, { status: 403 });
   try {
     const { id, action, role } = await request.json();
 

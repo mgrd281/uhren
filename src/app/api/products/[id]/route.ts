@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { updateProduct } from "@/lib/services";
 import { productSchema } from "@/lib/validations";
+import { getUserRole, canEdit, canDelete } from "@/lib/permissions";
 
 export async function GET(
   _request: NextRequest,
@@ -33,6 +34,8 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const role = await getUserRole();
+  if (!canEdit(role)) return NextResponse.json({ error: "Keine Berechtigung" }, { status: 403 });
   const { id } = await params;
   const body = await request.json();
   const parsed = productSchema.partial().safeParse(body);
@@ -54,6 +57,8 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const role = await getUserRole();
+  if (!canDelete(role)) return NextResponse.json({ error: "Keine Berechtigung" }, { status: 403 });
   const { id } = await params;
   try {
     await prisma.inventoryMovement.deleteMany({ where: { productId: id } });

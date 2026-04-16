@@ -305,22 +305,29 @@ export default function SettingsPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {requests.map((req) => {
-              /* Same IP detection */
-              const sameIp = req.ip
-                ? requests.some((o) => o.id !== req.id && o.ip === req.ip && o.email !== req.email)
-                : false;
-              /* Same fingerprint detection (survives VPN) */
-              const sameFp = req.fingerprint
-                ? requests.some((o) => o.id !== req.id && o.fingerprint === req.fingerprint && o.email !== req.email)
-                : false;
-              const linkedAccounts = req.fingerprint
-                ? requests.filter((o) => o.id !== req.id && o.fingerprint === req.fingerprint && o.email !== req.email).map((o) => o.email)
-                : [];
+            {(() => {
+              /* Group requests by fingerprint — same device = one card */
+              const grouped: { fp: string | null; members: AccessRequest[] }[] = [];
+              const seen = new Set<string>();
 
-              /* Parse user agent */
-              const deviceLabel = (() => {
-                const ua = req.userAgent || "";
+              for (const req of requests) {
+                if (seen.has(req.id)) continue;
+                if (req.fingerprint) {
+                  const siblings = requests.filter(
+                    (o) => o.fingerprint === req.fingerprint
+                  );
+                  if (siblings.length > 1) {
+                    siblings.forEach((s) => seen.add(s.id));
+                    grouped.push({ fp: req.fingerprint, members: siblings });
+                    continue;
+                  }
+                }
+                seen.add(req.id);
+                grouped.push({ fp: null, members: [req] });
+              }
+
+              /* Helper: parse user agent */
+              const getDeviceLabel = (ua: string) => {
                 const isMobile = /Mobile|Android|iPhone/i.test(ua);
                 const isTablet = /iPad|Tablet/i.test(ua);
                 let os = "Unbekannt";
@@ -336,20 +343,12 @@ export default function SettingsPage() {
                 else if (/Edg/i.test(ua)) browser = "Edge";
                 const device = isTablet ? "Tablet" : isMobile ? "Handy" : "Desktop";
                 return `${device} · ${os}${browser ? ` · ${browser}` : ""}`;
-              })();
+              };
 
-              const currentRole = ROLES.find((r) => r.value === req.role) || ROLES[0];
-
-              return (
-                <div
-                  key={req.id}
-                  className={cn(
-                    "rounded-2xl border bg-white px-5 py-4 transition-all hover:border-zinc-300",
-                    sameFp ? "border-red-200 bg-red-50/30" : "border-zinc-200"
-                  )}
-                >
+              /* Render a single user row inside a card */
+              const renderUser = (req: AccessRequest, isLinked: boolean) => (
+                <div key={req.id} className={cn("py-3", isLinked && "border-t border-zinc-100 first:border-0 first:pt-0")}>
                   <div className="flex items-start gap-4">
-                    {/* Avatar */}
                     {req.image ? (
                       <img src={req.image} alt="" className="h-10 w-10 shrink-0 rounded-full" referrerPolicy="no-referrer" />
                     ) : (
@@ -357,22 +356,13 @@ export default function SettingsPage() {
                         {(req.name || req.email)[0]?.toUpperCase()}
                       </div>
                     )}
-
-                    {/* Info */}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[13px] font-semibold text-zinc-900">
-                        {req.name || "Unbekannt"}
-                      </p>
+                      <p className="truncate text-[13px] font-semibold text-zinc-900">{req.name || "Unbekannt"}</p>
                       <p className="truncate text-[11px] text-zinc-400">{req.email}</p>
                       <p className="mt-0.5 text-[10px] text-zinc-300">
-                        {new Date(req.createdAt).toLocaleDateString("de-DE", {
-                          day: "2-digit", month: "2-digit", year: "numeric",
-                          hour: "2-digit", minute: "2-digit",
-                        })}
+                        {new Date(req.createdAt).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
-
-                    {/* Actions */}
                     <div className="flex shrink-0 items-center gap-2">
                       {req.status === "pending" && (
                         <>
@@ -412,44 +402,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  {/* Device info + fingerprint row */}
-                  <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-zinc-100 pt-3">
-                    {req.ip && (
-                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
-                        <Globe size={11} className="shrink-0 text-zinc-300" />
-                        <span className="font-mono">{req.ip}</span>
-                        {(req.city || req.country) && (
-                          <span className="text-zinc-300">({[req.city, req.country].filter(Boolean).join(", ")})</span>
-                        )}
-                      </div>
-                    )}
-                    {req.userAgent && (
-                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
-                        <Monitor size={11} className="shrink-0 text-zinc-300" />
-                        <span>{deviceLabel}</span>
-                      </div>
-                    )}
-                    {req.fingerprint && (
-                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
-                        <Fingerprint size={11} className="shrink-0 text-zinc-300" />
-                        <span className="font-mono">{req.fingerprint}</span>
-                      </div>
-                    )}
-                    {sameIp && !sameFp && (
-                      <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-600">
-                        <AlertTriangle size={11} />
-                        Gleiche IP, anderer Account
-                      </div>
-                    )}
-                    {sameFp && (
-                      <div className="flex items-center gap-1.5 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-600">
-                        <Fingerprint size={11} />
-                        Gleiches Gerät: {linkedAccounts.join(", ")}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Role selector (for approved or pending users) */}
+                  {/* Role selector */}
                   {(req.status === "approved" || req.status === "pending") && (
                     <div className="mt-3 border-t border-zinc-100 pt-3">
                       <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Rolle</p>
@@ -458,17 +411,11 @@ export default function SettingsPage() {
                           const RoleIcon = role.icon;
                           const active = req.role === role.value;
                           return (
-                            <button
-                              key={role.value}
-                              onClick={() => handleRoleChange(req.id, role.value)}
-                              title={role.desc}
+                            <button key={role.value} onClick={() => handleRoleChange(req.id, role.value)} title={role.desc}
                               className={cn(
                                 "flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-semibold transition-all active:scale-95",
-                                active
-                                  ? `${role.bg} ${role.color} ring-1 ring-current/20`
-                                  : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100"
-                              )}
-                            >
+                                active ? `${role.bg} ${role.color} ring-1 ring-current/20` : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100"
+                              )}>
                               <RoleIcon size={13} />
                               {role.label}
                             </button>
@@ -479,7 +426,74 @@ export default function SettingsPage() {
                   )}
                 </div>
               );
-            })}
+
+              return grouped.map((group, gi) => {
+                const isMulti = group.members.length > 1;
+                const first = group.members[0];
+
+                /* Same IP (different fingerprint) for single-user cards */
+                const sameIpOnly = !isMulti && first.ip
+                  ? requests.some((o) => o.id !== first.id && o.ip === first.ip && o.email !== first.email)
+                  : false;
+
+                return (
+                  <div
+                    key={group.fp || first.id}
+                    className={cn(
+                      "rounded-2xl border bg-white px-5 py-4 transition-all hover:border-zinc-300",
+                      isMulti ? "border-red-200 bg-red-50/20" : "border-zinc-200"
+                    )}
+                  >
+                    {/* Multi-account warning header */}
+                    {isMulti && (
+                      <div className="mb-3 flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2">
+                        <Fingerprint size={14} className="shrink-0 text-red-500" />
+                        <span className="text-[11px] font-bold text-red-600">
+                          Mehrere Konten – gleiches Gerät
+                        </span>
+                        <span className="ml-auto rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">
+                          {group.members.length} Konten
+                        </span>
+                      </div>
+                    )}
+
+                    {/* User rows */}
+                    {group.members.map((req) => renderUser(req, isMulti))}
+
+                    {/* Shared device info (shown once for multi-account) */}
+                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-zinc-100 pt-3">
+                      {first.ip && (
+                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
+                          <Globe size={11} className="shrink-0 text-zinc-300" />
+                          <span className="font-mono">{first.ip}</span>
+                          {(first.city || first.country) && (
+                            <span className="text-zinc-300">({[first.city, first.country].filter(Boolean).join(", ")})</span>
+                          )}
+                        </div>
+                      )}
+                      {first.userAgent && (
+                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
+                          <Monitor size={11} className="shrink-0 text-zinc-300" />
+                          <span>{getDeviceLabel(first.userAgent)}</span>
+                        </div>
+                      )}
+                      {first.fingerprint && (
+                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
+                          <Fingerprint size={11} className="shrink-0 text-zinc-300" />
+                          <span className="font-mono">{first.fingerprint}</span>
+                        </div>
+                      )}
+                      {sameIpOnly && (
+                        <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-600">
+                          <AlertTriangle size={11} />
+                          Gleiche IP, anderer Account
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </div>
         )}
       </Card>

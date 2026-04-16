@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createSale } from "@/lib/services";
 import { saleSchema } from "@/lib/validations";
+import { getUserRole, canEdit } from "@/lib/permissions";
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,6 +22,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const role = await getUserRole();
+  if (!canEdit(role)) return NextResponse.json({ error: "Keine Berechtigung" }, { status: 403 });
   const body = await request.json();
   const parsed = saleSchema.safeParse(body);
 
