@@ -21,6 +21,10 @@ import {
   LayoutGrid,
   LayoutList,
   ChevronDown,
+  CheckSquare,
+  Square,
+  X,
+  Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -48,6 +52,13 @@ export default function ProductsPage() {
   const [importingImages, setImportingImages] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [filterBrand, setFilterBrand] = useState("");
+
+  /* Bulk edit state */
+  const [bulkMode, setBulkMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkField, setBulkField] = useState<"salePriceExpected" | "costPrice" | "quantity" | "ebayStatus" | "">("");
+  const [bulkValue, setBulkValue] = useState("");
+  const [bulkSaving, setBulkSaving] = useState(false);
 
   useEffect(() => {
     const q = search ? `?search=${encodeURIComponent(search)}` : "";
@@ -95,6 +106,68 @@ export default function ProductsPage() {
     }
   }
 
+  /* ── Bulk helpers ── */
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (selected.size === filtered.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filtered.map((p) => p.id)));
+    }
+  }
+
+  function exitBulkMode() {
+    setBulkMode(false);
+    setSelected(new Set());
+    setBulkField("");
+    setBulkValue("");
+  }
+
+  async function submitBulk() {
+    if (!bulkField || selected.size === 0) return;
+    const val = bulkField === "ebayStatus" ? bulkValue : parseFloat(bulkValue);
+    if (bulkField !== "ebayStatus" && (isNaN(val as number) || (val as number) < 0)) {
+      toast.error("Ungültiger Wert");
+      return;
+    }
+    setBulkSaving(true);
+    try {
+      const res = await fetch("/api/products", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ids: [...selected],
+          updates: { [bulkField]: val },
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`${data.updated} Produkte aktualisiert`);
+        exitBulkMode();
+        setLoading(true);
+        const q = search ? `?search=${encodeURIComponent(search)}` : "";
+        fetch(`/api/products${q}`)
+          .then((r) => r.json())
+          .then((d) => { if (Array.isArray(d)) setProducts(d); })
+          .finally(() => setLoading(false));
+      } else {
+        toast.error(data.error || "Fehler beim Aktualisieren");
+      }
+    } catch {
+      toast.error("Netzwerkfehler");
+    } finally {
+      setBulkSaving(false);
+    }
+  }
+
   return (
     <div className="space-y-5 lg:space-y-8">
       {/* ── Header ── */}
@@ -108,6 +181,23 @@ export default function ProductsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2 lg:gap-3">
+          {/* Bulk edit toggle */}
+          {products.length > 0 && (
+            <button
+              onClick={() => bulkMode ? exitBulkMode() : setBulkMode(true)}
+              className={cn(
+                "flex h-10 w-10 items-center justify-center rounded-full transition-all active:scale-95 sm:h-auto sm:w-auto sm:gap-2 sm:rounded-xl sm:px-3.5 sm:py-2.5",
+                bulkMode
+                  ? "bg-amber-100 text-amber-700 lg:hover:bg-amber-200"
+                  : "bg-zinc-100 text-zinc-500 lg:hover:bg-zinc-200"
+              )}
+            >
+              {bulkMode ? <X size={17} /> : <Pencil size={17} />}
+              <span className="hidden text-[12px] font-medium sm:inline">
+                {bulkMode ? "Abbrechen" : "Bulk Edit"}
+              </span>
+            </button>
+          )}
           <button
             onClick={importImages}
             disabled={importingImages}
@@ -196,6 +286,105 @@ export default function ProductsPage() {
         </button>
       </div>
 
+      {/* ── Bulk Action Panel ── */}
+      {bulkMode && (
+        <div className="space-y-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+          {/* Select all / count */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={toggleSelectAll}
+              className="flex items-center gap-2 text-[13px] font-semibold text-amber-800 transition-colors active:text-amber-900"
+            >
+              {selected.size === filtered.length && filtered.length > 0 ? (
+                <CheckSquare size={18} className="text-amber-600" />
+              ) : (
+                <Square size={18} className="text-amber-400" />
+              )}
+              {selected.size > 0
+                ? `${selected.size} von ${filtered.length} ausgewählt`
+                : "Alle auswählen"}
+            </button>
+            {selected.size > 0 && (
+              <button
+                onClick={() => setSelected(new Set())}
+                className="text-[11px] font-medium text-amber-600 active:text-amber-800"
+              >
+                Auswahl aufheben
+              </button>
+            )}
+          </div>
+
+          {/* Field + Value + Apply */}
+          {selected.size > 0 && (
+            <div className="flex flex-wrap items-end gap-2">
+              <div className="min-w-[140px] flex-1">
+                <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-amber-700">Feld</p>
+                <select
+                  value={bulkField}
+                  onChange={(e) => { setBulkField(e.target.value as typeof bulkField); setBulkValue(""); }}
+                  className="h-10 w-full rounded-xl border border-amber-200 bg-white px-3 text-[13px] text-zinc-900 outline-none focus:ring-2 focus:ring-amber-200"
+                >
+                  <option value="">Auswählen…</option>
+                  <option value="salePriceExpected">Verkaufspreis (€)</option>
+                  <option value="costPrice">Einkaufspreis (€)</option>
+                  <option value="quantity">Bestand</option>
+                  <option value="ebayStatus">eBay-Status</option>
+                </select>
+              </div>
+
+              {bulkField && (
+                <div className="min-w-[120px] flex-1">
+                  <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-amber-700">Neuer Wert</p>
+                  {bulkField === "ebayStatus" ? (
+                    <select
+                      value={bulkValue}
+                      onChange={(e) => setBulkValue(e.target.value)}
+                      className="h-10 w-full rounded-xl border border-amber-200 bg-white px-3 text-[13px] text-zinc-900 outline-none focus:ring-2 focus:ring-amber-200"
+                    >
+                      <option value="">Auswählen…</option>
+                      <option value="Nicht gepostet">Nicht gepostet</option>
+                      <option value="Aktiv">Aktiv</option>
+                      <option value="Verkauft">Verkauft</option>
+                      <option value="Pausiert">Pausiert</option>
+                    </select>
+                  ) : (
+                    <input
+                      type="number"
+                      min="0"
+                      step={bulkField === "quantity" ? "1" : "0.01"}
+                      value={bulkValue}
+                      onChange={(e) => setBulkValue(e.target.value)}
+                      placeholder={bulkField === "quantity" ? "z.B. 5" : "z.B. 299.00"}
+                      className="h-10 w-full rounded-xl border border-amber-200 bg-white px-3 text-[13px] text-zinc-900 outline-none placeholder:text-zinc-300 focus:ring-2 focus:ring-amber-200"
+                    />
+                  )}
+                </div>
+              )}
+
+              {bulkField && bulkValue && (
+                <button
+                  onClick={submitBulk}
+                  disabled={bulkSaving}
+                  className={cn(
+                    "flex h-10 items-center gap-2 rounded-xl px-5 text-[13px] font-bold transition-all",
+                    bulkSaving
+                      ? "bg-amber-300 text-amber-700"
+                      : "bg-amber-600 text-white shadow-md active:scale-95 lg:hover:bg-amber-700"
+                  )}
+                >
+                  {bulkSaving ? (
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  ) : (
+                    <Pencil size={14} />
+                  )}
+                  {selected.size} aktualisieren
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── Product List ── */}
       {loading ? (
         <div className={cn(
@@ -244,12 +433,33 @@ export default function ProductsPage() {
               </div>
               {/* Products grid */}
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-5 xl:grid-cols-5">
-                {items.map((p) => (
-                  <Link
+                {items.map((p) => {
+                  const isSelected = selected.has(p.id);
+                  const CardTag = bulkMode ? "div" : Link;
+                  const cardProps = bulkMode
+                    ? { onClick: () => toggleSelect(p.id), role: "button" as const }
+                    : { href: `/products/${p.id}` };
+                  return (
+                  <CardTag
                     key={p.id}
-                    href={`/products/${p.id}`}
-                    className="group overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm transition-all active:scale-[0.98] sm:hover:-translate-y-0.5 sm:hover:shadow-lg lg:hover:shadow-xl"
+                    {...(cardProps as Record<string, unknown>)}
+                    className={cn(
+                      "group relative overflow-hidden rounded-2xl border bg-white shadow-sm transition-all active:scale-[0.98] sm:hover:-translate-y-0.5 sm:hover:shadow-lg lg:hover:shadow-xl cursor-pointer",
+                      bulkMode && isSelected
+                        ? "border-amber-400 ring-2 ring-amber-200"
+                        : "border-zinc-100"
+                    )}
                   >
+                    {/* Bulk checkbox overlay */}
+                    {bulkMode && (
+                      <div className="absolute left-2 top-2 z-10">
+                        {isSelected ? (
+                          <CheckSquare size={22} className="text-amber-600 drop-shadow" />
+                        ) : (
+                          <Square size={22} className="text-zinc-300 drop-shadow" />
+                        )}
+                      </div>
+                    )}
                     {/* Image */}
                     <div className="relative aspect-square overflow-hidden bg-zinc-50">
                       {p.mainImage ? (
@@ -305,8 +515,9 @@ export default function ProductsPage() {
                         )}
                       </div>
                     </div>
-                  </Link>
-                ))}
+                  </CardTag>
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -316,18 +527,38 @@ export default function ProductsPage() {
         <div className="rounded-2xl border border-zinc-100 bg-white divide-y divide-zinc-100 overflow-hidden shadow-sm">
           {/* Desktop table header */}
           <div className="hidden items-center gap-4 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 lg:flex">
+            {bulkMode && <div className="w-6 shrink-0" />}
             <div className="w-12 shrink-0" />
             <div className="flex-1">Produkt</div>
             <div className="w-20 text-center">Bestand</div>
             <div className="w-20 text-center">Verkäufe</div>
             <div className="w-28 text-right">Preis</div>
           </div>
-          {filtered.map((p) => (
-            <Link
+          {filtered.map((p) => {
+            const isSelected = selected.has(p.id);
+            const ListTag = bulkMode ? "div" : Link;
+            const listProps = bulkMode
+              ? { onClick: () => toggleSelect(p.id), role: "button" as const }
+              : { href: `/products/${p.id}` };
+            return (
+            <ListTag
               key={p.id}
-              href={`/products/${p.id}`}
-              className="flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50 lg:gap-4 lg:px-5 lg:py-4 lg:hover:bg-zinc-50"
+              {...(listProps as Record<string, unknown>)}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50 lg:gap-4 lg:px-5 lg:py-4 lg:hover:bg-zinc-50 cursor-pointer",
+                bulkMode && isSelected && "bg-amber-50"
+              )}
             >
+              {/* Bulk checkbox */}
+              {bulkMode && (
+                <div className="shrink-0">
+                  {isSelected ? (
+                    <CheckSquare size={20} className="text-amber-600" />
+                  ) : (
+                    <Square size={20} className="text-zinc-300" />
+                  )}
+                </div>
+              )}
               {/* Thumbnail */}
               <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-zinc-100 lg:h-14 lg:w-14">
                 {p.mainImage ? (
@@ -402,8 +633,9 @@ export default function ProductsPage() {
                   </span>
                 )}
               </div>
-            </Link>
-          ))}
+            </ListTag>
+            );
+          })}
         </div>
       )}
     </div>
