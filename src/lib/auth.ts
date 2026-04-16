@@ -40,6 +40,18 @@ export const authConfig = {
  */
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
+  debug: true,
+  logger: {
+    error(error) {
+      console.error("[auth][error]", error);
+    },
+    warn(code) {
+      console.warn("[auth][warn]", code);
+    },
+    debug(message, metadata) {
+      console.log("[auth][debug]", message, metadata);
+    },
+  },
   callbacks: {
     ...authConfig.callbacks,
 
