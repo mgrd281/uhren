@@ -67,6 +67,12 @@ export default function ProductsPage() {
     ? products.filter((p) => p.brand === filterBrand)
     : products;
 
+  // Group filtered products by brand (sorted alphabetically)
+  const groupedBrands = [...new Set(filtered.map((p) => p.brand))].sort().map((brand) => ({
+    brand,
+    items: filtered.filter((p) => p.brand === brand),
+  }));
+
   async function importImages() {
     setImportingImages(true);
     try {
@@ -222,74 +228,86 @@ export default function ProductsPage() {
           </Link>
         </div>
       ) : viewMode === "grid" ? (
-        /* ── Grid View ── */
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-5 xl:grid-cols-5">
-          {filtered.map((p) => (
-            <div key={p.id} className="flex flex-col">
-              {/* Brand above card */}
-              <p className="mb-1.5 truncate text-[10px] font-bold uppercase tracking-wider text-zinc-400 lg:text-[11px]">
-                {p.brand}
-              </p>
-              <Link
-                href={`/products/${p.id}`}
-                className="group flex flex-1 flex-col overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm transition-all active:scale-[0.98] sm:hover:-translate-y-0.5 sm:hover:shadow-lg lg:hover:shadow-xl"
-              >
-                {/* Image */}
-                <div className="relative aspect-square overflow-hidden bg-zinc-50">
-                  {p.mainImage ? (
-                    <Image
-                      src={p.mainImage}
-                      alt={p.name}
-                      fill
-                      className="object-contain p-3 transition-transform duration-500 group-hover:scale-105"
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      unoptimized={p.mainImage.startsWith("data:") || p.mainImage.startsWith("http")}
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <Watch size={32} className="text-zinc-200" />
+        /* ── Grid View (grouped by brand) ── */
+        <div className="space-y-8">
+          {groupedBrands.map(({ brand, items }) => (
+            <div key={brand}>
+              {/* Brand header */}
+              <div className="mb-3 flex items-center gap-3">
+                <h2 className="text-[13px] font-bold uppercase tracking-wider text-zinc-900 lg:text-base">
+                  {brand}
+                </h2>
+                <span className="text-[11px] font-medium text-zinc-400">
+                  {items.length} {items.length === 1 ? "Produkt" : "Produkte"}
+                </span>
+                <div className="h-px flex-1 bg-zinc-100" />
+              </div>
+              {/* Products grid */}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-5 xl:grid-cols-5">
+                {items.map((p) => (
+                  <Link
+                    key={p.id}
+                    href={`/products/${p.id}`}
+                    className="group overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm transition-all active:scale-[0.98] sm:hover:-translate-y-0.5 sm:hover:shadow-lg lg:hover:shadow-xl"
+                  >
+                    {/* Image */}
+                    <div className="relative aspect-square overflow-hidden bg-zinc-50">
+                      {p.mainImage ? (
+                        <Image
+                          src={p.mainImage}
+                          alt={p.name}
+                          fill
+                          className="object-contain p-3 transition-transform duration-500 group-hover:scale-105"
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          unoptimized={p.mainImage.startsWith("data:") || p.mainImage.startsWith("http")}
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center">
+                          <Watch size={32} className="text-zinc-200" />
+                        </div>
+                      )}
+                      {/* Status pill */}
+                      {p.status !== "IN_STOCK" && (
+                        <div className="absolute left-2 top-2">
+                          <span className={cn(
+                            "rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide",
+                            p.status === "OUT_OF_STOCK"
+                              ? "bg-red-500 text-white"
+                              : "bg-amber-400 text-amber-900"
+                          )}>
+                            {p.status === "OUT_OF_STOCK" ? "Ausverkauft" : "Niedrig"}
+                          </span>
+                        </div>
+                      )}
+                      {p.quantity > 0 && (
+                        <div className="absolute right-2 top-2">
+                          <span className="rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-bold text-zinc-700 shadow-sm backdrop-blur-sm">
+                            {p.quantity}×
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {/* Status pill */}
-                  {p.status !== "IN_STOCK" && (
-                    <div className="absolute left-2 top-2">
-                      <span className={cn(
-                        "rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide",
-                        p.status === "OUT_OF_STOCK"
-                          ? "bg-red-500 text-white"
-                          : "bg-amber-400 text-amber-900"
-                      )}>
-                        {p.status === "OUT_OF_STOCK" ? "Ausverkauft" : "Niedrig"}
-                      </span>
-                    </div>
-                  )}
-                  {p.quantity > 0 && (
-                    <div className="absolute right-2 top-2">
-                      <span className="rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-bold text-zinc-700 shadow-sm backdrop-blur-sm">
-                        {p.quantity}×
-                      </span>
-                    </div>
-                  )}
-                </div>
 
-                {/* Info */}
-                <div className="flex flex-1 flex-col justify-between p-3">
-                  <h3 className="truncate text-[13px] font-bold text-zinc-900">
-                    {p.name}
-                  </h3>
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="text-[15px] font-black tracking-tight text-zinc-900">
-                      {formatCurrency(p.salePriceExpected)}
-                    </span>
-                    {p._count.sales > 0 && (
-                      <span className="flex items-center gap-0.5 text-[10px] font-semibold text-emerald-600">
-                        <TrendingUp size={10} />
-                        {p._count.sales}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </Link>
+                    {/* Info */}
+                    <div className="p-3">
+                      <h3 className="truncate text-[13px] font-bold text-zinc-900">
+                        {p.name}
+                      </h3>
+                      <div className="mt-2 flex items-center justify-between">
+                        <span className="text-[15px] font-black tracking-tight text-zinc-900">
+                          {formatCurrency(p.salePriceExpected)}
+                        </span>
+                        {p._count.sales > 0 && (
+                          <span className="flex items-center gap-0.5 text-[10px] font-semibold text-emerald-600">
+                            <TrendingUp size={10} />
+                            {p._count.sales}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           ))}
         </div>
