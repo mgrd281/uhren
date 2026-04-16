@@ -96,11 +96,40 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return true;
       }
 
-      // Unauthorized user — save access request
+      // Check if user has an approved access request
+      try {
+        const approved = await prisma.accessRequest.findFirst({
+          where: { googleUid, status: "approved" },
+        });
+        if (approved) {
+          // Update IP/UA on each login
+          const { headers } = await import("next/headers");
+          const hdrs = await headers();
+          const ip = hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || null;
+          const ua = hdrs.get("user-agent") || null;
+          await prisma.accessRequest.update({
+            where: { id: approved.id },
+            data: { ip, userAgent: ua },
+          });
+          return true;
+        }
+      } catch {
+        // Table may not exist yet, continue to create request
+      }
+
+      // Unauthorized user — save access request with device info
       try {
         await prisma.$executeRawUnsafe(
-          `CREATE TABLE IF NOT EXISTS "AccessRequest" ("id" TEXT NOT NULL, "email" TEXT NOT NULL, "name" TEXT, "image" TEXT, "googleUid" TEXT NOT NULL, "status" TEXT NOT NULL DEFAULT 'pending', "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "AccessRequest_pkey" PRIMARY KEY ("id"));`
+          `CREATE TABLE IF NOT EXISTS "AccessRequest" ("id" TEXT NOT NULL, "email" TEXT NOT NULL, "name" TEXT, "image" TEXT, "googleUid" TEXT NOT NULL, "status" TEXT NOT NULL DEFAULT 'pending', "ip" TEXT, "userAgent" TEXT, "country" TEXT, "city" TEXT, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "AccessRequest_pkey" PRIMARY KEY ("id"));`
         );
+
+        const { headers } = await import("next/headers");
+        const hdrs = await headers();
+        const ip = hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || null;
+        const ua = hdrs.get("user-agent") || null;
+        const country = hdrs.get("x-vercel-ip-country") || null;
+        const city = hdrs.get("x-vercel-ip-city") || null;
+
         const id = `req_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
         await prisma.accessRequest.create({
           data: {
@@ -110,6 +139,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             image: user.image,
             googleUid,
             status: "pending",
+            ip,
+            userAgent: ua,
+            country,
+            city,
           },
         });
       } catch (e) {

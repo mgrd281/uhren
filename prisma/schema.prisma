@@ -124,8 +124,14 @@ model AccessRequest {
   image     String?
   googleUid String
   status    String   @default("pending")
+  ip        String?
+  userAgent String?
+  country   String?
+  city      String?
   createdAt DateTime @default(now())
 
   @@index([status])
   @@index([createdAt])
+  @@index([googleUid])
+  @@index([ip])
 }

@@ -15,7 +15,7 @@ export async function GET() {
 export async function PATCH(request: NextRequest) {
   try {
     const { id, action } = await request.json();
-    if (!id || !["approve", "reject", "delete"].includes(action)) {
+    if (!id || !["approve", "reject", "revoke", "delete"].includes(action)) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
 
@@ -25,34 +25,10 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (action === "approve") {
-      const req = await prisma.accessRequest.findUnique({ where: { id } });
-      if (!req) {
-        return NextResponse.json({ error: "Not found" }, { status: 404 });
-      }
-
-      // Update existing owner to the new user
-      await prisma.authorizedUser.upsert({
-        where: { id: "owner" },
-        update: {
-          googleUid: req.googleUid,
-          email: req.email,
-          name: req.name,
-          image: req.image,
-        },
-        create: {
-          id: "owner",
-          googleUid: req.googleUid,
-          email: req.email,
-          name: req.name,
-          image: req.image,
-        },
-      });
-
       await prisma.accessRequest.update({
         where: { id },
         data: { status: "approved" },
       });
-
       return NextResponse.json({ ok: true });
     }
 
@@ -60,6 +36,14 @@ export async function PATCH(request: NextRequest) {
       await prisma.accessRequest.update({
         where: { id },
         data: { status: "rejected" },
+      });
+      return NextResponse.json({ ok: true });
+    }
+
+    if (action === "revoke") {
+      await prisma.accessRequest.update({
+        where: { id },
+        data: { status: "revoked" },
       });
       return NextResponse.json({ ok: true });
     }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { PageHeader, Card, Input, Button, Skeleton } from "@/components/ui";
 import { toast } from "sonner";
-import { Save, Download, FileJson, FileSpreadsheet, Database, ShieldCheck, ShieldX, Trash2, UserCheck } from "lucide-react";
+import { Save, Download, FileJson, FileSpreadsheet, Database, ShieldCheck, ShieldX, Trash2, UserCheck, LogOut, Monitor, Globe, AlertTriangle } from "lucide-react";
 
 interface Settings {
   storeName: string;
@@ -18,6 +18,11 @@ interface AccessRequest {
   name: string | null;
   image: string | null;
   status: string;
+  ip: string | null;
+  userAgent: string | null;
+  country: string | null;
+  city: string | null;
+  googleUid: string;
   createdAt: string;
 }
 
@@ -89,7 +94,7 @@ export default function SettingsPage() {
     }
   }
 
-  async function handleAccessAction(id: string, action: "approve" | "reject" | "delete") {
+  async function handleAccessAction(id: string, action: "approve" | "reject" | "revoke" | "delete") {
     setActionLoading(`${id}-${action}`);
     try {
       const res = await fetch("/api/access-requests", {
@@ -104,6 +109,9 @@ export default function SettingsPage() {
         } else if (action === "approve") {
           setRequests((prev) => prev.map((r) => r.id === id ? { ...r, status: "approved" } : r));
           toast.success("Zugriff genehmigt");
+        } else if (action === "revoke") {
+          setRequests((prev) => prev.map((r) => r.id === id ? { ...r, status: "revoked" } : r));
+          toast.success("Zugriff widerrufen — Benutzer wird beim nächsten Laden abgemeldet");
         } else {
           setRequests((prev) => prev.map((r) => r.id === id ? { ...r, status: "rejected" } : r));
           toast.success("Zugriff abgelehnt");
@@ -264,84 +272,169 @@ export default function SettingsPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {requests.map((req) => (
-              <div
-                key={req.id}
-                className="flex items-center gap-4 rounded-2xl border border-zinc-200 bg-white px-5 py-4 transition-all hover:border-zinc-300"
-              >
-                {/* Avatar */}
-                {req.image ? (
-                  <img
-                    src={req.image}
-                    alt=""
-                    className="h-10 w-10 shrink-0 rounded-full"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-[13px] font-bold text-zinc-500">
-                    {(req.name || req.email)[0]?.toUpperCase()}
-                  </div>
-                )}
+            {requests.map((req) => {
+              /* Same-device detection: same IP used with a different email */
+              const sameDevice = req.ip
+                ? requests.some(
+                    (other) =>
+                      other.id !== req.id &&
+                      other.ip === req.ip &&
+                      other.email !== req.email
+                  )
+                : false;
 
-                {/* Info */}
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-semibold text-zinc-900">
-                    {req.name || "Unbekannt"}
-                  </p>
-                  <p className="truncate text-[11px] text-zinc-400">{req.email}</p>
-                  <p className="mt-0.5 text-[10px] text-zinc-300">
-                    {new Date(req.createdAt).toLocaleDateString("de-DE", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
+              /* Parse user agent for a short device label */
+              const deviceLabel = (() => {
+                const ua = req.userAgent || "";
+                const isMobile = /Mobile|Android|iPhone/i.test(ua);
+                const isTablet = /iPad|Tablet/i.test(ua);
+                let os = "Unbekannt";
+                if (/Windows/i.test(ua)) os = "Windows";
+                else if (/Mac OS/i.test(ua)) os = "macOS";
+                else if (/iPhone|iPad/i.test(ua)) os = "iOS";
+                else if (/Android/i.test(ua)) os = "Android";
+                else if (/Linux/i.test(ua)) os = "Linux";
+
+                let browser = "";
+                if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = "Chrome";
+                else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = "Safari";
+                else if (/Firefox/i.test(ua)) browser = "Firefox";
+                else if (/Edg/i.test(ua)) browser = "Edge";
+
+                const device = isTablet ? "Tablet" : isMobile ? "Handy" : "Desktop";
+                return `${device} · ${os}${browser ? ` · ${browser}` : ""}`;
+              })();
+
+              return (
+                <div
+                  key={req.id}
+                  className="rounded-2xl border border-zinc-200 bg-white px-5 py-4 transition-all hover:border-zinc-300"
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Avatar */}
+                    {req.image ? (
+                      <img
+                        src={req.image}
+                        alt=""
+                        className="h-10 w-10 shrink-0 rounded-full"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-[13px] font-bold text-zinc-500">
+                        {(req.name || req.email)[0]?.toUpperCase()}
+                      </div>
+                    )}
+
+                    {/* Info */}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-semibold text-zinc-900">
+                        {req.name || "Unbekannt"}
+                      </p>
+                      <p className="truncate text-[11px] text-zinc-400">{req.email}</p>
+                      <p className="mt-0.5 text-[10px] text-zinc-300">
+                        {new Date(req.createdAt).toLocaleDateString("de-DE", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+
+                    {/* Status / Actions */}
+                    <div className="flex shrink-0 items-center gap-2">
+                      {req.status === "pending" && (
+                        <>
+                          <button
+                            onClick={() => handleAccessAction(req.id, "approve")}
+                            disabled={!!actionLoading}
+                            className="flex h-9 items-center gap-1.5 rounded-xl bg-emerald-50 px-3 text-[12px] font-semibold text-emerald-600 transition-all hover:bg-emerald-100 active:scale-95 disabled:opacity-50"
+                          >
+                            <ShieldCheck size={14} />
+                            {actionLoading === `${req.id}-approve` ? "…" : "Genehmigen"}
+                          </button>
+                          <button
+                            onClick={() => handleAccessAction(req.id, "reject")}
+                            disabled={!!actionLoading}
+                            className="flex h-9 items-center gap-1.5 rounded-xl bg-red-50 px-3 text-[12px] font-semibold text-red-500 transition-all hover:bg-red-100 active:scale-95 disabled:opacity-50"
+                          >
+                            <ShieldX size={14} />
+                            {actionLoading === `${req.id}-reject` ? "…" : "Ablehnen"}
+                          </button>
+                        </>
+                      )}
+                      {req.status === "approved" && (
+                        <>
+                          <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-600">
+                            Genehmigt
+                          </span>
+                          <button
+                            onClick={() => handleAccessAction(req.id, "revoke")}
+                            disabled={!!actionLoading}
+                            className="flex h-9 items-center gap-1.5 rounded-xl bg-amber-50 px-3 text-[12px] font-semibold text-amber-600 transition-all hover:bg-amber-100 active:scale-95 disabled:opacity-50"
+                          >
+                            <LogOut size={14} />
+                            {actionLoading === `${req.id}-revoke` ? "…" : "Widerrufen"}
+                          </button>
+                        </>
+                      )}
+                      {(req.status === "rejected" || req.status === "revoked") && (
+                        <>
+                          <span
+                            className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
+                              req.status === "revoked"
+                                ? "bg-amber-50 text-amber-600"
+                                : "bg-red-50 text-red-500"
+                            }`}
+                          >
+                            {req.status === "revoked" ? "Widerrufen" : "Abgelehnt"}
+                          </span>
+                        </>
+                      )}
+                      {req.status !== "pending" && (
+                        <button
+                          onClick={() => handleAccessAction(req.id, "delete")}
+                          disabled={!!actionLoading}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-300 transition-all hover:bg-zinc-100 hover:text-zinc-500 active:scale-95 disabled:opacity-50"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Device info row */}
+                  {(req.ip || req.userAgent) && (
+                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-zinc-100 pt-3">
+                      {req.ip && (
+                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
+                          <Globe size={11} className="shrink-0 text-zinc-300" />
+                          <span className="font-mono">{req.ip}</span>
+                          {(req.city || req.country) && (
+                            <span className="text-zinc-300">
+                              ({[req.city, req.country].filter(Boolean).join(", ")})
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {req.userAgent && (
+                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
+                          <Monitor size={11} className="shrink-0 text-zinc-300" />
+                          <span>{deviceLabel}</span>
+                        </div>
+                      )}
+                      {sameDevice && (
+                        <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-600">
+                          <AlertTriangle size={11} />
+                          Gleiche IP, anderer Account
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-
-                {/* Status / Actions */}
-                {req.status === "pending" ? (
-                  <div className="flex shrink-0 items-center gap-2">
-                    <button
-                      onClick={() => handleAccessAction(req.id, "approve")}
-                      disabled={!!actionLoading}
-                      className="flex h-9 items-center gap-1.5 rounded-xl bg-emerald-50 px-3 text-[12px] font-semibold text-emerald-600 transition-all hover:bg-emerald-100 active:scale-95 disabled:opacity-50"
-                    >
-                      <ShieldCheck size={14} />
-                      {actionLoading === `${req.id}-approve` ? "…" : "Genehmigen"}
-                    </button>
-                    <button
-                      onClick={() => handleAccessAction(req.id, "reject")}
-                      disabled={!!actionLoading}
-                      className="flex h-9 items-center gap-1.5 rounded-xl bg-red-50 px-3 text-[12px] font-semibold text-red-500 transition-all hover:bg-red-100 active:scale-95 disabled:opacity-50"
-                    >
-                      <ShieldX size={14} />
-                      {actionLoading === `${req.id}-reject` ? "…" : "Ablehnen"}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex shrink-0 items-center gap-2">
-                    <span
-                      className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
-                        req.status === "approved"
-                          ? "bg-emerald-50 text-emerald-600"
-                          : "bg-red-50 text-red-500"
-                      }`}
-                    >
-                      {req.status === "approved" ? "Genehmigt" : "Abgelehnt"}
-                    </span>
-                    <button
-                      onClick={() => handleAccessAction(req.id, "delete")}
-                      disabled={!!actionLoading}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-300 transition-all hover:bg-zinc-100 hover:text-zinc-500 active:scale-95 disabled:opacity-50"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </Card>
