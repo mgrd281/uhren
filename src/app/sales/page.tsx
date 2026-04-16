@@ -22,6 +22,8 @@ import {
   ChevronDown,
   Minus,
   Package,
+  SlidersHorizontal,
+  Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -114,6 +116,9 @@ export default function SalesPage() {
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
   const [filterMarketplace, setFilterMarketplace] = useState("");
+  const [filterPayment, setFilterPayment] = useState("");
+  const [filterPeriod, setFilterPeriod] = useState<"all" | "today" | "7d" | "30d">("all");
+  const [showFilters, setShowFilters] = useState(false);
 
   /* Form state */
   const [formStep, setFormStep] = useState<"product" | "details">("product");
@@ -239,10 +244,26 @@ export default function SalesPage() {
       !q ||
       s.product.name.toLowerCase().includes(q) ||
       s.product.brand.toLowerCase().includes(q) ||
-      (s.customerName && s.customerName.toLowerCase().includes(q));
+      (s.customerName && s.customerName.toLowerCase().includes(q)) ||
+      (s.invoiceNumber && s.invoiceNumber.toLowerCase().includes(q)) ||
+      (s.marketplace && s.marketplace.toLowerCase().includes(q));
     const matchMarket =
       !filterMarketplace || s.marketplace === filterMarketplace;
-    return matchSearch && matchMarket;
+    const matchPayment =
+      !filterPayment || s.paymentMethod === filterPayment;
+    let matchPeriod = true;
+    if (filterPeriod !== "all") {
+      const saleDate = new Date(s.soldAt);
+      const now = new Date();
+      if (filterPeriod === "today") {
+        matchPeriod = saleDate.toDateString() === now.toDateString();
+      } else if (filterPeriod === "7d") {
+        matchPeriod = now.getTime() - saleDate.getTime() <= 7 * 86400000;
+      } else if (filterPeriod === "30d") {
+        matchPeriod = now.getTime() - saleDate.getTime() <= 30 * 86400000;
+      }
+    }
+    return matchSearch && matchMarket && matchPayment && matchPeriod;
   });
   const grouped = groupByDate(filtered);
 
@@ -592,30 +613,156 @@ export default function SalesPage() {
 
       {/* ── Search & Filter ── */}
       {!showForm && sales.length > 0 && (
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Search
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
-            />
-            <input
-              type="text"
-              placeholder="Suchen…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="h-10 w-full rounded-xl border border-zinc-200 bg-white pl-9 pr-3 text-[13px] text-zinc-900 outline-none transition-all placeholder:text-zinc-300 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100"
-            />
+        <div className="space-y-2.5">
+          {/* Search row */}
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+              />
+              <input
+                type="text"
+                placeholder="Name, Marke, Kunde, Rechnung…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-10 w-full rounded-xl border border-zinc-200 bg-white pl-9 pr-3 text-[13px] text-zinc-900 outline-none transition-all placeholder:text-zinc-300 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-zinc-300 transition-colors hover:text-zinc-500"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={cn(
+                "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all",
+                showFilters || filterMarketplace || filterPayment || filterPeriod !== "all"
+                  ? "border-zinc-900 bg-zinc-900 text-white"
+                  : "border-zinc-200 bg-white text-zinc-400"
+              )}
+            >
+              <SlidersHorizontal size={16} />
+            </button>
           </div>
-          <select
-            value={filterMarketplace}
-            onChange={(e) => setFilterMarketplace(e.target.value)}
-            className="h-10 rounded-xl border border-zinc-200 bg-white px-3 text-[12px] text-zinc-600 outline-none focus:border-zinc-400"
-          >
-            <option value="">Alle</option>
-            {["Shopify", "Kaufland", "eBay Kleinanzeigen"].map((m) => (
-              <option key={m} value={m}>{m}</option>
+
+          {/* Period pills (always visible) */}
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-none">
+            {([
+              { key: "all", label: "Alle" },
+              { key: "today", label: "Heute" },
+              { key: "7d", label: "7 Tage" },
+              { key: "30d", label: "30 Tage" },
+            ] as const).map((p) => (
+              <button
+                key={p.key}
+                onClick={() => setFilterPeriod(filterPeriod === p.key ? "all" : p.key)}
+                className={cn(
+                  "shrink-0 rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all",
+                  filterPeriod === p.key
+                    ? "bg-zinc-900 text-white"
+                    : "bg-zinc-100 text-zinc-500 active:bg-zinc-200"
+                )}
+              >
+                {p.label}
+              </button>
             ))}
-          </select>
+          </div>
+
+          {/* Expandable filters */}
+          {showFilters && (
+            <div className="space-y-2.5 rounded-2xl border border-zinc-100 bg-white p-3.5 shadow-sm">
+              {/* Marketplace filter */}
+              <div>
+                <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Plattform</p>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    onClick={() => setFilterMarketplace("")}
+                    className={cn(
+                      "rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all",
+                      !filterMarketplace
+                        ? "bg-zinc-900 text-white"
+                        : "bg-zinc-100 text-zinc-500 active:bg-zinc-200"
+                    )}
+                  >
+                    Alle
+                  </button>
+                  {["Shopify", "Kaufland", "eBay Kleinanzeigen"].map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => setFilterMarketplace(filterMarketplace === m ? "" : m)}
+                      className={cn(
+                        "rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all",
+                        filterMarketplace === m
+                          ? "bg-emerald-600 text-white"
+                          : "bg-zinc-100 text-zinc-500 active:bg-zinc-200"
+                      )}
+                    >
+                      {m === "eBay Kleinanzeigen" ? "eBay KA" : m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Payment method filter */}
+              <div>
+                <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Zahlung</p>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    onClick={() => setFilterPayment("")}
+                    className={cn(
+                      "rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all",
+                      !filterPayment
+                        ? "bg-zinc-900 text-white"
+                        : "bg-zinc-100 text-zinc-500 active:bg-zinc-200"
+                    )}
+                  >
+                    Alle
+                  </button>
+                  {PAYMENT_METHODS.map((m) => (
+                    <button
+                      key={m.key}
+                      onClick={() => setFilterPayment(filterPayment === m.key ? "" : m.key)}
+                      className={cn(
+                        "flex items-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all",
+                        filterPayment === m.key
+                          ? "bg-zinc-900 text-white"
+                          : "bg-zinc-100 text-zinc-500 active:bg-zinc-200"
+                      )}
+                    >
+                      <m.icon size={12} />
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Clear all filters */}
+              {(filterMarketplace || filterPayment || filterPeriod !== "all") && (
+                <button
+                  onClick={() => {
+                    setFilterMarketplace("");
+                    setFilterPayment("");
+                    setFilterPeriod("all");
+                  }}
+                  className="text-[11px] font-medium text-red-500 transition-colors active:text-red-700"
+                >
+                  Filter zurücksetzen
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Active filter count + result count */}
+          {filtered.length !== sales.length && (
+            <p className="text-[11px] text-zinc-400">
+              {filtered.length} von {sales.length} Verkäufen
+            </p>
+          )}
         </div>
       )}
 
