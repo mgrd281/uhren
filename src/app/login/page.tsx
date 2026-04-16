@@ -57,6 +57,54 @@ function LoginContent() {
   const denied = searchParams.get("error") === "unauthorized" || searchParams.get("error") === "AccessDenied";
   const [requestSent, setRequestSent] = useState(false);
 
+  /* ── Browser fingerprint (survives VPN) ── */
+  useEffect(() => {
+    try {
+      const parts: string[] = [];
+      parts.push(navigator.language);
+      parts.push(String(screen.width) + "x" + String(screen.height));
+      parts.push(String(screen.colorDepth));
+      parts.push(Intl.DateTimeFormat().resolvedOptions().timeZone);
+      parts.push(navigator.platform);
+      parts.push(String(navigator.hardwareConcurrency || 0));
+      parts.push(String((navigator as unknown as { deviceMemory?: number }).deviceMemory || 0));
+      // Canvas fingerprint
+      const canvas = document.createElement("canvas");
+      canvas.width = 200; canvas.height = 50;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.textBaseline = "top";
+        ctx.font = "14px Arial";
+        ctx.fillStyle = "#f60";
+        ctx.fillRect(125, 1, 62, 20);
+        ctx.fillStyle = "#069";
+        ctx.fillText("fingerprint", 2, 15);
+        ctx.fillStyle = "rgba(102,204,0,0.7)";
+        ctx.fillText("fingerprint", 4, 17);
+        parts.push(canvas.toDataURL());
+      }
+      // WebGL renderer
+      const gl = document.createElement("canvas").getContext("webgl");
+      if (gl) {
+        const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+        if (dbg) {
+          parts.push(gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) || "");
+          parts.push(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || "");
+        }
+      }
+      // Hash
+      const raw = parts.join("|");
+      let hash = 0;
+      for (let i = 0; i < raw.length; i++) {
+        hash = ((hash << 5) - hash + raw.charCodeAt(i)) | 0;
+      }
+      const fp = "fp_" + (hash >>> 0).toString(36);
+      document.cookie = `device_fp=${fp};path=/;max-age=86400;SameSite=Lax`;
+    } catch {
+      // Fingerprint optional
+    }
+  }, []);
+
   useEffect(() => {
     const meta = document.querySelector('meta[name="theme-color"]');
     const prev = meta?.getAttribute("content");

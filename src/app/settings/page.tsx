@@ -2,8 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { PageHeader, Card, Input, Button, Skeleton } from "@/components/ui";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Save, Download, FileJson, FileSpreadsheet, Database, ShieldCheck, ShieldX, Trash2, UserCheck, LogOut, Monitor, Globe, AlertTriangle } from "lucide-react";
+import { Save, Download, FileJson, FileSpreadsheet, Database, ShieldCheck, ShieldX, Trash2, UserCheck, LogOut, Monitor, Globe, AlertTriangle, Fingerprint, Eye, Pencil, ShieldAlert } from "lucide-react";
+
+const ROLES = [
+  { value: "viewer", label: "Nur Ansicht", icon: Eye, color: "text-blue-500", bg: "bg-blue-50", desc: "Kann Produkte & Verkäufe sehen, aber nichts ändern" },
+  { value: "editor", label: "Bearbeiter", icon: Pencil, color: "text-amber-600", bg: "bg-amber-50", desc: "Kann Preise ändern & Produkte bearbeiten" },
+  { value: "manager", label: "Manager", icon: ShieldAlert, color: "text-purple-600", bg: "bg-purple-50", desc: "Voller Zugriff außer Einstellungen & Benutzerverwaltung" },
+];
 
 interface Settings {
   storeName: string;
@@ -22,7 +29,9 @@ interface AccessRequest {
   userAgent: string | null;
   country: string | null;
   city: string | null;
+  fingerprint: string | null;
   googleUid: string;
+  role: string;
   createdAt: string;
 }
 
@@ -123,6 +132,23 @@ export default function SettingsPage() {
       toast.error("Verbindungsfehler");
     } finally {
       setActionLoading("");
+    }
+  }
+
+  async function handleRoleChange(id: string, role: string) {
+    try {
+      const res = await fetch("/api/access-requests", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, role }),
+      });
+      if (res.ok) {
+        setRequests((prev) => prev.map((r) => r.id === id ? { ...r, role } : r));
+        const label = ROLES.find((r) => r.value === role)?.label || role;
+        toast.success(`Rolle geändert: ${label}`);
+      }
+    } catch {
+      toast.error("Verbindungsfehler");
     }
   }
 
@@ -273,17 +299,19 @@ export default function SettingsPage() {
         ) : (
           <div className="space-y-3">
             {requests.map((req) => {
-              /* Same-device detection: same IP used with a different email */
-              const sameDevice = req.ip
-                ? requests.some(
-                    (other) =>
-                      other.id !== req.id &&
-                      other.ip === req.ip &&
-                      other.email !== req.email
-                  )
+              /* Same IP detection */
+              const sameIp = req.ip
+                ? requests.some((o) => o.id !== req.id && o.ip === req.ip && o.email !== req.email)
                 : false;
+              /* Same fingerprint detection (survives VPN) */
+              const sameFp = req.fingerprint
+                ? requests.some((o) => o.id !== req.id && o.fingerprint === req.fingerprint && o.email !== req.email)
+                : false;
+              const linkedAccounts = req.fingerprint
+                ? requests.filter((o) => o.id !== req.id && o.fingerprint === req.fingerprint && o.email !== req.email).map((o) => o.email)
+                : [];
 
-              /* Parse user agent for a short device label */
+              /* Parse user agent */
               const deviceLabel = (() => {
                 const ua = req.userAgent || "";
                 const isMobile = /Mobile|Android|iPhone/i.test(ua);
@@ -294,31 +322,29 @@ export default function SettingsPage() {
                 else if (/iPhone|iPad/i.test(ua)) os = "iOS";
                 else if (/Android/i.test(ua)) os = "Android";
                 else if (/Linux/i.test(ua)) os = "Linux";
-
                 let browser = "";
                 if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = "Chrome";
                 else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = "Safari";
                 else if (/Firefox/i.test(ua)) browser = "Firefox";
                 else if (/Edg/i.test(ua)) browser = "Edge";
-
                 const device = isTablet ? "Tablet" : isMobile ? "Handy" : "Desktop";
                 return `${device} · ${os}${browser ? ` · ${browser}` : ""}`;
               })();
 
+              const currentRole = ROLES.find((r) => r.value === req.role) || ROLES[0];
+
               return (
                 <div
                   key={req.id}
-                  className="rounded-2xl border border-zinc-200 bg-white px-5 py-4 transition-all hover:border-zinc-300"
+                  className={cn(
+                    "rounded-2xl border bg-white px-5 py-4 transition-all hover:border-zinc-300",
+                    sameFp ? "border-red-200 bg-red-50/30" : "border-zinc-200"
+                  )}
                 >
                   <div className="flex items-start gap-4">
                     {/* Avatar */}
                     {req.image ? (
-                      <img
-                        src={req.image}
-                        alt=""
-                        className="h-10 w-10 shrink-0 rounded-full"
-                        referrerPolicy="no-referrer"
-                      />
+                      <img src={req.image} alt="" className="h-10 w-10 shrink-0 rounded-full" referrerPolicy="no-referrer" />
                     ) : (
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-[13px] font-bold text-zinc-500">
                         {(req.name || req.email)[0]?.toUpperCase()}
@@ -333,32 +359,23 @@ export default function SettingsPage() {
                       <p className="truncate text-[11px] text-zinc-400">{req.email}</p>
                       <p className="mt-0.5 text-[10px] text-zinc-300">
                         {new Date(req.createdAt).toLocaleDateString("de-DE", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
+                          day: "2-digit", month: "2-digit", year: "numeric",
+                          hour: "2-digit", minute: "2-digit",
                         })}
                       </p>
                     </div>
 
-                    {/* Status / Actions */}
+                    {/* Actions */}
                     <div className="flex shrink-0 items-center gap-2">
                       {req.status === "pending" && (
                         <>
-                          <button
-                            onClick={() => handleAccessAction(req.id, "approve")}
-                            disabled={!!actionLoading}
-                            className="flex h-9 items-center gap-1.5 rounded-xl bg-emerald-50 px-3 text-[12px] font-semibold text-emerald-600 transition-all hover:bg-emerald-100 active:scale-95 disabled:opacity-50"
-                          >
+                          <button onClick={() => handleAccessAction(req.id, "approve")} disabled={!!actionLoading}
+                            className="flex h-9 items-center gap-1.5 rounded-xl bg-emerald-50 px-3 text-[12px] font-semibold text-emerald-600 transition-all hover:bg-emerald-100 active:scale-95 disabled:opacity-50">
                             <ShieldCheck size={14} />
                             {actionLoading === `${req.id}-approve` ? "…" : "Genehmigen"}
                           </button>
-                          <button
-                            onClick={() => handleAccessAction(req.id, "reject")}
-                            disabled={!!actionLoading}
-                            className="flex h-9 items-center gap-1.5 rounded-xl bg-red-50 px-3 text-[12px] font-semibold text-red-500 transition-all hover:bg-red-100 active:scale-95 disabled:opacity-50"
-                          >
+                          <button onClick={() => handleAccessAction(req.id, "reject")} disabled={!!actionLoading}
+                            className="flex h-9 items-center gap-1.5 rounded-xl bg-red-50 px-3 text-[12px] font-semibold text-red-500 transition-all hover:bg-red-100 active:scale-95 disabled:opacity-50">
                             <ShieldX size={14} />
                             {actionLoading === `${req.id}-reject` ? "…" : "Ablehnen"}
                           </button>
@@ -366,70 +383,91 @@ export default function SettingsPage() {
                       )}
                       {req.status === "approved" && (
                         <>
-                          <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-600">
-                            Genehmigt
-                          </span>
-                          <button
-                            onClick={() => handleAccessAction(req.id, "revoke")}
-                            disabled={!!actionLoading}
-                            className="flex h-9 items-center gap-1.5 rounded-xl bg-amber-50 px-3 text-[12px] font-semibold text-amber-600 transition-all hover:bg-amber-100 active:scale-95 disabled:opacity-50"
-                          >
+                          <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-600">Genehmigt</span>
+                          <button onClick={() => handleAccessAction(req.id, "revoke")} disabled={!!actionLoading}
+                            className="flex h-9 items-center gap-1.5 rounded-xl bg-amber-50 px-3 text-[12px] font-semibold text-amber-600 transition-all hover:bg-amber-100 active:scale-95 disabled:opacity-50">
                             <LogOut size={14} />
                             {actionLoading === `${req.id}-revoke` ? "…" : "Widerrufen"}
                           </button>
                         </>
                       )}
                       {(req.status === "rejected" || req.status === "revoked") && (
-                        <>
-                          <span
-                            className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
-                              req.status === "revoked"
-                                ? "bg-amber-50 text-amber-600"
-                                : "bg-red-50 text-red-500"
-                            }`}
-                          >
-                            {req.status === "revoked" ? "Widerrufen" : "Abgelehnt"}
-                          </span>
-                        </>
+                        <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${req.status === "revoked" ? "bg-amber-50 text-amber-600" : "bg-red-50 text-red-500"}`}>
+                          {req.status === "revoked" ? "Widerrufen" : "Abgelehnt"}
+                        </span>
                       )}
                       {req.status !== "pending" && (
-                        <button
-                          onClick={() => handleAccessAction(req.id, "delete")}
-                          disabled={!!actionLoading}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-300 transition-all hover:bg-zinc-100 hover:text-zinc-500 active:scale-95 disabled:opacity-50"
-                        >
+                        <button onClick={() => handleAccessAction(req.id, "delete")} disabled={!!actionLoading}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-300 transition-all hover:bg-zinc-100 hover:text-zinc-500 active:scale-95 disabled:opacity-50">
                           <Trash2 size={14} />
                         </button>
                       )}
                     </div>
                   </div>
 
-                  {/* Device info row */}
-                  {(req.ip || req.userAgent) && (
-                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-zinc-100 pt-3">
-                      {req.ip && (
-                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
-                          <Globe size={11} className="shrink-0 text-zinc-300" />
-                          <span className="font-mono">{req.ip}</span>
-                          {(req.city || req.country) && (
-                            <span className="text-zinc-300">
-                              ({[req.city, req.country].filter(Boolean).join(", ")})
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      {req.userAgent && (
-                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
-                          <Monitor size={11} className="shrink-0 text-zinc-300" />
-                          <span>{deviceLabel}</span>
-                        </div>
-                      )}
-                      {sameDevice && (
-                        <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-600">
-                          <AlertTriangle size={11} />
-                          Gleiche IP, anderer Account
-                        </div>
-                      )}
+                  {/* Device info + fingerprint row */}
+                  <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-zinc-100 pt-3">
+                    {req.ip && (
+                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
+                        <Globe size={11} className="shrink-0 text-zinc-300" />
+                        <span className="font-mono">{req.ip}</span>
+                        {(req.city || req.country) && (
+                          <span className="text-zinc-300">({[req.city, req.country].filter(Boolean).join(", ")})</span>
+                        )}
+                      </div>
+                    )}
+                    {req.userAgent && (
+                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
+                        <Monitor size={11} className="shrink-0 text-zinc-300" />
+                        <span>{deviceLabel}</span>
+                      </div>
+                    )}
+                    {req.fingerprint && (
+                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
+                        <Fingerprint size={11} className="shrink-0 text-zinc-300" />
+                        <span className="font-mono">{req.fingerprint}</span>
+                      </div>
+                    )}
+                    {sameIp && !sameFp && (
+                      <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-600">
+                        <AlertTriangle size={11} />
+                        Gleiche IP, anderer Account
+                      </div>
+                    )}
+                    {sameFp && (
+                      <div className="flex items-center gap-1.5 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-600">
+                        <Fingerprint size={11} />
+                        Gleiches Gerät: {linkedAccounts.join(", ")}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Role selector (for approved or pending users) */}
+                  {(req.status === "approved" || req.status === "pending") && (
+                    <div className="mt-3 border-t border-zinc-100 pt-3">
+                      <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Rolle</p>
+                      <div className="flex flex-wrap gap-2">
+                        {ROLES.map((role) => {
+                          const RoleIcon = role.icon;
+                          const active = req.role === role.value;
+                          return (
+                            <button
+                              key={role.value}
+                              onClick={() => handleRoleChange(req.id, role.value)}
+                              title={role.desc}
+                              className={cn(
+                                "flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-semibold transition-all active:scale-95",
+                                active
+                                  ? `${role.bg} ${role.color} ring-1 ring-current/20`
+                                  : "bg-zinc-50 text-zinc-400 hover:bg-zinc-100"
+                              )}
+                            >
+                              <RoleIcon size={13} />
+                              {role.label}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>

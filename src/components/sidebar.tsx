@@ -15,7 +15,7 @@ import {
   X,
   LogOut,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { signOut } from "next-auth/react";
 
 const nav = [
@@ -41,17 +41,70 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const prevCountRef = useRef(0);
+
+  const playNotificationSound = useCallback(() => {
+    try {
+      const ctx = new AudioContext();
+      // Chime: two pleasant tones
+      const play = (freq: number, start: number, dur: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + start);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + start + dur);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + dur);
+      };
+      play(880, 0, 0.15);
+      play(1320, 0.12, 0.2);
+    } catch {
+      // Audio not available
+    }
+  }, []);
+
+  const showBrowserNotification = useCallback((count: number) => {
+    if (!("Notification" in window)) return;
+    if (Notification.permission === "granted") {
+      new Notification("Neue Zugriffsanfrage", {
+        body: `${count} neue Anfrage${count > 1 ? "n" : ""} wartet auf Genehmigung`,
+        icon: "/icon-192.png",
+        tag: "access-request",
+      });
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission();
+    }
+  }, []);
 
   useEffect(() => {
-    fetch("/api/access-requests")
-      .then((r) => r.json())
-      .then((data: { status?: string }[]) => {
-        if (Array.isArray(data)) {
-          setPendingCount(data.filter((r) => r.status === "pending").length);
-        }
-      })
-      .catch(() => {});
-  }, [pathname]);
+    // Ask for notification permission on first load
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+
+    const check = () => {
+      fetch("/api/access-requests")
+        .then((r) => r.json())
+        .then((data: { status?: string }[]) => {
+          if (Array.isArray(data)) {
+            const count = data.filter((r) => r.status === "pending").length;
+            if (count > prevCountRef.current && prevCountRef.current >= 0) {
+              playNotificationSound();
+              showBrowserNotification(count);
+            }
+            prevCountRef.current = count;
+            setPendingCount(count);
+          }
+        })
+        .catch(() => {});
+    };
+    check();
+    const interval = setInterval(check, 30_000); // Poll every 30s
+    return () => clearInterval(interval);
+  }, [playNotificationSound, showBrowserNotification]);
 
   // Hide sidebar on login page
   if (pathname === "/login") return null;

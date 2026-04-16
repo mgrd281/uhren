@@ -14,7 +14,17 @@ export async function GET() {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const { id, action } = await request.json();
+    const { id, action, role } = await request.json();
+
+    // Role update
+    if (id && role && !action) {
+      await prisma.accessRequest.update({
+        where: { id },
+        data: { role },
+      });
+      return NextResponse.json({ ok: true });
+    }
+
     if (!id || !["approve", "reject", "revoke", "delete"].includes(action)) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
