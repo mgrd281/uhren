@@ -122,38 +122,57 @@ export default function DashboardPage() {
       <div className="grid grid-cols-3 gap-3 lg:gap-5">
         <Link
           href="/sales"
-          className="flex flex-col rounded-2xl bg-zinc-900 px-3.5 py-3 text-white transition-all active:scale-[0.98] lg:px-6 lg:py-5 lg:hover:shadow-xl lg:hover:shadow-zinc-900/10"
+          className="group relative flex flex-col overflow-hidden rounded-2xl bg-zinc-900 px-3.5 py-3 text-white transition-all active:scale-[0.98] lg:px-7 lg:py-6 lg:hover:shadow-2xl lg:hover:shadow-zinc-900/20"
         >
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
-            Umsatz
-          </span>
-          <span className="mt-1 text-[16px] font-bold tracking-tight sm:text-lg lg:mt-2 lg:text-2xl">
+          <div className="absolute -right-6 -top-6 hidden h-24 w-24 rounded-full bg-white/[0.04] lg:block" />
+          <div className="absolute -right-2 top-8 hidden h-16 w-16 rounded-full bg-white/[0.03] lg:block" />
+          <div className="flex items-center gap-2">
+            <Receipt size={13} className="hidden text-zinc-500 lg:block lg:h-4 lg:w-4" />
+            <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
+              Umsatz
+            </span>
+          </div>
+          <span className="mt-1 text-[16px] font-bold tracking-tight sm:text-lg lg:mt-3 lg:text-3xl">
             {formatCurrency(kpis.totalRevenue)}
           </span>
-          <span className="mt-0.5 flex items-center gap-0.5 text-[9px] text-zinc-500 lg:mt-2 lg:text-xs">
-            Ansehen <ChevronRight size={9} className="lg:h-3 lg:w-3" />
+          <span className="mt-0.5 flex items-center gap-0.5 text-[9px] text-zinc-500 lg:mt-3 lg:text-xs lg:group-hover:text-zinc-300">
+            Ansehen <ChevronRight size={9} className="transition-transform lg:h-3 lg:w-3 lg:group-hover:translate-x-0.5" />
           </span>
         </Link>
         <Link
           href="/sales"
-          className="flex flex-col rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98] lg:px-6 lg:py-5 lg:hover:shadow-md"
+          className="group relative flex flex-col overflow-hidden rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98] lg:px-7 lg:py-6 lg:hover:-translate-y-0.5 lg:hover:shadow-lg"
         >
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
-            Gewinn
-          </span>
-          <span className="mt-1 text-[16px] font-bold tracking-tight text-emerald-600 sm:text-lg lg:mt-2 lg:text-2xl">
+          <div className="absolute left-0 top-0 hidden h-full w-1 rounded-l-2xl bg-emerald-500 lg:block" />
+          <div className="flex items-center gap-2">
+            <TrendingUp size={13} className="hidden text-emerald-500 lg:block lg:h-4 lg:w-4" />
+            <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
+              Gewinn
+            </span>
+          </div>
+          <span className="mt-1 text-[16px] font-bold tracking-tight text-emerald-600 sm:text-lg lg:mt-3 lg:text-3xl">
             {formatCurrency(kpis.totalProfit)}
+          </span>
+          <span className="mt-0.5 hidden text-[11px] text-zinc-400 lg:mt-3 lg:block">
+            {kpis.totalRevenue > 0 ? `${Math.round((kpis.totalProfit / kpis.totalRevenue) * 100)}% Marge` : "—"}
           </span>
         </Link>
         <Link
           href="/products"
-          className="flex flex-col rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98] lg:px-6 lg:py-5 lg:hover:shadow-md"
+          className="group relative flex flex-col overflow-hidden rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98] lg:px-7 lg:py-6 lg:hover:-translate-y-0.5 lg:hover:shadow-lg"
         >
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
-            Bestandswert
-          </span>
-          <span className="mt-1 text-[16px] font-bold tracking-tight text-zinc-900 sm:text-lg lg:mt-2 lg:text-2xl">
+          <div className="absolute left-0 top-0 hidden h-full w-1 rounded-l-2xl bg-zinc-900 lg:block" />
+          <div className="flex items-center gap-2">
+            <Gem size={13} className="hidden text-zinc-400 lg:block lg:h-4 lg:w-4" />
+            <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
+              Bestandswert
+            </span>
+          </div>
+          <span className="mt-1 text-[16px] font-bold tracking-tight text-zinc-900 sm:text-lg lg:mt-3 lg:text-3xl">
             {formatCurrency(kpis.expectedSalesValue)}
+          </span>
+          <span className="mt-0.5 hidden text-[11px] text-zinc-400 lg:mt-3 lg:block">
+            {kpis.totalStock} Artikel
           </span>
         </Link>
       </div>
@@ -162,38 +181,38 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
         <Link
           href="/products"
-          className="flex items-center gap-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all active:scale-[0.98] lg:gap-4 lg:p-5 lg:hover:shadow-md"
+          className="group flex items-center gap-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all active:scale-[0.98] lg:gap-4 lg:p-5 lg:hover:-translate-y-0.5 lg:hover:shadow-lg"
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 lg:h-12 lg:w-12">
-            <Package size={18} className="text-zinc-600 lg:h-5 lg:w-5" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 transition-colors lg:h-12 lg:w-12 lg:group-hover:bg-zinc-900 lg:group-hover:text-white">
+            <Package size={18} className="text-zinc-600 lg:h-5 lg:w-5 lg:group-hover:text-white" />
           </div>
           <div>
-            <p className="text-[18px] font-bold tracking-tight text-zinc-900 lg:text-xl">{formatNumber(kpis.totalProducts)}</p>
+            <p className="text-[18px] font-bold tracking-tight text-zinc-900 lg:text-2xl">{formatNumber(kpis.totalProducts)}</p>
             <p className="text-[11px] text-zinc-400 lg:text-xs">Produkte</p>
           </div>
         </Link>
         <Link
           href="/products"
-          className="flex items-center gap-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all active:scale-[0.98] lg:gap-4 lg:p-5 lg:hover:shadow-md"
+          className="group flex items-center gap-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all active:scale-[0.98] lg:gap-4 lg:p-5 lg:hover:-translate-y-0.5 lg:hover:shadow-lg"
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 lg:h-12 lg:w-12">
-            <Warehouse size={18} className="text-blue-600 lg:h-5 lg:w-5" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 transition-colors lg:h-12 lg:w-12 lg:group-hover:bg-blue-600">
+            <Warehouse size={18} className="text-blue-600 lg:h-5 lg:w-5 lg:group-hover:text-white" />
           </div>
           <div>
-            <p className="text-[18px] font-bold tracking-tight text-zinc-900 lg:text-xl">{formatNumber(kpis.totalStock)}</p>
+            <p className="text-[18px] font-bold tracking-tight text-zinc-900 lg:text-2xl">{formatNumber(kpis.totalStock)}</p>
             <p className="text-[11px] text-zinc-400 lg:text-xs">Auf Lager</p>
           </div>
         </Link>
         {kpis.lowStockItems > 0 && (
           <Link
             href="/products"
-            className="flex items-center gap-3 rounded-2xl border border-amber-100 bg-amber-50/50 p-4 transition-all active:scale-[0.98] lg:gap-4 lg:p-5 lg:hover:shadow-md"
+            className="group flex items-center gap-3 rounded-2xl border border-amber-100 bg-amber-50/50 p-4 transition-all active:scale-[0.98] lg:gap-4 lg:p-5 lg:hover:-translate-y-0.5 lg:hover:shadow-lg lg:hover:border-amber-200"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 lg:h-12 lg:w-12">
-              <AlertTriangle size={18} className="text-amber-600 lg:h-5 lg:w-5" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 transition-colors lg:h-12 lg:w-12 lg:group-hover:bg-amber-500">
+              <AlertTriangle size={18} className="text-amber-600 lg:h-5 lg:w-5 lg:group-hover:text-white" />
             </div>
             <div>
-              <p className="text-[18px] font-bold tracking-tight text-amber-700 lg:text-xl">{formatNumber(kpis.lowStockItems)}</p>
+              <p className="text-[18px] font-bold tracking-tight text-amber-700 lg:text-2xl">{formatNumber(kpis.lowStockItems)}</p>
               <p className="text-[11px] text-amber-600 lg:text-xs">Niedrig</p>
             </div>
           </Link>
@@ -201,13 +220,13 @@ export default function DashboardPage() {
         {kpis.outOfStockItems > 0 && (
           <Link
             href="/products"
-            className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50/50 p-4 transition-all active:scale-[0.98] lg:gap-4 lg:p-5 lg:hover:shadow-md"
+            className="group flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50/50 p-4 transition-all active:scale-[0.98] lg:gap-4 lg:p-5 lg:hover:-translate-y-0.5 lg:hover:shadow-lg lg:hover:border-red-200"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 lg:h-12 lg:w-12">
-              <XCircle size={18} className="text-red-600 lg:h-5 lg:w-5" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 transition-colors lg:h-12 lg:w-12 lg:group-hover:bg-red-500">
+              <XCircle size={18} className="text-red-600 lg:h-5 lg:w-5 lg:group-hover:text-white" />
             </div>
             <div>
-              <p className="text-[18px] font-bold tracking-tight text-red-700 lg:text-xl">{formatNumber(kpis.outOfStockItems)}</p>
+              <p className="text-[18px] font-bold tracking-tight text-red-700 lg:text-2xl">{formatNumber(kpis.outOfStockItems)}</p>
               <p className="text-[11px] text-red-600 lg:text-xs">Ausverkauft</p>
             </div>
           </Link>
@@ -216,14 +235,27 @@ export default function DashboardPage() {
 
       {/* ── Sales Chart ── */}
       {charts.salesOverTime.length > 0 && (
-        <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm lg:p-6">
-          <div className="mb-4 flex items-center justify-between lg:mb-6">
-            <h3 className="text-[13px] font-bold text-zinc-900 lg:text-base">Umsatzverlauf</h3>
-            <Link href="/reports" className="text-[11px] font-medium text-zinc-400 transition-colors active:text-zinc-600 lg:text-xs lg:hover:text-zinc-600">
-              Details →
-            </Link>
+        <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm lg:p-8">
+          <div className="mb-4 flex items-center justify-between lg:mb-8">
+            <div>
+              <h3 className="text-[13px] font-bold text-zinc-900 lg:text-lg">Umsatzverlauf</h3>
+              <p className="mt-0.5 hidden text-[12px] text-zinc-400 lg:block">Umsatz & Gewinn der letzten Monate</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="hidden items-center gap-4 lg:flex">
+                <span className="flex items-center gap-1.5 text-[11px] text-zinc-500">
+                  <span className="inline-block h-2.5 w-2.5 rounded-full bg-zinc-900" /> Umsatz
+                </span>
+                <span className="flex items-center gap-1.5 text-[11px] text-zinc-500">
+                  <span className="inline-block h-2.5 w-2.5 rounded-full bg-emerald-500" /> Gewinn
+                </span>
+              </div>
+              <Link href="/reports" className="text-[11px] font-medium text-zinc-400 transition-colors active:text-zinc-600 lg:text-xs lg:hover:text-zinc-600">
+                Details →
+              </Link>
+            </div>
           </div>
-          <div className="h-48 sm:h-64 lg:h-80">
+          <div className="h-48 sm:h-64 lg:h-96">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={charts.salesOverTime}>
                 <defs>
@@ -233,9 +265,9 @@ export default function DashboardPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
                 <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#a1a1aa" }} />
                 <YAxis tick={{ fontSize: 10, fill: "#a1a1aa" }} width={50} />
-                <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #f4f4f5", fontSize: 11 }} />
-                <Area type="monotone" dataKey="revenue" stroke="#18181b" strokeWidth={2} fill="url(#gRev)" name="Umsatz" />
-                <Area type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={2} fill="url(#gProfit)" name="Gewinn" />
+                <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #f4f4f5", fontSize: 11, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }} />
+                <Area type="monotone" dataKey="revenue" stroke="#18181b" strokeWidth={2.5} fill="url(#gRev)" name="Umsatz" />
+                <Area type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={2.5} fill="url(#gProfit)" name="Gewinn" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -247,13 +279,13 @@ export default function DashboardPage() {
         {charts.topBrands.length > 0 && (
           <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm lg:p-6">
             <h3 className="mb-4 text-[13px] font-bold text-zinc-900 lg:mb-6 lg:text-base">Top Marken</h3>
-            <div className="h-48 lg:h-64">
+            <div className="h-48 lg:h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={charts.topBrands} dataKey="revenue" nameKey="brand" cx="50%" cy="50%" outerRadius={80} innerRadius={50} paddingAngle={2} label={({ name }: { name?: string }) => name ?? ""} style={{ fontSize: 10 }}>
                     {charts.topBrands.map((_, i) => (<Cell key={i} fill={COLORS[i % COLORS.length]} />))}
                   </Pie>
-                  <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #f4f4f5", fontSize: 11 }} />
+                  <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #f4f4f5", fontSize: 11, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -263,13 +295,13 @@ export default function DashboardPage() {
         {charts.topProducts.length > 0 && (
           <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm lg:p-6">
             <h3 className="mb-4 text-[13px] font-bold text-zinc-900 lg:mb-6 lg:text-base">Meistverkauft</h3>
-            <div className="h-48 lg:h-64">
+            <div className="h-48 lg:h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={charts.topProducts} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
                   <XAxis type="number" tick={{ fontSize: 10, fill: "#a1a1aa" }} />
                   <YAxis dataKey="name" type="category" tick={{ fontSize: 10, fill: "#71717a" }} width={100} />
-                  <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #f4f4f5", fontSize: 11 }} />
+                  <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #f4f4f5", fontSize: 11, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }} />
                   <Bar dataKey="revenue" fill="#18181b" radius={[0, 6, 6, 0]} name="Umsatz" />
                 </BarChart>
               </ResponsiveContainer>
@@ -282,18 +314,18 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
         {/* Recent Sales */}
         <div>
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-3 flex items-center justify-between lg:mb-4">
             <h3 className="text-[13px] font-bold text-zinc-900 lg:text-base">Letzte Verkäufe</h3>
             <Link href="/sales" className="text-[11px] font-medium text-zinc-400 transition-colors active:text-zinc-600 lg:text-xs lg:hover:text-zinc-600">
               Alle ansehen →
             </Link>
           </div>
           {recentSales.length === 0 ? (
-            <div className="flex flex-col items-center rounded-2xl border border-zinc-100 bg-white py-12 text-center shadow-sm">
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100">
-                <ShoppingBag size={20} className="text-zinc-400" />
+            <div className="flex flex-col items-center rounded-2xl border border-zinc-100 bg-white py-12 text-center shadow-sm lg:py-16">
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 lg:h-14 lg:w-14">
+                <ShoppingBag size={20} className="text-zinc-400 lg:h-6 lg:w-6" />
               </div>
-              <p className="text-[12px] text-zinc-400">Noch keine Verkäufe</p>
+              <p className="text-[12px] text-zinc-400 lg:text-sm">Noch keine Verkäufe</p>
             </div>
           ) : (
             <div className="rounded-2xl border border-zinc-100 bg-white divide-y divide-zinc-100 overflow-hidden shadow-sm">
@@ -301,22 +333,25 @@ export default function DashboardPage() {
                 <Link
                   key={sale.id}
                   href={sale.productId ? `/products/${sale.productId}` : "/sales"}
-                  className="flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50 lg:hover:bg-zinc-50"
+                  className="group flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50 lg:gap-4 lg:px-5 lg:py-4 lg:hover:bg-zinc-50"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50 transition-colors lg:h-11 lg:w-11 lg:group-hover:bg-emerald-100">
                     <ArrowUpRight size={18} className="text-emerald-600" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13px] font-semibold text-zinc-900">
+                    <p className="truncate text-[13px] font-semibold text-zinc-900 lg:text-sm">
                       {sale.product.name}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-zinc-400">
+                    <p className="mt-0.5 text-[11px] text-zinc-400 lg:text-xs">
                       {sale.product.brand}
                       {sale.customerName && ` · ${sale.customerName}`}
                     </p>
                   </div>
+                  <div className="hidden shrink-0 text-[11px] text-zinc-400 lg:block">
+                    {new Date(sale.soldAt).toLocaleDateString("de-DE", { day: "2-digit", month: "short" })}
+                  </div>
                   <div className="text-right shrink-0">
-                    <p className="text-[14px] font-bold text-zinc-900">
+                    <p className="text-[14px] font-bold text-zinc-900 lg:text-[15px]">
                       +{formatCurrency(sale.totalAmount)}
                     </p>
                     <p className="mt-0.5 text-[10px] text-zinc-400">
@@ -332,17 +367,17 @@ export default function DashboardPage() {
         {/* Alerts */}
         {alerts.length > 0 && (
           <div>
-            <h3 className="mb-3 text-[13px] font-bold text-zinc-900 lg:text-base">⚠️ Bestandswarnungen</h3>
+            <h3 className="mb-3 text-[13px] font-bold text-zinc-900 lg:mb-4 lg:text-base">⚠️ Bestandswarnungen</h3>
             <div className="rounded-2xl border border-zinc-100 bg-white divide-y divide-zinc-100 overflow-hidden shadow-sm">
               {alerts.map((p) => (
                 <Link
                   key={p.id}
                   href={`/products/${p.id}`}
-                  className="flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50 lg:hover:bg-zinc-50"
+                  className="group flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50 lg:gap-4 lg:px-5 lg:py-4 lg:hover:bg-zinc-50"
                 >
                   <div className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
-                    p.status === "OUT_OF_STOCK" ? "bg-red-50" : "bg-amber-50"
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors lg:h-11 lg:w-11",
+                    p.status === "OUT_OF_STOCK" ? "bg-red-50 lg:group-hover:bg-red-100" : "bg-amber-50 lg:group-hover:bg-amber-100"
                   )}>
                     {p.status === "OUT_OF_STOCK"
                       ? <XCircle size={18} className="text-red-500" />
@@ -350,12 +385,12 @@ export default function DashboardPage() {
                     }
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13px] font-semibold text-zinc-900">{p.name}</p>
-                    <p className="text-[11px] text-zinc-400">{p.brand}</p>
+                    <p className="truncate text-[13px] font-semibold text-zinc-900 lg:text-sm">{p.name}</p>
+                    <p className="text-[11px] text-zinc-400 lg:text-xs">{p.brand}</p>
                   </div>
                   <div className="shrink-0">
                     <span className={cn(
-                      "rounded-full px-2.5 py-1 text-[10px] font-bold",
+                      "rounded-full px-2.5 py-1 text-[10px] font-bold lg:text-[11px]",
                       p.status === "OUT_OF_STOCK"
                         ? "bg-red-100 text-red-600"
                         : "bg-amber-100 text-amber-600"
