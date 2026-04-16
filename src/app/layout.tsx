@@ -76,8 +76,8 @@ export default function RootLayout({
         <ServiceWorker />
         <SettingsProvider>
           <Sidebar />
-          <main className="min-h-screen transition-all duration-300 lg:pl-[260px]">
-            <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
+          <main className="min-h-screen transition-all duration-300 pb-20 lg:pb-0 lg:pl-[260px]">
+            <div className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
               {children}
             </div>
           </main>

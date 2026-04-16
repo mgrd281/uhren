@@ -36,11 +36,11 @@ export function KpiCard({
   accent?: string;
 }) {
   return (
-    <Card className="flex items-start gap-4">
+    <Card className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:gap-4 sm:p-6">
       {icon && (
         <div
           className={cn(
-            "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg sm:h-11 sm:w-11 sm:rounded-xl",
             accent ?? "bg-zinc-100 text-zinc-600"
           )}
         >
@@ -48,8 +48,8 @@ export function KpiCard({
         </div>
       )}
       <div className="min-w-0">
-        <p className="text-[12px] font-medium text-zinc-400">{label}</p>
-        <p className="mt-1 text-xl font-bold tracking-tight text-zinc-900">
+        <p className="text-[11px] font-medium text-zinc-400 sm:text-[12px]">{label}</p>
+        <p className="mt-0.5 text-lg font-bold tracking-tight text-zinc-900 sm:mt-1 sm:text-xl">
           {value}
         </p>
         {sub && <p className="mt-0.5 text-[11px] text-zinc-400">{sub}</p>}

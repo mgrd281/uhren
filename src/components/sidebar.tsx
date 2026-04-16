@@ -26,34 +26,101 @@ const nav = [
   { href: "/settings", label: "Einstellungen", icon: Settings },
 ];
 
+/* Bottom tab bar items (mobile app) */
+const tabs = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/products", label: "Produkte", icon: Watch },
+  { href: "/sales", label: "Verkäufe", icon: ShoppingBag },
+  { href: "/reports", label: "Berichte", icon: BarChart3 },
+  { href: "/settings", label: "Mehr", icon: Menu },
+];
+
 export default function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      {/* Mobile toggle */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="fixed top-4 left-4 z-50 flex h-10 w-10 items-center justify-center rounded-xl bg-white/80 shadow-lg backdrop-blur-md lg:hidden"
-        aria-label="toggle menu"
-      >
-        {open ? <X size={20} /> : <Menu size={20} />}
-      </button>
+      {/* ── Mobile Bottom Tab Bar ── */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-200 bg-white/95 backdrop-blur-xl lg:hidden safe-area-bottom">
+        <div className="flex items-center justify-around px-1 pt-1.5 pb-1">
+          {tabs.map((tab) => {
+            const active =
+              pathname === tab.href || pathname.startsWith(tab.href + "/");
+            /* "Mehr" button opens the full menu */
+            if (tab.label === "Mehr") {
+              return (
+                <button
+                  key="more"
+                  onClick={() => setOpen(!open)}
+                  className={cn(
+                    "flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]",
+                    open ? "text-gold-500" : "text-zinc-400"
+                  )}
+                >
+                  {open ? <X size={22} /> : <Menu size={22} />}
+                  <span className="text-[10px] font-medium">Mehr</span>
+                </button>
+              );
+            }
+            return (
+              <Link
+                key={tab.href}
+                href={tab.href}
+                onClick={() => setOpen(false)}
+                className={cn(
+                  "flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]",
+                  active
+                    ? "text-zinc-900"
+                    : "text-zinc-400 active:text-zinc-600"
+                )}
+              >
+                <tab.icon size={22} strokeWidth={active ? 2.2 : 1.8} />
+                <span className={cn("text-[10px]", active ? "font-semibold" : "font-medium")}>
+                  {tab.label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
 
-      {/* Overlay */}
+      {/* ── Mobile "Mehr" overlay menu ── */}
       {open && (
-        <div
-          className="fixed inset-0 z-30 bg-black/20 backdrop-blur-sm lg:hidden"
-          onClick={() => setOpen(false)}
-        />
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
+            onClick={() => setOpen(false)}
+          />
+          <div className="fixed bottom-[68px] left-3 right-3 z-50 rounded-2xl border border-zinc-100 bg-white p-3 shadow-2xl lg:hidden safe-area-bottom">
+            {nav
+              .filter((item) => !tabs.some((t) => t.href === item.href))
+              .map((item) => {
+                const active = pathname === item.href || pathname.startsWith(item.href + "/");
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl px-4 py-3 text-[14px] font-medium transition-colors",
+                      active
+                        ? "bg-zinc-900 text-white"
+                        : "text-zinc-600 active:bg-zinc-100"
+                    )}
+                  >
+                    <item.icon size={20} />
+                    {item.label}
+                  </Link>
+                );
+              })}
+          </div>
+        </>
       )}
 
+      {/* ── Desktop Sidebar (unchanged) ── */}
       <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col border-r border-zinc-100 bg-white/70 px-4 py-8 backdrop-blur-xl transition-transform duration-300 lg:translate-x-0",
-          open ? "translate-x-0" : "-translate-x-full"
-        )}
+        className="fixed inset-y-0 left-0 z-40 hidden w-[260px] flex-col border-r border-zinc-100 bg-white/70 px-4 py-8 backdrop-blur-xl lg:flex"
       >
         {/* Brand */}
         <div className="mb-10 px-3">
@@ -78,7 +145,6 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setOpen(false)}
                 className={cn(
                   "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
                   active

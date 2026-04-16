@@ -100,15 +100,15 @@ export default function DashboardPage() {
     <div className="space-y-10">
       <PageHeader title="Dashboard" description="Übersicht über Shop-Leistung und Bestand" />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Produkte gesamt" value={formatNumber(kpis.totalProducts)} icon={<Package size={20} />} accent="bg-zinc-100 text-zinc-700" />
-        <KpiCard label="Gesamtbestand" value={formatNumber(kpis.totalStock)} sub="Stück" icon={<Warehouse size={20} />} accent="bg-blue-50 text-blue-600" />
-        <KpiCard label="Niedriger Bestand" value={formatNumber(kpis.lowStockItems)} icon={<AlertTriangle size={20} />} accent="bg-amber-50 text-amber-600" />
-        <KpiCard label="Ausverkauft" value={formatNumber(kpis.outOfStockItems)} icon={<XCircle size={20} />} accent="bg-red-50 text-red-600" />
-        <KpiCard label="Bestandswert (EK)" value={formatCurrency(kpis.inventoryValueCost)} icon={<DollarSign size={20} />} accent="bg-zinc-100 text-zinc-700" />
-        <KpiCard label="Erwarteter VK-Wert" value={formatCurrency(kpis.expectedSalesValue)} icon={<TrendingUp size={20} />} accent="bg-emerald-50 text-emerald-600" />
-        <KpiCard label="Gesamtumsatz" value={formatCurrency(kpis.totalRevenue)} icon={<Receipt size={20} />} accent="bg-blue-50 text-blue-600" />
-        <KpiCard label="Gesamtgewinn" value={formatCurrency(kpis.totalProfit)} icon={<Gem size={20} />} accent="bg-gold-50 text-gold-600" />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Produkte gesamt" value={formatNumber(kpis.totalProducts)} icon={<Package size={18} />} accent="bg-zinc-100 text-zinc-700" />
+        <KpiCard label="Gesamtbestand" value={formatNumber(kpis.totalStock)} sub="Stück" icon={<Warehouse size={18} />} accent="bg-blue-50 text-blue-600" />
+        <KpiCard label="Niedriger Bestand" value={formatNumber(kpis.lowStockItems)} icon={<AlertTriangle size={18} />} accent="bg-amber-50 text-amber-600" />
+        <KpiCard label="Ausverkauft" value={formatNumber(kpis.outOfStockItems)} icon={<XCircle size={18} />} accent="bg-red-50 text-red-600" />
+        <KpiCard label="Bestandswert (EK)" value={formatCurrency(kpis.inventoryValueCost)} icon={<DollarSign size={18} />} accent="bg-zinc-100 text-zinc-700" />
+        <KpiCard label="Erwarteter VK-Wert" value={formatCurrency(kpis.expectedSalesValue)} icon={<TrendingUp size={18} />} accent="bg-emerald-50 text-emerald-600" />
+        <KpiCard label="Gesamtumsatz" value={formatCurrency(kpis.totalRevenue)} icon={<Receipt size={18} />} accent="bg-blue-50 text-blue-600" />
+        <KpiCard label="Gesamtgewinn" value={formatCurrency(kpis.totalProfit)} icon={<Gem size={18} />} accent="bg-gold-50 text-gold-600" />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
