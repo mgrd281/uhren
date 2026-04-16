@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { PageHeader, Card, Input, Button, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -42,17 +43,22 @@ export default function SettingsPage() {
   const [downloading, setDownloading] = useState<"json" | "csv" | "">("");
   const [requests, setRequests] = useState<AccessRequest[]>([]);
   const [actionLoading, setActionLoading] = useState<string>("");
-
+  const { data: session } = useSession();
+  const isOwner = (session as unknown as { role?: string })?.role === "owner";
   useEffect(() => {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((d) => setSettings(d))
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (!isOwner) return;
     fetch("/api/access-requests")
       .then((r) => r.json())
       .then((d) => { if (Array.isArray(d)) setRequests(d); })
       .catch(() => {});
-  }, []);
+  }, [isOwner]);
 
   async function handleSave() {
     if (!settings) return;
@@ -275,7 +281,8 @@ export default function SettingsPage() {
         </div>
       </Card>
 
-      {/* ── Access Requests ── */}
+      {/* ── Access Requests (owner only) ── */}
+      {isOwner && (
       <Card className="max-w-2xl">
         <div className="mb-1 flex items-center gap-2.5">
           <UserCheck size={18} className="text-zinc-500" />
@@ -476,6 +483,7 @@ export default function SettingsPage() {
           </div>
         )}
       </Card>
+      )}
     </div>
   );
 }
