@@ -89,10 +89,10 @@ export default function DashboardPage() {
       <div className="space-y-5">
         <Skeleton className="h-8 w-48" />
         <div className="flex gap-3 overflow-hidden">
-          {Array.from({ length: 3 }).map((_, i) => (<Skeleton key={i} className="h-24 min-w-[140px] flex-1" />))}
+          {Array.from({ length: 3 }).map((_, i) => (<Skeleton key={i} className="h-28 min-w-[140px] flex-1" />))}
         </div>
         <div className="grid grid-cols-2 gap-3">
-          {Array.from({ length: 4 }).map((_, i) => (<Skeleton key={i} className="h-20" />))}
+          {Array.from({ length: 4 }).map((_, i) => (<Skeleton key={i} className="h-24" />))}
         </div>
         <Skeleton className="h-64" />
       </div>
@@ -103,18 +103,18 @@ export default function DashboardPage() {
   const { kpis, charts, recentSales, alerts } = data;
 
   return (
-    <div className="space-y-5 lg:space-y-8">
+    <div className="space-y-5 lg:space-y-8 animate-fade-in">
       {/* ── Header ── */}
       <div className="lg:flex lg:items-end lg:justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl lg:text-3xl">
             Dashboard
           </h1>
-          <p className="mt-0.5 text-[12px] text-zinc-400 lg:text-sm">
-            Übersicht
+          <p className="mt-1 text-[12px] font-medium text-zinc-400 lg:text-sm">
+            Übersicht deiner Luxusuhren
           </p>
         </div>
-        <p className="hidden text-sm text-zinc-400 lg:block">
+        <p className="hidden text-sm font-medium text-zinc-400 lg:block">
           {new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
         </p>
       </div>
@@ -123,7 +123,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-3 gap-3 lg:gap-5">
         <Link
           href="/sales"
-          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-zinc-900 px-3.5 py-3 text-white transition-all active:scale-[0.98] lg:px-6 lg:py-5 lg:hover:shadow-2xl lg:hover:shadow-zinc-900/25"
+          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-zinc-900 px-3.5 py-3 text-white transition-all duration-300 active:scale-[0.97] lg:px-6 lg:py-5 lg:hover:shadow-2xl lg:hover:shadow-zinc-900/30"
         >
           <div className="absolute -right-6 -top-6 hidden h-24 w-24 rounded-full bg-white/[0.04] lg:block" />
           <div>
@@ -145,14 +145,14 @@ export default function DashboardPage() {
         </Link>
         <Link
           href="/sales"
-          className="group flex flex-col justify-between rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98] lg:px-6 lg:py-5 lg:hover:-translate-y-0.5 lg:hover:shadow-lg"
+          className="group flex flex-col justify-between rounded-2xl border border-zinc-100/80 bg-white px-3.5 py-3 shadow-sm transition-all duration-300 active:scale-[0.97] lg:px-6 lg:py-5 lg:hover:-translate-y-0.5 lg:hover:shadow-lg lg:hover:shadow-zinc-200/60"
         >
           <div>
             <div className="flex items-center gap-2">
               <div className="hidden h-7 w-7 items-center justify-center rounded-lg bg-blue-50 lg:flex">
                 <TrendingUp size={14} className="text-blue-500" />
               </div>
-              <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-[11px]">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 lg:text-[11px]">
                 Umsatz 30 Tage
               </span>
             </div>
@@ -168,14 +168,14 @@ export default function DashboardPage() {
         </Link>
         <Link
           href="/products"
-          className="group flex flex-col justify-between rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98] lg:px-6 lg:py-5 lg:hover:-translate-y-0.5 lg:hover:shadow-lg"
+          className="group flex flex-col justify-between rounded-2xl border border-zinc-100/80 bg-white px-3.5 py-3 shadow-sm transition-all duration-300 active:scale-[0.97] lg:px-6 lg:py-5 lg:hover:-translate-y-0.5 lg:hover:shadow-lg lg:hover:shadow-zinc-200/60"
         >
           <div>
             <div className="flex items-center gap-2">
               <div className="hidden h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 lg:flex">
                 <Gem size={14} className="text-zinc-500" />
               </div>
-              <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-[11px]">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 lg:text-[11px]">
                 Bestandswert
               </span>
             </div>
@@ -195,7 +195,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
         <Link
           href="/products"
-          className="group flex items-center gap-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all active:scale-[0.98] lg:gap-4 lg:p-5 lg:hover:-translate-y-0.5 lg:hover:shadow-lg"
+          className="group flex items-center gap-3 rounded-2xl border border-zinc-100/80 bg-white p-4 shadow-sm transition-all duration-300 active:scale-[0.97] lg:gap-4 lg:p-5 lg:hover:-translate-y-0.5 lg:hover:shadow-lg lg:hover:shadow-zinc-200/60"
         >
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 transition-colors lg:h-12 lg:w-12 lg:group-hover:bg-zinc-900 lg:group-hover:text-white">
             <Package size={18} className="text-zinc-600 lg:h-5 lg:w-5 lg:group-hover:text-white" />
@@ -207,9 +207,9 @@ export default function DashboardPage() {
         </Link>
         <Link
           href="/products"
-          className="group flex items-center gap-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all active:scale-[0.98] lg:gap-4 lg:p-5 lg:hover:-translate-y-0.5 lg:hover:shadow-lg"
+          className="group flex items-center gap-3 rounded-2xl border border-zinc-100/80 bg-white p-4 shadow-sm transition-all duration-300 active:scale-[0.97] lg:gap-4 lg:p-5 lg:hover:-translate-y-0.5 lg:hover:shadow-lg lg:hover:shadow-zinc-200/60"
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 transition-colors lg:h-12 lg:w-12 lg:group-hover:bg-blue-600">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 transition-all duration-300 lg:h-12 lg:w-12 lg:group-hover:bg-blue-600">
             <Warehouse size={18} className="text-blue-600 lg:h-5 lg:w-5 lg:group-hover:text-white" />
           </div>
           <div>
@@ -249,7 +249,7 @@ export default function DashboardPage() {
 
       {/* ── Sales Chart ── */}
       {charts.salesOverTime.length > 0 && (
-        <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm lg:p-8">
+        <div className="rounded-2xl border border-zinc-100/80 bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-md lg:p-8">
           <div className="mb-4 flex items-center justify-between lg:mb-8">
             <div>
               <h3 className="text-[13px] font-bold text-zinc-900 lg:text-lg">Umsatzverlauf</h3>

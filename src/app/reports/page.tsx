@@ -55,7 +55,7 @@ export default function ReportsPage() {
   }, [startDate, endDate, brand]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in">
       <PageHeader
         title="Berichte"
         description="Verkaufs- und Produktanalyse"
@@ -102,20 +102,20 @@ export default function ReportsPage() {
           {/* KPIs */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Card className="text-center">
-              <p className="text-[12px] text-zinc-400">Gesamtumsatz</p>
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-zinc-400">Gesamtumsatz</p>
               <p className="mt-2 text-2xl font-bold text-zinc-900">
                 {formatCurrency(data.revenue)}
               </p>
-              <p className="mt-1 text-[11px] text-zinc-400">
+              <p className="mt-1 text-[11px] font-medium text-zinc-400">
                 {formatNumber(data.salesCount)} Verkäufe
               </p>
             </Card>
             <Card className="text-center">
-              <p className="text-[12px] text-zinc-400">Gesamtgewinn</p>
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-zinc-400">Gesamtgewinn</p>
               <p className="mt-2 text-2xl font-bold text-emerald-700">
                 {formatCurrency(data.profit)}
               </p>
-              <p className="mt-1 text-[11px] text-zinc-400">
+              <p className="mt-1 text-[11px] font-medium text-zinc-400">
                 Gewinnmarge:{" "}
                 {data.revenue > 0
                   ? ((data.profit / data.revenue) * 100).toFixed(1)
@@ -124,7 +124,7 @@ export default function ReportsPage() {
               </p>
             </Card>
             <Card className="text-center">
-              <p className="text-[12px] text-zinc-400">Durchschn. Verkaufswert</p>
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-zinc-400">Durchschn. Verkaufswert</p>
               <p className="mt-2 text-2xl font-bold text-zinc-900">
                 {data.salesCount > 0
                   ? formatCurrency(data.revenue / data.salesCount)

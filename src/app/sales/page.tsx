@@ -268,14 +268,14 @@ export default function SalesPage() {
   const grouped = groupByDate(filtered);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 animate-fade-in">
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl">
             Verkäufe
           </h1>
-          <p className="mt-0.5 text-[12px] text-zinc-400">
+          <p className="mt-1 text-[12px] font-medium text-zinc-400">
             {sales.length} Transaktionen
           </p>
         </div>
@@ -285,10 +285,10 @@ export default function SalesPage() {
             setShowForm(!showForm);
           }}
           className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 sm:h-auto sm:w-auto sm:gap-2 sm:rounded-xl sm:px-4 sm:py-2.5",
+            "flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 sm:h-auto sm:w-auto sm:gap-2 sm:rounded-xl sm:px-4 sm:py-2.5",
             showForm
               ? "bg-zinc-200 text-zinc-700"
-              : "bg-zinc-900 text-white shadow-lg shadow-zinc-900/20 active:scale-95"
+              : "bg-zinc-900 text-white shadow-lg shadow-zinc-900/25 active:scale-95 lg:hover:shadow-xl lg:hover:shadow-zinc-900/30"
           )}
         >
           {showForm ? <X size={18} /> : <Plus size={18} />}
@@ -301,8 +301,8 @@ export default function SalesPage() {
       {/* ── Revenue Summary Cards ── */}
       {!showForm && (
         <div className="grid grid-cols-3 gap-3">
-          <div className="flex flex-col rounded-2xl bg-zinc-900 px-3.5 py-3 text-white">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+          <div className="flex flex-col rounded-2xl bg-zinc-900 px-3.5 py-3 text-white shadow-lg shadow-zinc-900/20">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
               Umsatz
             </span>
             <span className="mt-1 text-[16px] font-bold tracking-tight sm:text-lg">
@@ -312,8 +312,8 @@ export default function SalesPage() {
               {totalItems} Stück
             </span>
           </div>
-          <div className="flex flex-col rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+          <div className="flex flex-col rounded-2xl border border-zinc-100/80 bg-white px-3.5 py-3 shadow-sm">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
               Ø Verkauf
             </span>
             <span className="mt-1 text-[16px] font-bold tracking-tight text-zinc-900 sm:text-lg">
@@ -321,7 +321,7 @@ export default function SalesPage() {
             </span>
           </div>
           <div className="flex flex-col rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
               Monat
             </span>
             <span className="mt-1 text-[16px] font-bold tracking-tight text-zinc-900 sm:text-lg">

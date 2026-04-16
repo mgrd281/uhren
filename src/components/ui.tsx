@@ -12,7 +12,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm shadow-zinc-100/50 transition-shadow duration-200 hover:shadow-md",
+        "rounded-2xl border border-zinc-100/80 bg-white p-6 shadow-sm shadow-zinc-200/40 transition-all duration-300 hover:shadow-md hover:shadow-zinc-200/50",
         className
       )}
     >
@@ -36,11 +36,11 @@ export function KpiCard({
   accent?: string;
 }) {
   return (
-    <Card className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:gap-4 sm:p-6">
+    <Card className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:gap-4 sm:p-6 hover-lift">
       {icon && (
         <div
           className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg sm:h-11 sm:w-11 sm:rounded-xl",
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-11 sm:w-11 transition-transform duration-300",
             accent ?? "bg-zinc-100 text-zinc-600"
           )}
         >
@@ -48,7 +48,7 @@ export function KpiCard({
         </div>
       )}
       <div className="min-w-0">
-        <p className="text-[11px] font-medium text-zinc-400 sm:text-[12px]">{label}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 sm:text-[12px]">{label}</p>
         <p className="mt-0.5 text-lg font-bold tracking-tight text-zinc-900 sm:mt-1 sm:text-xl">
           {value}
         </p>
@@ -69,7 +69,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-lg px-2.5 py-1 text-[11px] font-semibold",
+        "inline-flex items-center rounded-lg px-2.5 py-1 text-[11px] font-bold tracking-wide",
         className
       )}
     >
@@ -93,11 +93,11 @@ export function Button({
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const variants: Record<string, string> = {
     primary:
-      "bg-zinc-900 text-white shadow-md shadow-zinc-900/20 hover:bg-zinc-800 active:bg-zinc-950",
+      "bg-zinc-900 text-white shadow-lg shadow-zinc-900/25 hover:bg-zinc-800 hover:shadow-xl hover:shadow-zinc-900/30 active:bg-zinc-950 active:scale-[0.97]",
     secondary:
-      "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 active:bg-zinc-300",
+      "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 active:bg-zinc-300 active:scale-[0.97]",
     ghost: "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900",
-    danger: "bg-red-600 text-white hover:bg-red-700",
+    danger: "bg-red-600 text-white shadow-lg shadow-red-600/25 hover:bg-red-700 hover:shadow-xl active:scale-[0.97]",
   };
   const sizes: Record<string, string> = {
     sm: "h-8 px-3 text-[12px]",
@@ -137,10 +137,10 @@ export function Input({
       )}
       <input
         className={cn(
-          "h-10 rounded-xl border bg-white px-3 text-[13px] text-zinc-900 outline-none transition-all duration-200 placeholder:text-zinc-300",
+          "h-10 rounded-xl border bg-white px-3.5 text-[13px] text-zinc-900 outline-none transition-all duration-200 placeholder:text-zinc-300",
           error
             ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-100"
-            : "border-zinc-200 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100"
+            : "border-zinc-200 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100 hover:border-zinc-300"
         )}
         {...props}
       />
@@ -248,13 +248,13 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
+        <h1 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl">
           {title}
         </h1>
         {description && (
-          <p className="mt-1 text-[13px] text-zinc-400">{description}</p>
+          <p className="mt-1 text-[13px] font-medium text-zinc-400">{description}</p>
         )}
       </div>
       {actions && <div className="mt-3 flex gap-2 sm:mt-0">{actions}</div>}
@@ -266,7 +266,7 @@ export function PageHeader({
 export function Skeleton({ className }: { className?: string }) {
   return (
     <div
-      className={cn("animate-pulse rounded-xl bg-zinc-100", className)}
+      className={cn("rounded-xl skeleton-shimmer", className)}
     />
   );
 }

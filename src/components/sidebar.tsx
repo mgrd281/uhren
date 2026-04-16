@@ -47,8 +47,8 @@ export default function Sidebar() {
   return (
     <>
       {/* ── Mobile Bottom Tab Bar ── */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-200 bg-white/95 backdrop-blur-xl lg:hidden safe-area-bottom">
-        <div className="flex items-center justify-around px-1 pt-1.5 pb-1">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-200/60 bg-white/80 backdrop-blur-2xl lg:hidden safe-area-bottom">
+        <div className="flex items-center justify-around px-1 pt-2 pb-1.5">
           {tabs.map((tab) => {
             const active =
               pathname === tab.href || pathname.startsWith(tab.href + "/");
@@ -59,7 +59,7 @@ export default function Sidebar() {
                   key="more"
                   onClick={() => setOpen(!open)}
                   className={cn(
-                    "flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]",
+                    "flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all duration-200 min-w-[56px]",
                     open ? "text-gold-500" : "text-zinc-400"
                   )}
                 >
@@ -74,14 +74,17 @@ export default function Sidebar() {
                 href={tab.href}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px]",
+                  "relative flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all duration-200 min-w-[56px]",
                   active
                     ? "text-zinc-900"
                     : "text-zinc-400 active:text-zinc-600"
                 )}
               >
-                <tab.icon size={22} strokeWidth={active ? 2.2 : 1.8} />
-                <span className={cn("text-[10px]", active ? "font-semibold" : "font-medium")}>
+                {active && (
+                  <span className="absolute -top-2 left-1/2 h-[3px] w-5 -translate-x-1/2 rounded-full bg-zinc-900" />
+                )}
+                <tab.icon size={22} strokeWidth={active ? 2.2 : 1.6} />
+                <span className={cn("text-[10px]", active ? "font-bold" : "font-medium")}>
                   {tab.label}
                 </span>
               </Link>
@@ -94,10 +97,10 @@ export default function Sidebar() {
       {open && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden"
             onClick={() => setOpen(false)}
           />
-          <div className="fixed bottom-[68px] left-3 right-3 z-50 rounded-2xl border border-zinc-100 bg-white p-3 shadow-2xl lg:hidden safe-area-bottom">
+          <div className="fixed bottom-[72px] left-3 right-3 z-50 rounded-3xl border border-zinc-100 bg-white/95 p-2 shadow-2xl shadow-black/20 backdrop-blur-2xl lg:hidden safe-area-bottom animate-fade-in-scale">
             {nav
               .filter((item) => !tabs.some((t) => t.href === item.href))
               .map((item) => {
@@ -108,51 +111,54 @@ export default function Sidebar() {
                     href={item.href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 rounded-xl px-4 py-3 text-[14px] font-medium transition-colors",
+                      "flex items-center gap-3 rounded-2xl px-4 py-3.5 text-[14px] font-medium transition-all duration-200",
                       active
                         ? "bg-zinc-900 text-white"
                         : "text-zinc-600 active:bg-zinc-100"
                     )}
                   >
-                    <item.icon size={20} />
+                    <item.icon size={20} strokeWidth={1.8} />
                     {item.label}
                   </Link>
                 );
               })}
 
+            {/* Divider */}
+            <div className="mx-4 my-1 h-px bg-zinc-100" />
+
             {/* Logout */}
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
-              className="flex items-center gap-3 rounded-xl px-4 py-3 text-[14px] font-medium text-red-500 transition-colors active:bg-red-50"
+              className="flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-[14px] font-medium text-red-500 transition-all duration-200 active:bg-red-50"
             >
-              <LogOut size={20} />
+              <LogOut size={20} strokeWidth={1.8} />
               Abmelden
             </button>
           </div>
         </>
       )}
 
-      {/* ── Desktop Sidebar (unchanged) ── */}
+      {/* ── Desktop Sidebar ── */}
       <aside
-        className="fixed inset-y-0 left-0 z-40 hidden w-[260px] flex-col border-r border-zinc-100 bg-white/70 px-4 py-8 backdrop-blur-xl lg:flex"
+        className="fixed inset-y-0 left-0 z-40 hidden w-[260px] flex-col border-r border-zinc-100/80 bg-white/60 px-4 py-8 backdrop-blur-2xl lg:flex"
       >
         {/* Brand */}
         <div className="mb-10 px-3">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 text-white">
+          <Link href="/dashboard" className="group flex items-center gap-3">
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 text-white shadow-lg shadow-zinc-900/25 transition-transform duration-300 group-hover:scale-105">
               <Watch size={20} />
             </div>
             <div>
               <h1 className="text-sm font-bold tracking-tight text-zinc-900">
                 Luxusuhren
               </h1>
-              <p className="text-[11px] text-zinc-400">Verwaltungssystem</p>
+              <p className="text-[11px] font-medium text-zinc-400">Verwaltungssystem</p>
             </div>
           </Link>
         </div>
 
         {/* Links */}
-        <nav className="flex flex-1 flex-col gap-1">
+        <nav className="flex flex-1 flex-col gap-0.5">
           {nav.map((item) => {
             const active = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
@@ -160,35 +166,39 @@ export default function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
+                  "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
                   active
-                    ? "bg-zinc-900 text-white shadow-md shadow-zinc-900/20"
-                    : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
+                    ? "bg-zinc-900 text-white shadow-lg shadow-zinc-900/20"
+                    : "text-zinc-500 hover:bg-zinc-100/80 hover:text-zinc-900"
                 )}
               >
                 <item.icon
                   size={18}
+                  strokeWidth={active ? 2 : 1.6}
                   className={cn(
-                    "shrink-0 transition-colors",
+                    "shrink-0 transition-all duration-200",
                     active ? "text-white" : "text-zinc-400 group-hover:text-zinc-700"
                   )}
                 />
                 {item.label}
+                {active && (
+                  <span className="absolute right-3 h-1.5 w-1.5 rounded-full bg-gold-400" />
+                )}
               </Link>
             );
           })}
         </nav>
 
         {/* Footer */}
-        <div className="mt-auto border-t border-zinc-100 pt-4">
+        <div className="mt-auto border-t border-zinc-100/80 pt-4">
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium text-zinc-500 transition-all duration-200 hover:bg-red-50 hover:text-red-600"
+            className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium text-zinc-400 transition-all duration-200 hover:bg-red-50 hover:text-red-600"
           >
-            <LogOut size={18} className="shrink-0 text-zinc-400 group-hover:text-red-500" />
+            <LogOut size={18} strokeWidth={1.6} className="shrink-0 text-zinc-400 group-hover:text-red-500" />
             Abmelden
           </button>
-          <p className="mt-3 text-center text-[10px] text-zinc-300">
+          <p className="mt-3 text-center text-[10px] font-medium text-zinc-300">
             Luxury Watch SaaS v1.0
           </p>
         </div>

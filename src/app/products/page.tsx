@@ -169,14 +169,14 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="space-y-5 lg:space-y-8">
+    <div className="space-y-5 lg:space-y-8 animate-fade-in">
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl lg:text-3xl">
             Produkte
           </h1>
-          <p className="mt-0.5 text-[12px] text-zinc-400 lg:text-sm">
+          <p className="mt-1 text-[12px] font-medium text-zinc-400 lg:text-sm">
             {products.length} im Bestand
           </p>
         </div>
@@ -210,7 +210,7 @@ export default function ProductsPage() {
           </button>
           <Link
             href="/products/add"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg shadow-zinc-900/20 transition-all active:scale-95 sm:h-auto sm:w-auto sm:gap-2 sm:rounded-xl sm:px-4 sm:py-2.5 lg:hover:shadow-xl lg:hover:shadow-zinc-900/25"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg shadow-zinc-900/25 transition-all duration-300 active:scale-95 sm:h-auto sm:w-auto sm:gap-2 sm:rounded-xl sm:px-4 sm:py-2.5 lg:hover:shadow-xl lg:hover:shadow-zinc-900/30"
           >
             <Plus size={18} />
             <span className="hidden text-[13px] font-medium sm:inline">
@@ -222,8 +222,8 @@ export default function ProductsPage() {
 
       {/* ── Summary Cards ── */}
       <div className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 scrollbar-hide lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-5 lg:overflow-visible lg:px-0 lg:pb-0">
-        <div className="flex min-w-[140px] flex-col rounded-2xl bg-zinc-900 px-4 py-3 text-white lg:min-w-0 lg:px-6 lg:py-5">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
+        <div className="flex min-w-[140px] flex-col rounded-2xl bg-zinc-900 px-4 py-3 text-white shadow-lg shadow-zinc-900/20 lg:min-w-0 lg:px-6 lg:py-5">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 lg:text-xs">
             Bestandswert
           </span>
           <span className="mt-1 text-lg font-bold tracking-tight lg:mt-2 lg:text-2xl">
@@ -233,16 +233,16 @@ export default function ProductsPage() {
             {totalStock} Stück
           </span>
         </div>
-        <div className="flex min-w-[120px] flex-col rounded-2xl bg-white border border-zinc-100 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
+        <div className="flex min-w-[120px] flex-col rounded-2xl bg-white border border-zinc-100/80 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 lg:text-xs">
             Umsatz
           </span>
           <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900 lg:mt-2 lg:text-2xl">
             {formatCurrency(totalRevenue)}
           </span>
         </div>
-        <div className="flex min-w-[100px] flex-col rounded-2xl bg-white border border-zinc-100 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
+        <div className="flex min-w-[100px] flex-col rounded-2xl bg-white border border-zinc-100/80 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 lg:text-xs">
             Marken
           </span>
           <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900 lg:mt-2 lg:text-2xl">
@@ -263,7 +263,7 @@ export default function ProductsPage() {
               setLoading(true);
               setSearch(e.target.value);
             }}
-            className="h-11 w-full rounded-xl border border-zinc-200 bg-white pl-10 pr-3 text-[13px] text-zinc-900 outline-none transition-all placeholder:text-zinc-300 focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100 lg:h-12 lg:text-sm"
+            className="h-11 w-full rounded-xl border border-zinc-200 bg-white pl-10 pr-3 text-[13px] text-zinc-900 outline-none transition-all duration-200 placeholder:text-zinc-300 focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100 hover:border-zinc-300 lg:h-12 lg:text-sm"
           />
         </div>
         {brands.length > 1 && (
