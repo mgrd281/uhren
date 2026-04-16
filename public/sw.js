@@ -1,18 +1,22 @@
-const CACHE_NAME = 'uhren-v2';
-const urlsToCache = [
+const CACHE_NAME = 'uhren-v3';
+const STATIC_ASSETS = [
   '/',
   '/dashboard',
   '/products',
   '/sales',
   '/reports',
   '/settings',
-  '/manifest.json'
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
+      .then((cache) => cache.addAll(STATIC_ASSETS))
   );
 });
 
@@ -22,16 +26,39 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => response)
-        .catch(() => caches.match(event.request))
+        .catch(() => new Response(JSON.stringify({ error: 'Offline' }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' }
+        }))
+    );
+    return;
+  }
+
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') return;
+  
+  // For navigation requests, try network first with offline fallback
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((r) => r || caches.match('/')))
     );
     return;
   }
   
-  // For non-API requests, try network first, then cache
+  // For other assets, try network first, then cache
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Cache successful responses for offline use
         if (response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
