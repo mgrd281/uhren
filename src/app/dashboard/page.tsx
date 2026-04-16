@@ -102,108 +102,113 @@ export default function DashboardPage() {
   const { kpis, charts, recentSales, alerts } = data;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 lg:space-y-8">
       {/* ── Header ── */}
-      <div>
-        <h1 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl">
-          Dashboard
-        </h1>
-        <p className="mt-0.5 text-[12px] text-zinc-400">
-          Übersicht
+      <div className="lg:flex lg:items-end lg:justify-between">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl lg:text-3xl">
+            Dashboard
+          </h1>
+          <p className="mt-0.5 text-[12px] text-zinc-400 lg:text-sm">
+            Übersicht
+          </p>
+        </div>
+        <p className="hidden text-sm text-zinc-400 lg:block">
+          {new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
         </p>
       </div>
 
-      {/* ── Revenue Summary (static grid) ── */}
-      <div className="grid grid-cols-3 gap-3">
+      {/* ── Revenue Summary ── */}
+      <div className="grid grid-cols-3 gap-3 lg:gap-5">
         <Link
           href="/sales"
-          className="flex flex-col rounded-2xl bg-zinc-900 px-3.5 py-3 text-white transition-all active:scale-[0.98]"
+          className="flex flex-col rounded-2xl bg-zinc-900 px-3.5 py-3 text-white transition-all active:scale-[0.98] lg:px-6 lg:py-5 lg:hover:shadow-xl lg:hover:shadow-zinc-900/10"
         >
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
             Umsatz
           </span>
-          <span className="mt-1 text-[16px] font-bold tracking-tight sm:text-lg">
+          <span className="mt-1 text-[16px] font-bold tracking-tight sm:text-lg lg:mt-2 lg:text-2xl">
             {formatCurrency(kpis.totalRevenue)}
           </span>
-          <span className="mt-0.5 flex items-center gap-0.5 text-[9px] text-zinc-500">
-            Ansehen <ChevronRight size={9} />
+          <span className="mt-0.5 flex items-center gap-0.5 text-[9px] text-zinc-500 lg:mt-2 lg:text-xs">
+            Ansehen <ChevronRight size={9} className="lg:h-3 lg:w-3" />
           </span>
         </Link>
         <Link
           href="/sales"
-          className="flex flex-col rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98]"
+          className="flex flex-col rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98] lg:px-6 lg:py-5 lg:hover:shadow-md"
         >
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
             Gewinn
           </span>
-          <span className="mt-1 text-[16px] font-bold tracking-tight text-emerald-600 sm:text-lg">
+          <span className="mt-1 text-[16px] font-bold tracking-tight text-emerald-600 sm:text-lg lg:mt-2 lg:text-2xl">
             {formatCurrency(kpis.totalProfit)}
           </span>
         </Link>
         <Link
           href="/products"
-          className="flex flex-col rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98]"
+          className="flex flex-col rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98] lg:px-6 lg:py-5 lg:hover:shadow-md"
         >
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
             Bestandswert
           </span>
-          <span className="mt-1 text-[16px] font-bold tracking-tight text-zinc-900 sm:text-lg">
+          <span className="mt-1 text-[16px] font-bold tracking-tight text-zinc-900 sm:text-lg lg:mt-2 lg:text-2xl">
             {formatCurrency(kpis.expectedSalesValue)}
           </span>
         </Link>
       </div>
 
-      {/* ── KPI Grid (clickable) ── */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* ── KPI Grid ── */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
         <Link
           href="/products"
-          className="flex items-center gap-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all active:scale-[0.98]"
+          className="flex items-center gap-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all active:scale-[0.98] lg:gap-4 lg:p-5 lg:hover:shadow-md"
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100">
-            <Package size={18} className="text-zinc-600" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 lg:h-12 lg:w-12">
+            <Package size={18} className="text-zinc-600 lg:h-5 lg:w-5" />
           </div>
           <div>
-            <p className="text-[18px] font-bold tracking-tight text-zinc-900">{formatNumber(kpis.totalProducts)}</p>
-            <p className="text-[11px] text-zinc-400">Produkte</p>
+            <p className="text-[18px] font-bold tracking-tight text-zinc-900 lg:text-xl">{formatNumber(kpis.totalProducts)}</p>
+            <p className="text-[11px] text-zinc-400 lg:text-xs">Produkte</p>
           </div>
         </Link>
         <Link
           href="/products"
-          className="flex items-center gap-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all active:scale-[0.98]"
+          className="flex items-center gap-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all active:scale-[0.98] lg:gap-4 lg:p-5 lg:hover:shadow-md"
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50">
-            <Warehouse size={18} className="text-blue-600" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 lg:h-12 lg:w-12">
+            <Warehouse size={18} className="text-blue-600 lg:h-5 lg:w-5" />
           </div>
           <div>
-            <p className="text-[18px] font-bold tracking-tight text-zinc-900">{formatNumber(kpis.totalStock)}</p>
-            <p className="text-[11px] text-zinc-400">Auf Lager</p>
+            <p className="text-[18px] font-bold tracking-tight text-zinc-900 lg:text-xl">{formatNumber(kpis.totalStock)}</p>
+            <p className="text-[11px] text-zinc-400 lg:text-xs">Auf Lager</p>
           </div>
         </Link>
         {kpis.lowStockItems > 0 && (
           <Link
             href="/products"
-            className="flex items-center gap-3 rounded-2xl border border-amber-100 bg-amber-50/50 p-4 transition-all active:scale-[0.98]"
+            className="flex items-center gap-3 rounded-2xl border border-amber-100 bg-amber-50/50 p-4 transition-all active:scale-[0.98] lg:gap-4 lg:p-5 lg:hover:shadow-md"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100">
-              <AlertTriangle size={18} className="text-amber-600" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 lg:h-12 lg:w-12">
+              <AlertTriangle size={18} className="text-amber-600 lg:h-5 lg:w-5" />
             </div>
             <div>
-              <p className="text-[18px] font-bold tracking-tight text-amber-700">{formatNumber(kpis.lowStockItems)}</p>
-              <p className="text-[11px] text-amber-600">Niedrig</p>
+              <p className="text-[18px] font-bold tracking-tight text-amber-700 lg:text-xl">{formatNumber(kpis.lowStockItems)}</p>
+              <p className="text-[11px] text-amber-600 lg:text-xs">Niedrig</p>
             </div>
           </Link>
         )}
         {kpis.outOfStockItems > 0 && (
           <Link
             href="/products"
-            className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50/50 p-4 transition-all active:scale-[0.98]"
+            className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50/50 p-4 transition-all active:scale-[0.98] lg:gap-4 lg:p-5 lg:hover:shadow-md"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100">
-              <XCircle size={18} className="text-red-600" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 lg:h-12 lg:w-12">
+              <XCircle size={18} className="text-red-600 lg:h-5 lg:w-5" />
             </div>
             <div>
-              <p className="text-[18px] font-bold tracking-tight text-red-700">{formatNumber(kpis.outOfStockItems)}</p>
-              <p className="text-[11px] text-red-600">Ausverkauft</p>
+              <p className="text-[18px] font-bold tracking-tight text-red-700 lg:text-xl">{formatNumber(kpis.outOfStockItems)}</p>
+              <p className="text-[11px] text-red-600 lg:text-xs">Ausverkauft</p>
             </div>
           </Link>
         )}
@@ -211,14 +216,14 @@ export default function DashboardPage() {
 
       {/* ── Sales Chart ── */}
       {charts.salesOverTime.length > 0 && (
-        <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-[13px] font-bold text-zinc-900">Umsatzverlauf</h3>
-            <Link href="/reports" className="text-[11px] font-medium text-zinc-400 transition-colors active:text-zinc-600">
+        <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm lg:p-6">
+          <div className="mb-4 flex items-center justify-between lg:mb-6">
+            <h3 className="text-[13px] font-bold text-zinc-900 lg:text-base">Umsatzverlauf</h3>
+            <Link href="/reports" className="text-[11px] font-medium text-zinc-400 transition-colors active:text-zinc-600 lg:text-xs lg:hover:text-zinc-600">
               Details →
             </Link>
           </div>
-          <div className="h-48 sm:h-64">
+          <div className="h-48 sm:h-64 lg:h-80">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={charts.salesOverTime}>
                 <defs>
@@ -238,11 +243,11 @@ export default function DashboardPage() {
       )}
 
       {/* ── Top Brands + Top Products side by side on desktop ── */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
         {charts.topBrands.length > 0 && (
-          <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-            <h3 className="mb-4 text-[13px] font-bold text-zinc-900">Top Marken</h3>
-            <div className="h-48">
+          <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm lg:p-6">
+            <h3 className="mb-4 text-[13px] font-bold text-zinc-900 lg:mb-6 lg:text-base">Top Marken</h3>
+            <div className="h-48 lg:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={charts.topBrands} dataKey="revenue" nameKey="brand" cx="50%" cy="50%" outerRadius={80} innerRadius={50} paddingAngle={2} label={({ name }: { name?: string }) => name ?? ""} style={{ fontSize: 10 }}>
@@ -256,9 +261,9 @@ export default function DashboardPage() {
         )}
 
         {charts.topProducts.length > 0 && (
-          <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-            <h3 className="mb-4 text-[13px] font-bold text-zinc-900">Meistverkauft</h3>
-            <div className="h-48">
+          <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm lg:p-6">
+            <h3 className="mb-4 text-[13px] font-bold text-zinc-900 lg:mb-6 lg:text-base">Meistverkauft</h3>
+            <div className="h-48 lg:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={charts.topProducts} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
@@ -273,94 +278,97 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* ── Recent Sales (clickable) ── */}
-      <div>
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-[13px] font-bold text-zinc-900">Letzte Verkäufe</h3>
-          <Link href="/sales" className="text-[11px] font-medium text-zinc-400 transition-colors active:text-zinc-600">
-            Alle ansehen →
-          </Link>
-        </div>
-        {recentSales.length === 0 ? (
-          <div className="flex flex-col items-center py-12 text-center">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100">
-              <ShoppingBag size={20} className="text-zinc-400" />
-            </div>
-            <p className="text-[12px] text-zinc-400">Noch keine Verkäufe</p>
+      {/* ── Recent Sales + Alerts side by side on desktop ── */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
+        {/* Recent Sales */}
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-[13px] font-bold text-zinc-900 lg:text-base">Letzte Verkäufe</h3>
+            <Link href="/sales" className="text-[11px] font-medium text-zinc-400 transition-colors active:text-zinc-600 lg:text-xs lg:hover:text-zinc-600">
+              Alle ansehen →
+            </Link>
           </div>
-        ) : (
-          <div className="rounded-2xl border border-zinc-100 bg-white divide-y divide-zinc-100 overflow-hidden shadow-sm">
-            {recentSales.map((sale) => (
-              <Link
-                key={sale.id}
-                href={sale.productId ? `/products/${sale.productId}` : "/sales"}
-                className="flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50"
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50">
-                  <ArrowUpRight size={18} className="text-emerald-600" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-semibold text-zinc-900">
-                    {sale.product.name}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-zinc-400">
-                    {sale.product.brand}
-                    {sale.customerName && ` · ${sale.customerName}`}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-[14px] font-bold text-zinc-900">
-                    +{formatCurrency(sale.totalAmount)}
-                  </p>
-                  <p className="mt-0.5 text-[10px] text-zinc-400">
-                    {new Date(sale.soldAt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}
-                  </p>
-                </div>
-              </Link>
-            ))}
+          {recentSales.length === 0 ? (
+            <div className="flex flex-col items-center rounded-2xl border border-zinc-100 bg-white py-12 text-center shadow-sm">
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100">
+                <ShoppingBag size={20} className="text-zinc-400" />
+              </div>
+              <p className="text-[12px] text-zinc-400">Noch keine Verkäufe</p>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-zinc-100 bg-white divide-y divide-zinc-100 overflow-hidden shadow-sm">
+              {recentSales.map((sale) => (
+                <Link
+                  key={sale.id}
+                  href={sale.productId ? `/products/${sale.productId}` : "/sales"}
+                  className="flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50 lg:hover:bg-zinc-50"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50">
+                    <ArrowUpRight size={18} className="text-emerald-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-zinc-900">
+                      {sale.product.name}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-zinc-400">
+                      {sale.product.brand}
+                      {sale.customerName && ` · ${sale.customerName}`}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-[14px] font-bold text-zinc-900">
+                      +{formatCurrency(sale.totalAmount)}
+                    </p>
+                    <p className="mt-0.5 text-[10px] text-zinc-400">
+                      {new Date(sale.soldAt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Alerts */}
+        {alerts.length > 0 && (
+          <div>
+            <h3 className="mb-3 text-[13px] font-bold text-zinc-900 lg:text-base">⚠️ Bestandswarnungen</h3>
+            <div className="rounded-2xl border border-zinc-100 bg-white divide-y divide-zinc-100 overflow-hidden shadow-sm">
+              {alerts.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/products/${p.id}`}
+                  className="flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50 lg:hover:bg-zinc-50"
+                >
+                  <div className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+                    p.status === "OUT_OF_STOCK" ? "bg-red-50" : "bg-amber-50"
+                  )}>
+                    {p.status === "OUT_OF_STOCK"
+                      ? <XCircle size={18} className="text-red-500" />
+                      : <AlertTriangle size={18} className="text-amber-500" />
+                    }
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-semibold text-zinc-900">{p.name}</p>
+                    <p className="text-[11px] text-zinc-400">{p.brand}</p>
+                  </div>
+                  <div className="shrink-0">
+                    <span className={cn(
+                      "rounded-full px-2.5 py-1 text-[10px] font-bold",
+                      p.status === "OUT_OF_STOCK"
+                        ? "bg-red-100 text-red-600"
+                        : "bg-amber-100 text-amber-600"
+                    )}>
+                      {p.quantity} Stk.
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </div>
-
-      {/* ── Alerts (clickable) ── */}
-      {alerts.length > 0 && (
-        <div>
-          <h3 className="mb-3 text-[13px] font-bold text-zinc-900">⚠️ Bestandswarnungen</h3>
-          <div className="rounded-2xl border border-zinc-100 bg-white divide-y divide-zinc-100 overflow-hidden shadow-sm">
-            {alerts.map((p) => (
-              <Link
-                key={p.id}
-                href={`/products/${p.id}`}
-                className="flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50"
-              >
-                <div className={cn(
-                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
-                  p.status === "OUT_OF_STOCK" ? "bg-red-50" : "bg-amber-50"
-                )}>
-                  {p.status === "OUT_OF_STOCK"
-                    ? <XCircle size={18} className="text-red-500" />
-                    : <AlertTriangle size={18} className="text-amber-500" />
-                  }
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-semibold text-zinc-900">{p.name}</p>
-                  <p className="text-[11px] text-zinc-400">{p.brand}</p>
-                </div>
-                <div className="shrink-0">
-                  <span className={cn(
-                    "rounded-full px-2.5 py-1 text-[10px] font-bold",
-                    p.status === "OUT_OF_STOCK"
-                      ? "bg-red-100 text-red-600"
-                      : "bg-amber-100 text-amber-600"
-                  )}>
-                    {p.quantity} Stk.
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
