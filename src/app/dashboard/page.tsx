@@ -43,6 +43,7 @@ interface DashboardData {
     expectedSalesValue: number;
     totalRevenue: number;
     totalProfit: number;
+    revenueLast30Days: number;
   };
   charts: {
     salesOverTime: { month: string; revenue: number; profit: number }[];
@@ -148,20 +149,20 @@ export default function DashboardPage() {
         >
           <div>
             <div className="flex items-center gap-2">
-              <div className="hidden h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 lg:flex">
-                <TrendingUp size={14} className="text-emerald-500" />
+              <div className="hidden h-7 w-7 items-center justify-center rounded-lg bg-blue-50 lg:flex">
+                <TrendingUp size={14} className="text-blue-500" />
               </div>
               <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-[11px]">
-                Gewinn
+                Umsatz 30 Tage
               </span>
             </div>
-            <span className="mt-1.5 block text-[16px] font-extrabold tracking-tight text-emerald-600 sm:text-lg lg:mt-3 lg:text-3xl">
-              {formatCurrency(kpis.totalProfit)}
+            <span className="mt-1.5 block text-[16px] font-extrabold tracking-tight text-zinc-900 sm:text-lg lg:mt-3 lg:text-3xl">
+              {formatCurrency(kpis.revenueLast30Days)}
             </span>
           </div>
           <div className="mt-1 hidden items-center lg:mt-4 lg:flex">
-            <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-600">
-              {kpis.totalRevenue > 0 ? `${Math.round((kpis.totalProfit / kpis.totalRevenue) * 100)}%` : "—"} Marge
+            <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold text-blue-600">
+              Letzte 30 Tage
             </span>
           </div>
         </Link>

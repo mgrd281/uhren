@@ -11,6 +11,7 @@ const emptyDashboard = {
     expectedSalesValue: 0,
     totalRevenue: 0,
     totalProfit: 0,
+    revenueLast30Days: 0,
   },
   charts: { salesOverTime: [], topProducts: [], topBrands: [] },
   recentSales: [],

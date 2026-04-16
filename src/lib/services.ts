@@ -205,6 +205,13 @@ export async function getDashboardData() {
     0
   );
 
+  // Revenue last 30 days
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const revenueLast30Days = sales
+    .filter((s) => new Date(s.soldAt) >= thirtyDaysAgo)
+    .reduce((sum, s) => sum + s.totalAmount, 0);
+
   // Sales over time (last 12 months)
   const salesOverTime: { month: string; revenue: number; profit: number }[] = [];
   const now = new Date();
@@ -273,6 +280,7 @@ export async function getDashboardData() {
       expectedSalesValue,
       totalRevenue,
       totalProfit,
+      revenueLast30Days,
     },
     charts: {
       salesOverTime,
