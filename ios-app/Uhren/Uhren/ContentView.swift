@@ -125,22 +125,22 @@ struct WebView: UIViewRepresentable {
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             if let url = navigationAction.request.url,
                let host = url.host {
-                // Allow our domain + Google OAuth domains
-                let allowedHosts = [
-                    "uhren-mu.vercel.app",
-                    "localhost",
-                    "accounts.google.com",
-                    "googleapis.com",
-                    "google.com",
-                    "gstatic.com",
-                    "googleusercontent.com",
-                ]
-                let isAllowed = allowedHosts.contains(where: { host.contains($0) })
-                if !isAllowed {
-                    UIApplication.shared.open(url)
-                    decisionHandler(.cancel)
+                // Allow our domain + all Google domains (OAuth uses many subdomains)
+                if host.contains("uhren-mu.vercel.app") ||
+                   host.contains("localhost") ||
+                   host.hasSuffix("google.com") ||
+                   host.hasSuffix("googleapis.com") ||
+                   host.hasSuffix("gstatic.com") ||
+                   host.hasSuffix("googleusercontent.com") ||
+                   host.hasSuffix("youtube.com") ||
+                   host.hasSuffix("google.de") {
+                    decisionHandler(.allow)
                     return
                 }
+                // Block everything else — open in Safari
+                UIApplication.shared.open(url)
+                decisionHandler(.cancel)
+                return
             }
             decisionHandler(.allow)
         }
