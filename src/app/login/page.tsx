@@ -117,7 +117,7 @@ export default function LoginPage() {
             >
               <div className="relative">
                 <div className="absolute -inset-10 rounded-full bg-[#b8860b]/[0.07] blur-3xl" />
-                <div className="relative flex h-[76px] w-[76px] items-center justify-center rounded-[20px] border border-white/[0.07] bg-white/[0.025] shadow-[0_0_60px_-10px_rgba(184,134,11,0.08)]">
+                <div className="relative flex h-[76px] w-[76px] items-center justify-center rounded-[20px] border border-[#b8860b]/25 bg-[#b8860b]/[0.04] shadow-[0_0_60px_-10px_rgba(184,134,11,0.15)]">
                   <BrandIcon size={34} className="text-[#c9a84c]" />
                 </div>
               </div>
@@ -213,7 +213,7 @@ export default function LoginPage() {
             }}
           >
             <div className="absolute -inset-12 rounded-full bg-[#b8860b]/[0.04] blur-3xl" />
-            <div className="relative flex h-[72px] w-[72px] items-center justify-center rounded-[19px] border border-white/[0.06] bg-white/[0.025] shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_0_0_1px_rgba(255,255,255,0.02),0_16px_56px_-8px_rgba(0,0,0,0.7),0_0_50px_-12px_rgba(184,134,11,0.06)] backdrop-blur-2xl">
+            <div className="relative flex h-[72px] w-[72px] items-center justify-center rounded-[19px] border border-[#b8860b]/25 bg-[#b8860b]/[0.04] shadow-[inset_0_1px_0_rgba(184,134,11,0.08),0_0_0_1px_rgba(184,134,11,0.06),0_16px_56px_-8px_rgba(0,0,0,0.7),0_0_50px_-12px_rgba(184,134,11,0.1)] backdrop-blur-2xl">
               <BrandIcon size={30} className="text-[#c9a84c]" />
             </div>
           </div>
