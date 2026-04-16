@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, KpiCard, Badge, PageHeader, Skeleton } from "@/components/ui";
+import { Card, Badge, Skeleton } from "@/components/ui";
 import { formatCurrency, formatNumber, formatDateTime, stockStatusLabel, stockStatusColor } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   Package,
   Warehouse,
@@ -12,6 +13,9 @@ import {
   TrendingUp,
   Receipt,
   Gem,
+  ArrowUpRight,
+  ChevronRight,
+  ShoppingBag,
 } from "lucide-react";
 import {
   AreaChart,
@@ -54,6 +58,7 @@ interface DashboardData {
     invoiceNumber: string | null;
     soldAt: string;
     product: { name: string; brand: string };
+    productId?: string;
   }[];
   alerts: {
     id: string;
@@ -80,15 +85,15 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-5">
         <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 8 }).map((_, i) => (<Skeleton key={i} className="h-24" />))}
+        <div className="flex gap-3 overflow-hidden">
+          {Array.from({ length: 3 }).map((_, i) => (<Skeleton key={i} className="h-24 min-w-[140px] flex-1" />))}
         </div>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <Skeleton className="h-80" />
-          <Skeleton className="h-80" />
+        <div className="grid grid-cols-2 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (<Skeleton key={i} className="h-20" />))}
         </div>
+        <Skeleton className="h-64" />
       </div>
     );
   }
@@ -97,108 +102,264 @@ export default function DashboardPage() {
   const { kpis, charts, recentSales, alerts } = data;
 
   return (
-    <div className="space-y-10">
-      <PageHeader title="Dashboard" description="Übersicht über Shop-Leistung und Bestand" />
-
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Produkte gesamt" value={formatNumber(kpis.totalProducts)} icon={<Package size={18} />} accent="bg-zinc-100 text-zinc-700" />
-        <KpiCard label="Gesamtbestand" value={formatNumber(kpis.totalStock)} sub="Stück" icon={<Warehouse size={18} />} accent="bg-blue-50 text-blue-600" />
-        <KpiCard label="Niedriger Bestand" value={formatNumber(kpis.lowStockItems)} icon={<AlertTriangle size={18} />} accent="bg-amber-50 text-amber-600" />
-        <KpiCard label="Ausverkauft" value={formatNumber(kpis.outOfStockItems)} icon={<XCircle size={18} />} accent="bg-red-50 text-red-600" />
-        <KpiCard label="Bestandswert (EK)" value={formatCurrency(kpis.inventoryValueCost)} icon={<DollarSign size={18} />} accent="bg-zinc-100 text-zinc-700" />
-        <KpiCard label="Erwarteter VK-Wert" value={formatCurrency(kpis.expectedSalesValue)} icon={<TrendingUp size={18} />} accent="bg-emerald-50 text-emerald-600" />
-        <KpiCard label="Gesamtumsatz" value={formatCurrency(kpis.totalRevenue)} icon={<Receipt size={18} />} accent="bg-blue-50 text-blue-600" />
-        <KpiCard label="Gesamtgewinn" value={formatCurrency(kpis.totalProfit)} icon={<Gem size={18} />} accent="bg-gold-50 text-gold-600" />
+    <div className="space-y-5">
+      {/* ── Header ── */}
+      <div>
+        <h1 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl">
+          Dashboard
+        </h1>
+        <p className="mt-0.5 text-[12px] text-zinc-400">
+          Übersicht
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <h3 className="mb-6 text-sm font-semibold text-zinc-700">Verkäufe im Zeitverlauf</h3>
-          <div className="h-72">
+      {/* ── Revenue Summary (scrollable) ── */}
+      <div className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 scrollbar-hide">
+        <Link
+          href="/sales"
+          className="flex min-w-[150px] flex-col rounded-2xl bg-zinc-900 px-4 py-3 text-white transition-all active:scale-[0.98]"
+        >
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+            Umsatz
+          </span>
+          <span className="mt-1 text-lg font-bold tracking-tight">
+            {formatCurrency(kpis.totalRevenue)}
+          </span>
+          <span className="mt-0.5 flex items-center gap-1 text-[10px] text-zinc-500">
+            Verkäufe ansehen <ChevronRight size={10} />
+          </span>
+        </Link>
+        <Link
+          href="/sales"
+          className="flex min-w-[130px] flex-col rounded-2xl bg-white border border-zinc-100 px-4 py-3 shadow-sm transition-all active:scale-[0.98]"
+        >
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+            Gewinn
+          </span>
+          <span className="mt-1 text-lg font-bold tracking-tight text-emerald-600">
+            {formatCurrency(kpis.totalProfit)}
+          </span>
+        </Link>
+        <Link
+          href="/products"
+          className="flex min-w-[130px] flex-col rounded-2xl bg-white border border-zinc-100 px-4 py-3 shadow-sm transition-all active:scale-[0.98]"
+        >
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+            Bestandswert
+          </span>
+          <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900">
+            {formatCurrency(kpis.expectedSalesValue)}
+          </span>
+        </Link>
+      </div>
+
+      {/* ── KPI Grid (clickable) ── */}
+      <div className="grid grid-cols-2 gap-3">
+        <Link
+          href="/products"
+          className="flex items-center gap-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all active:scale-[0.98]"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100">
+            <Package size={18} className="text-zinc-600" />
+          </div>
+          <div>
+            <p className="text-[18px] font-bold tracking-tight text-zinc-900">{formatNumber(kpis.totalProducts)}</p>
+            <p className="text-[11px] text-zinc-400">Produkte</p>
+          </div>
+        </Link>
+        <Link
+          href="/products"
+          className="flex items-center gap-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all active:scale-[0.98]"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50">
+            <Warehouse size={18} className="text-blue-600" />
+          </div>
+          <div>
+            <p className="text-[18px] font-bold tracking-tight text-zinc-900">{formatNumber(kpis.totalStock)}</p>
+            <p className="text-[11px] text-zinc-400">Auf Lager</p>
+          </div>
+        </Link>
+        {kpis.lowStockItems > 0 && (
+          <Link
+            href="/products"
+            className="flex items-center gap-3 rounded-2xl border border-amber-100 bg-amber-50/50 p-4 transition-all active:scale-[0.98]"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100">
+              <AlertTriangle size={18} className="text-amber-600" />
+            </div>
+            <div>
+              <p className="text-[18px] font-bold tracking-tight text-amber-700">{formatNumber(kpis.lowStockItems)}</p>
+              <p className="text-[11px] text-amber-600">Niedrig</p>
+            </div>
+          </Link>
+        )}
+        {kpis.outOfStockItems > 0 && (
+          <Link
+            href="/products"
+            className="flex items-center gap-3 rounded-2xl border border-red-100 bg-red-50/50 p-4 transition-all active:scale-[0.98]"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100">
+              <XCircle size={18} className="text-red-600" />
+            </div>
+            <div>
+              <p className="text-[18px] font-bold tracking-tight text-red-700">{formatNumber(kpis.outOfStockItems)}</p>
+              <p className="text-[11px] text-red-600">Ausverkauft</p>
+            </div>
+          </Link>
+        )}
+      </div>
+
+      {/* ── Sales Chart ── */}
+      {charts.salesOverTime.length > 0 && (
+        <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-[13px] font-bold text-zinc-900">Umsatzverlauf</h3>
+            <Link href="/reports" className="text-[11px] font-medium text-zinc-400 transition-colors active:text-zinc-600">
+              Details →
+            </Link>
+          </div>
+          <div className="h-48 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={charts.salesOverTime}>
                 <defs>
-                  <linearGradient id="gRev" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#18181b" stopOpacity={0.15} /><stop offset="100%" stopColor="#18181b" stopOpacity={0} /></linearGradient>
-                  <linearGradient id="gProfit" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#10b981" stopOpacity={0.15} /><stop offset="100%" stopColor="#10b981" stopOpacity={0} /></linearGradient>
+                  <linearGradient id="gRev" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#18181b" stopOpacity={0.12} /><stop offset="100%" stopColor="#18181b" stopOpacity={0} /></linearGradient>
+                  <linearGradient id="gProfit" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#10b981" stopOpacity={0.12} /><stop offset="100%" stopColor="#10b981" stopOpacity={0} /></linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#a1a1aa" }} />
-                <YAxis tick={{ fontSize: 11, fill: "#a1a1aa" }} />
-                <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #f4f4f5", fontSize: 12 }} />
+                <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#a1a1aa" }} />
+                <YAxis tick={{ fontSize: 10, fill: "#a1a1aa" }} width={50} />
+                <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #f4f4f5", fontSize: 11 }} />
                 <Area type="monotone" dataKey="revenue" stroke="#18181b" strokeWidth={2} fill="url(#gRev)" name="Umsatz" />
                 <Area type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={2} fill="url(#gProfit)" name="Gewinn" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </Card>
-        <Card>
-          <h3 className="mb-6 text-sm font-semibold text-zinc-700">Top Marken</h3>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={charts.topBrands} dataKey="revenue" nameKey="brand" cx="50%" cy="50%" outerRadius={100} innerRadius={60} paddingAngle={2} label={({ name }: { name?: string }) => name ?? ""}>
-                  {charts.topBrands.map((_, i) => (<Cell key={i} fill={COLORS[i % COLORS.length]} />))}
-                </Pie>
-                <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #f4f4f5", fontSize: 12 }} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-      </div>
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <h3 className="mb-6 text-sm font-semibold text-zinc-700">Meistverkaufte Produkte</h3>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts.topProducts} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
-                <XAxis type="number" tick={{ fontSize: 11, fill: "#a1a1aa" }} />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: "#71717a" }} width={140} />
-                <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #f4f4f5", fontSize: 12 }} />
-                <Bar dataKey="revenue" fill="#18181b" radius={[0, 6, 6, 0]} name="Umsatz" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-        <Card>
-          <h3 className="mb-6 text-sm font-semibold text-zinc-700">Letzte Verkäufe</h3>
-          {recentSales.length === 0 ? (
-            <p className="py-8 text-center text-[13px] text-zinc-400">Noch keine Verkäufe</p>
-          ) : (
-            <div className="space-y-4">
-              {recentSales.map((sale) => (
-                <div key={sale.id} className="flex items-center justify-between rounded-xl border border-zinc-100 px-4 py-3 transition-colors hover:bg-zinc-50">
-                  <div>
-                    <p className="text-[13px] font-medium text-zinc-800">{sale.product.name}</p>
-                    <p className="text-[11px] text-zinc-400">{sale.product.brand} · {sale.customerName ?? "—"} · {formatDateTime(sale.soldAt)}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[13px] font-bold text-zinc-900">{formatCurrency(sale.totalAmount)}</p>
-                    <p className="text-[11px] text-zinc-400">{sale.quantitySold} Stück</p>
-                  </div>
-                </div>
-              ))}
+      {/* ── Top Brands + Top Products side by side on desktop ── */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {charts.topBrands.length > 0 && (
+          <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+            <h3 className="mb-4 text-[13px] font-bold text-zinc-900">Top Marken</h3>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={charts.topBrands} dataKey="revenue" nameKey="brand" cx="50%" cy="50%" outerRadius={80} innerRadius={50} paddingAngle={2} label={({ name }: { name?: string }) => name ?? ""} style={{ fontSize: 10 }}>
+                    {charts.topBrands.map((_, i) => (<Cell key={i} fill={COLORS[i % COLORS.length]} />))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #f4f4f5", fontSize: 11 }} />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
-          )}
-        </Card>
+          </div>
+        )}
+
+        {charts.topProducts.length > 0 && (
+          <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+            <h3 className="mb-4 text-[13px] font-bold text-zinc-900">Meistverkauft</h3>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={charts.topProducts} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" />
+                  <XAxis type="number" tick={{ fontSize: 10, fill: "#a1a1aa" }} />
+                  <YAxis dataKey="name" type="category" tick={{ fontSize: 10, fill: "#71717a" }} width={100} />
+                  <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid #f4f4f5", fontSize: 11 }} />
+                  <Bar dataKey="revenue" fill="#18181b" radius={[0, 6, 6, 0]} name="Umsatz" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
       </div>
 
-      {alerts.length > 0 && (
-        <Card>
-          <h3 className="mb-4 text-sm font-semibold text-zinc-700">⚠️ Bestandswarnungen</h3>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {alerts.map((p) => (
-              <Link key={p.id} href={`/products/${p.id}`} className="flex items-center justify-between rounded-xl border border-zinc-100 px-4 py-3 transition-all hover:shadow-md">
-                <div>
-                  <p className="text-[13px] font-medium text-zinc-800">{p.name}</p>
-                  <p className="text-[11px] text-zinc-400">{p.brand}</p>
+      {/* ── Recent Sales (clickable) ── */}
+      <div>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-[13px] font-bold text-zinc-900">Letzte Verkäufe</h3>
+          <Link href="/sales" className="text-[11px] font-medium text-zinc-400 transition-colors active:text-zinc-600">
+            Alle ansehen →
+          </Link>
+        </div>
+        {recentSales.length === 0 ? (
+          <div className="flex flex-col items-center py-12 text-center">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100">
+              <ShoppingBag size={20} className="text-zinc-400" />
+            </div>
+            <p className="text-[12px] text-zinc-400">Noch keine Verkäufe</p>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-zinc-100 bg-white divide-y divide-zinc-100 overflow-hidden shadow-sm">
+            {recentSales.map((sale) => (
+              <Link
+                key={sale.id}
+                href={sale.productId ? `/products/${sale.productId}` : "/sales"}
+                className="flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50">
+                  <ArrowUpRight size={18} className="text-emerald-600" />
                 </div>
-                <Badge className={stockStatusColor(p.status)}>{stockStatusLabel(p.status)}</Badge>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-semibold text-zinc-900">
+                    {sale.product.name}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-zinc-400">
+                    {sale.product.brand}
+                    {sale.customerName && ` · ${sale.customerName}`}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-[14px] font-bold text-zinc-900">
+                    +{formatCurrency(sale.totalAmount)}
+                  </p>
+                  <p className="mt-0.5 text-[10px] text-zinc-400">
+                    {new Date(sale.soldAt).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                </div>
               </Link>
             ))}
           </div>
-        </Card>
+        )}
+      </div>
+
+      {/* ── Alerts (clickable) ── */}
+      {alerts.length > 0 && (
+        <div>
+          <h3 className="mb-3 text-[13px] font-bold text-zinc-900">⚠️ Bestandswarnungen</h3>
+          <div className="rounded-2xl border border-zinc-100 bg-white divide-y divide-zinc-100 overflow-hidden shadow-sm">
+            {alerts.map((p) => (
+              <Link
+                key={p.id}
+                href={`/products/${p.id}`}
+                className="flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50"
+              >
+                <div className={cn(
+                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+                  p.status === "OUT_OF_STOCK" ? "bg-red-50" : "bg-amber-50"
+                )}>
+                  {p.status === "OUT_OF_STOCK"
+                    ? <XCircle size={18} className="text-red-500" />
+                    : <AlertTriangle size={18} className="text-amber-500" />
+                  }
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-semibold text-zinc-900">{p.name}</p>
+                  <p className="text-[11px] text-zinc-400">{p.brand}</p>
+                </div>
+                <div className="shrink-0">
+                  <span className={cn(
+                    "rounded-full px-2.5 py-1 text-[10px] font-bold",
+                    p.status === "OUT_OF_STOCK"
+                      ? "bg-red-100 text-red-600"
+                      : "bg-amber-100 text-amber-600"
+                  )}>
+                    {p.quantity} Stk.
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
