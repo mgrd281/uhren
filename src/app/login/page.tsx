@@ -443,7 +443,7 @@ function LoginContent() {
 
           {/* Footer */}
           <div
-            className="mt-12 flex flex-col items-center gap-3"
+            className="mt-12 flex flex-col items-center gap-4"
             style={{
               opacity: p >= 5 ? 1 : 0,
               transition: "opacity 600ms ease-out",
@@ -454,6 +454,19 @@ function LoginContent() {
             <p className="text-[8px] font-medium tracking-[0.2em] text-white/[0.1]">
               AUTORISIERTER ZUGANG
             </p>
+            <a
+              href="https://www.karinex.de"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group mt-1 flex items-center gap-2 rounded-full border border-white/[0.04] bg-white/[0.015] px-4 py-1.5 transition-all duration-500 hover:border-white/[0.08] hover:bg-white/[0.03]"
+            >
+              <span className="text-[7px] font-medium tracking-[0.15em] text-white/[0.12] transition-colors duration-500 group-hover:text-white/25">
+                EIN UNTERNEHMEN DER
+              </span>
+              <span className="text-[8px] font-semibold tracking-[0.1em] text-[#b8860b]/30 transition-colors duration-500 group-hover:text-[#b8860b]/55">
+                KARINEX.DE
+              </span>
+            </a>
           </div>
         </div>
       </div>
