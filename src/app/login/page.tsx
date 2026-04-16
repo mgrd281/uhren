@@ -458,7 +458,7 @@ function LoginContent() {
               href="https://www.karinex.de"
               target="_blank"
               rel="noopener noreferrer"
-              className="group mt-1 flex items-center gap-2 rounded-full border border-white/[0.04] bg-white/[0.015] px-4 py-1.5 transition-all duration-500 hover:border-white/[0.08] hover:bg-white/[0.03]"
+              className="group mt-1 flex items-center gap-2 rounded-full px-4 py-1.5 transition-all duration-500 hover:bg-white/[0.02]"
             >
               <span className="text-[7px] font-medium tracking-[0.15em] text-white/[0.12] transition-colors duration-500 group-hover:text-white/25">
                 EIN UNTERNEHMEN DER
