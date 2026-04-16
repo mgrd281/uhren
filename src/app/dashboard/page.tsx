@@ -113,41 +113,41 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* ── Revenue Summary (scrollable) ── */}
-      <div className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 scrollbar-hide">
+      {/* ── Revenue Summary (static grid) ── */}
+      <div className="grid grid-cols-3 gap-3">
         <Link
           href="/sales"
-          className="flex min-w-[150px] flex-col rounded-2xl bg-zinc-900 px-4 py-3 text-white transition-all active:scale-[0.98]"
+          className="flex flex-col rounded-2xl bg-zinc-900 px-3.5 py-3 text-white transition-all active:scale-[0.98]"
         >
           <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
             Umsatz
           </span>
-          <span className="mt-1 text-lg font-bold tracking-tight">
+          <span className="mt-1 text-[16px] font-bold tracking-tight sm:text-lg">
             {formatCurrency(kpis.totalRevenue)}
           </span>
-          <span className="mt-0.5 flex items-center gap-1 text-[10px] text-zinc-500">
-            Verkäufe ansehen <ChevronRight size={10} />
+          <span className="mt-0.5 flex items-center gap-0.5 text-[9px] text-zinc-500">
+            Ansehen <ChevronRight size={9} />
           </span>
         </Link>
         <Link
           href="/sales"
-          className="flex min-w-[130px] flex-col rounded-2xl bg-white border border-zinc-100 px-4 py-3 shadow-sm transition-all active:scale-[0.98]"
+          className="flex flex-col rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98]"
         >
           <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
             Gewinn
           </span>
-          <span className="mt-1 text-lg font-bold tracking-tight text-emerald-600">
+          <span className="mt-1 text-[16px] font-bold tracking-tight text-emerald-600 sm:text-lg">
             {formatCurrency(kpis.totalProfit)}
           </span>
         </Link>
         <Link
           href="/products"
-          className="flex min-w-[130px] flex-col rounded-2xl bg-white border border-zinc-100 px-4 py-3 shadow-sm transition-all active:scale-[0.98]"
+          className="flex flex-col rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm transition-all active:scale-[0.98]"
         >
           <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
             Bestandswert
           </span>
-          <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900">
+          <span className="mt-1 text-[16px] font-bold tracking-tight text-zinc-900 sm:text-lg">
             {formatCurrency(kpis.expectedSalesValue)}
           </span>
         </Link>
