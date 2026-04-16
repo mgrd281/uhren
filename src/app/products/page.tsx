@@ -435,21 +435,14 @@ export default function ProductsPage() {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-5 xl:grid-cols-5">
                 {items.map((p) => {
                   const isSelected = selected.has(p.id);
-                  const CardTag = bulkMode ? "div" : Link;
-                  const cardProps = bulkMode
-                    ? { onClick: () => toggleSelect(p.id), role: "button" as const }
-                    : { href: `/products/${p.id}` };
-                  return (
-                  <CardTag
-                    key={p.id}
-                    {...(cardProps as Record<string, unknown>)}
-                    className={cn(
-                      "group relative overflow-hidden rounded-2xl border bg-white shadow-sm transition-all active:scale-[0.98] sm:hover:-translate-y-0.5 sm:hover:shadow-lg lg:hover:shadow-xl cursor-pointer",
-                      bulkMode && isSelected
-                        ? "border-amber-400 ring-2 ring-amber-200"
-                        : "border-zinc-100"
-                    )}
-                  >
+                  const cardClass = cn(
+                    "group relative overflow-hidden rounded-2xl border bg-white shadow-sm transition-all active:scale-[0.98] sm:hover:-translate-y-0.5 sm:hover:shadow-lg lg:hover:shadow-xl cursor-pointer",
+                    bulkMode && isSelected
+                      ? "border-amber-400 ring-2 ring-amber-200"
+                      : "border-zinc-100"
+                  );
+                  const cardContent = (
+                    <>
                     {/* Bulk checkbox overlay */}
                     {bulkMode && (
                       <div className="absolute left-2 top-2 z-10">
@@ -478,7 +471,7 @@ export default function ProductsPage() {
                       )}
                       {/* Status pill */}
                       {p.status !== "IN_STOCK" && (
-                        <div className="absolute left-2 top-2">
+                        <div className={cn("absolute top-2", bulkMode ? "left-8" : "left-2")}>
                           <span className={cn(
                             "rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide",
                             p.status === "OUT_OF_STOCK"
@@ -515,7 +508,16 @@ export default function ProductsPage() {
                         )}
                       </div>
                     </div>
-                  </CardTag>
+                    </>
+                  );
+                  return bulkMode ? (
+                    <div key={p.id} onClick={() => toggleSelect(p.id)} role="button" className={cardClass}>
+                      {cardContent}
+                    </div>
+                  ) : (
+                    <Link key={p.id} href={`/products/${p.id}`} className={cardClass}>
+                      {cardContent}
+                    </Link>
                   );
                 })}
               </div>
@@ -536,19 +538,12 @@ export default function ProductsPage() {
           </div>
           {filtered.map((p) => {
             const isSelected = selected.has(p.id);
-            const ListTag = bulkMode ? "div" : Link;
-            const listProps = bulkMode
-              ? { onClick: () => toggleSelect(p.id), role: "button" as const }
-              : { href: `/products/${p.id}` };
-            return (
-            <ListTag
-              key={p.id}
-              {...(listProps as Record<string, unknown>)}
-              className={cn(
-                "flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50 lg:gap-4 lg:px-5 lg:py-4 lg:hover:bg-zinc-50 cursor-pointer",
-                bulkMode && isSelected && "bg-amber-50"
-              )}
-            >
+            const rowClass = cn(
+              "flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50 lg:gap-4 lg:px-5 lg:py-4 lg:hover:bg-zinc-50 cursor-pointer",
+              bulkMode && isSelected && "bg-amber-50"
+            );
+            const rowContent = (
+              <>
               {/* Bulk checkbox */}
               {bulkMode && (
                 <div className="shrink-0">
@@ -633,7 +628,16 @@ export default function ProductsPage() {
                   </span>
                 )}
               </div>
-            </ListTag>
+              </>
+            );
+            return bulkMode ? (
+              <div key={p.id} onClick={() => toggleSelect(p.id)} role="button" className={rowClass}>
+                {rowContent}
+              </div>
+            ) : (
+              <Link key={p.id} href={`/products/${p.id}`} className={rowClass}>
+                {rowContent}
+              </Link>
             );
           })}
         </div>
