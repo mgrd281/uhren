@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
+import { useRouter } from "next/navigation";
 import ProductForm from "@/components/product-form";
 import { Skeleton } from "@/components/ui";
+import { useRole } from "@/lib/useRole";
 
 export default function EditProductPage({
   params,
@@ -10,9 +12,12 @@ export default function EditProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const { canEdit } = useRole();
+  const router = useRouter();
   const [data, setData] = useState<Record<string, string> | null>(null);
 
   useEffect(() => {
+    if (!canEdit) { router.replace(`/products/${id}`); return; }
     fetch(`/api/products/${id}`)
       .then((r) => r.json())
       .then((p) =>
@@ -33,7 +38,9 @@ export default function EditProductPage({
           notes: p.notes ?? "",
         })
       );
-  }, [id]);
+  }, [id, canEdit, router]);
+
+  if (!canEdit) return null;
 
   if (!data)
     return (

@@ -26,6 +26,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRole } from "@/lib/useRole";
 import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
@@ -120,6 +121,7 @@ export default function SalesPage() {
   const [filterPayment, setFilterPayment] = useState("");
   const [filterPeriod, setFilterPeriod] = useState<"all" | "today" | "7d" | "30d">("all");
   const [showFilters, setShowFilters] = useState(false);
+  const { canEdit } = useRole();
 
   /* Form state */
   const [formStep, setFormStep] = useState<"product" | "details">("product");
@@ -280,6 +282,7 @@ export default function SalesPage() {
             {sales.length} Transaktionen
           </p>
         </div>
+        {canEdit && (
         <button
           onClick={() => {
             if (showForm) resetForm();
@@ -297,6 +300,7 @@ export default function SalesPage() {
             {showForm ? "Abbrechen" : "Neuer Verkauf"}
           </span>
         </button>
+        )}
       </div>
 
       {/* ── Revenue Summary Cards ── */}

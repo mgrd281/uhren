@@ -10,6 +10,7 @@ import {
   stockStatusColor,
 } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { useRole } from "@/lib/useRole";
 import {
   Plus,
   Search,
@@ -52,6 +53,7 @@ export default function ProductsPage() {
   const [importingImages, setImportingImages] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [filterBrand, setFilterBrand] = useState("");
+  const { canEdit, canDelete } = useRole();
 
   /* Bulk edit state */
   const [bulkMode, setBulkMode] = useState(false);
@@ -182,7 +184,7 @@ export default function ProductsPage() {
         </div>
         <div className="flex items-center gap-2 lg:gap-3">
           {/* Bulk edit toggle */}
-          {products.length > 0 && (
+          {canEdit && products.length > 0 && (
             <button
               onClick={() => bulkMode ? exitBulkMode() : setBulkMode(true)}
               className={cn(
@@ -198,6 +200,7 @@ export default function ProductsPage() {
               </span>
             </button>
           )}
+          {canEdit && (
           <button
             onClick={importImages}
             disabled={importingImages}
@@ -208,6 +211,8 @@ export default function ProductsPage() {
               {importingImages ? "Importiere…" : "Bilder"}
             </span>
           </button>
+          )}
+          {canEdit && (
           <Link
             href="/products/add"
             className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg shadow-zinc-900/25 transition-all duration-300 active:scale-95 sm:h-auto sm:w-auto sm:gap-2 sm:rounded-xl sm:px-4 sm:py-2.5 lg:hover:shadow-xl lg:hover:shadow-zinc-900/30"
@@ -217,6 +222,7 @@ export default function ProductsPage() {
               Hinzufügen
             </span>
           </Link>
+          )}
         </div>
       </div>
 

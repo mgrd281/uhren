@@ -18,11 +18,13 @@ import {
   stockStatusLabel,
   stockStatusColor,
   movementTypeLabel,
+  cn,
 } from "@/lib/utils";
 import { ArrowRight, Trash2, Edit, Watch, ShoppingBag, DollarSign, X, ImagePlus, Star, Plus } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { use } from "react";
+import { useRole } from "@/lib/useRole";
 
 interface Sale {
   id: string;
@@ -82,6 +84,7 @@ export default function ProductDetailPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
+  const { canEdit, canDelete } = useRole();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -329,7 +332,7 @@ export default function ProductDetailPage({
         description={`${product.brand} · ${product.model}`}
         actions={
           <div className="flex gap-2">
-            {product.quantity > 0 && (
+            {canEdit && product.quantity > 0 && (
               <Button
                 size="sm"
                 onClick={() => {
@@ -344,12 +347,15 @@ export default function ProductDetailPage({
                 Verkauf erfassen
               </Button>
             )}
+            {canEdit && (
             <Link href={`/products/${id}/edit`}>
               <Button variant="secondary" size="sm">
                 <Edit size={14} />
                 Bearbeiten
               </Button>
             </Link>
+            )}
+            {canDelete && (
             <Button
               variant="danger"
               size="sm"
@@ -359,6 +365,7 @@ export default function ProductDetailPage({
               <Trash2 size={14} />
               Löschen
             </Button>
+            )}
           </div>
         }
       />
@@ -406,6 +413,7 @@ export default function ProductDetailPage({
                     sizes="80px"
                     unoptimized={img.imageUrl.startsWith("http")}
                   />
+                  {canEdit && (
                   <div className="absolute inset-0 flex items-end justify-center gap-1 bg-black/0 opacity-0 transition-all group-hover:bg-black/30 group-hover:opacity-100">
                     {!img.isPrimary && (
                       <button
@@ -416,6 +424,7 @@ export default function ProductDetailPage({
                         <Star size={12} className="fill-black text-black" />
                       </button>
                     )}
+                    {canDelete && (
                     <button
                       onClick={(e) => { e.preventDefault(); handleDeleteGalleryImage(img.id); }}
                       className="rounded bg-white/90 p-1 text-red-500 hover:bg-red-100"
@@ -424,7 +433,9 @@ export default function ProductDetailPage({
                     >
                       <X size={12} />
                     </button>
+                    )}
                   </div>
+                  )}
                   {img.isPrimary && (
                     <div className="absolute start-1 top-1">
                       <Star size={12} className="fill-black text-black" />
@@ -468,10 +479,10 @@ export default function ProductDetailPage({
 
           <div className="grid grid-cols-2 gap-4">
             <div
-              className="rounded-xl border border-zinc-100 bg-white p-4 cursor-pointer transition-colors hover:border-amber-200 hover:bg-amber-50/30"
-              onClick={() => { setEditingField("costPrice"); setEditValue(String(product.costPrice)); }}
+              className={cn("rounded-xl border border-zinc-100 bg-white p-4 transition-colors", canEdit && "cursor-pointer hover:border-amber-200 hover:bg-amber-50/30")}
+              onClick={() => { if (canEdit) { setEditingField("costPrice"); setEditValue(String(product.costPrice)); } }}
             >
-              <p className="text-[11px] text-zinc-400">Einkaufspreis <span className="text-amber-500">✎</span></p>
+              <p className="text-[11px] text-zinc-400">Einkaufspreis {canEdit && <span className="text-amber-500">✎</span>}</p>
               {editingField === "costPrice" ? (
                 <form onSubmit={(e) => { e.preventDefault(); savePrice(); }} className="mt-1 flex gap-2">
                   <input
@@ -494,10 +505,10 @@ export default function ProductDetailPage({
               )}
             </div>
             <div
-              className="rounded-xl border border-zinc-100 bg-white p-4 cursor-pointer transition-colors hover:border-amber-200 hover:bg-amber-50/30"
-              onClick={() => { setEditingField("salePriceExpected"); setEditValue(String(product.salePriceExpected)); }}
+              className={cn("rounded-xl border border-zinc-100 bg-white p-4 transition-colors", canEdit && "cursor-pointer hover:border-amber-200 hover:bg-amber-50/30")}
+              onClick={() => { if (canEdit) { setEditingField("salePriceExpected"); setEditValue(String(product.salePriceExpected)); } }}
             >
-              <p className="text-[11px] text-zinc-400">Verkauf Preis <span className="text-amber-500">✎</span></p>
+              <p className="text-[11px] text-zinc-400">Verkauf Preis {canEdit && <span className="text-amber-500">✎</span>}</p>
               {editingField === "salePriceExpected" ? (
                 <form onSubmit={(e) => { e.preventDefault(); savePrice(); }} className="mt-1 flex gap-2">
                   <input
@@ -520,10 +531,10 @@ export default function ProductDetailPage({
               )}
             </div>
             <div
-              className="rounded-xl border border-zinc-100 bg-white p-4 cursor-pointer transition-colors hover:border-amber-200 hover:bg-amber-50/30"
-              onClick={() => { setEditingField("quantity"); setEditValue(String(product.quantity)); }}
+              className={cn("rounded-xl border border-zinc-100 bg-white p-4 transition-colors", canEdit && "cursor-pointer hover:border-amber-200 hover:bg-amber-50/30")}
+              onClick={() => { if (canEdit) { setEditingField("quantity"); setEditValue(String(product.quantity)); } }}
             >
-              <p className="text-[11px] text-zinc-400">Aktueller Bestand <span className="text-amber-500">✎</span></p>
+              <p className="text-[11px] text-zinc-400">Aktueller Bestand {canEdit && <span className="text-amber-500">✎</span>}</p>
               {editingField === "quantity" ? (
                 <form onSubmit={(e) => { e.preventDefault(); savePrice(); }} className="mt-1 flex gap-2">
                   <input
@@ -637,6 +648,7 @@ export default function ProductDetailPage({
                       <p className="text-[15px] font-bold text-zinc-900">
                         {formatCurrency(sale.totalAmount)}
                       </p>
+                      {canDelete && (
                       <button
                         onClick={(e) => {
                           e.preventDefault();
@@ -647,6 +659,7 @@ export default function ProductDetailPage({
                       >
                         <X size={14} />
                       </button>
+                      )}
                     </div>
                   </div>
                   {sale.notes && (
@@ -704,6 +717,7 @@ export default function ProductDetailPage({
                     {formatDateTime(m.createdAt)}
                   </td>
                   <td className="py-3 text-end">
+                    {canDelete && (
                     <button
                       onClick={() => handleDeleteMovement(m.id)}
                       className="rounded-lg p-1.5 text-zinc-300 transition-colors hover:bg-red-50 hover:text-red-500"
@@ -711,6 +725,7 @@ export default function ProductDetailPage({
                     >
                       <X size={14} />
                     </button>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -19,11 +19,11 @@ import {
 import { useState, useEffect, useRef, useCallback } from "react";
 import { signOut, useSession } from "next-auth/react";
 
-const nav = [
+const nav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: boolean; ownerOnly?: boolean; editOnly?: boolean }[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/products", label: "Produkte", icon: Watch },
-  { href: "/products/add", label: "Produkt hinzufügen", icon: PlusCircle },
-  { href: "/import-images", label: "Shopify Bilder", icon: Image },
+  { href: "/products/add", label: "Produkt hinzufügen", icon: PlusCircle, editOnly: true },
+  { href: "/import-images", label: "Shopify Bilder", icon: Image, editOnly: true },
   { href: "/sales", label: "Verkäufe", icon: ShoppingBag },
   { href: "/reports", label: "Berichte", icon: BarChart3 },
   { href: "/access-requests", label: "Zugriffsanfragen", icon: UserCheck, badge: true, ownerOnly: true },
@@ -45,10 +45,16 @@ export default function Sidebar() {
   const [pendingCount, setPendingCount] = useState(0);
   const prevCountRef = useRef(0);
   const { data: session } = useSession();
-  const isOwner = (session as unknown as { role?: string })?.role === "owner";
+  const role = ((session as unknown as { role?: string })?.role) || "viewer";
+  const isOwner = role === "owner";
+  const userCanEdit = role === "owner" || role === "manager" || role === "editor";
 
   /* Filter nav items based on role */
-  const visibleNav = nav.filter((item) => !(item as { ownerOnly?: boolean }).ownerOnly || isOwner);
+  const visibleNav = nav.filter((item) => {
+    if (item.ownerOnly && !isOwner) return false;
+    if (item.editOnly && !userCanEdit) return false;
+    return true;
+  });
 
   const playNotificationSound = useCallback(() => {
     try {
