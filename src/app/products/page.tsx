@@ -90,22 +90,22 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 lg:space-y-8">
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl">
+          <h1 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl lg:text-3xl">
             Produkte
           </h1>
-          <p className="mt-0.5 text-[12px] text-zinc-400">
+          <p className="mt-0.5 text-[12px] text-zinc-400 lg:text-sm">
             {products.length} im Bestand
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 lg:gap-3">
           <button
             onClick={importImages}
             disabled={importingImages}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 transition-all active:scale-95 disabled:opacity-50 sm:h-auto sm:w-auto sm:gap-2 sm:rounded-xl sm:px-3.5 sm:py-2.5"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 transition-all active:scale-95 disabled:opacity-50 sm:h-auto sm:w-auto sm:gap-2 sm:rounded-xl sm:px-3.5 sm:py-2.5 lg:hover:bg-zinc-200"
           >
             <ImagePlus size={17} className={importingImages ? "animate-pulse" : ""} />
             <span className="hidden text-[12px] font-medium sm:inline">
@@ -114,7 +114,7 @@ export default function ProductsPage() {
           </button>
           <Link
             href="/products/add"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg shadow-zinc-900/20 transition-all active:scale-95 sm:h-auto sm:w-auto sm:gap-2 sm:rounded-xl sm:px-4 sm:py-2.5"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg shadow-zinc-900/20 transition-all active:scale-95 sm:h-auto sm:w-auto sm:gap-2 sm:rounded-xl sm:px-4 sm:py-2.5 lg:hover:shadow-xl lg:hover:shadow-zinc-900/25"
           >
             <Plus size={18} />
             <span className="hidden text-[13px] font-medium sm:inline">
@@ -125,38 +125,38 @@ export default function ProductsPage() {
       </div>
 
       {/* ── Summary Cards ── */}
-      <div className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 scrollbar-hide">
-        <div className="flex min-w-[140px] flex-col rounded-2xl bg-zinc-900 px-4 py-3 text-white">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+      <div className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 scrollbar-hide lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-5 lg:overflow-visible lg:px-0 lg:pb-0">
+        <div className="flex min-w-[140px] flex-col rounded-2xl bg-zinc-900 px-4 py-3 text-white lg:min-w-0 lg:px-6 lg:py-5">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
             Bestandswert
           </span>
-          <span className="mt-1 text-lg font-bold tracking-tight">
+          <span className="mt-1 text-lg font-bold tracking-tight lg:mt-2 lg:text-2xl">
             {formatCurrency(totalValue)}
           </span>
-          <span className="mt-0.5 text-[10px] text-zinc-500">
+          <span className="mt-0.5 text-[10px] text-zinc-500 lg:mt-1 lg:text-xs">
             {totalStock} Stück
           </span>
         </div>
-        <div className="flex min-w-[120px] flex-col rounded-2xl bg-white border border-zinc-100 px-4 py-3 shadow-sm">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+        <div className="flex min-w-[120px] flex-col rounded-2xl bg-white border border-zinc-100 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
             Umsatz
           </span>
-          <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900">
+          <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900 lg:mt-2 lg:text-2xl">
             {formatCurrency(totalRevenue)}
           </span>
         </div>
-        <div className="flex min-w-[100px] flex-col rounded-2xl bg-white border border-zinc-100 px-4 py-3 shadow-sm">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+        <div className="flex min-w-[100px] flex-col rounded-2xl bg-white border border-zinc-100 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400 lg:text-xs">
             Marken
           </span>
-          <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900">
+          <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900 lg:mt-2 lg:text-2xl">
             {brands.length}
           </span>
         </div>
       </div>
 
       {/* ── Search + Filter + View Toggle ── */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 lg:gap-3">
         <div className="relative flex-1">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
           <input
@@ -167,14 +167,14 @@ export default function ProductsPage() {
               setLoading(true);
               setSearch(e.target.value);
             }}
-            className="h-11 w-full rounded-xl border border-zinc-200 bg-white pl-10 pr-3 text-[13px] text-zinc-900 outline-none transition-all placeholder:text-zinc-300 focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100"
+            className="h-11 w-full rounded-xl border border-zinc-200 bg-white pl-10 pr-3 text-[13px] text-zinc-900 outline-none transition-all placeholder:text-zinc-300 focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100 lg:h-12 lg:text-sm"
           />
         </div>
         {brands.length > 1 && (
           <select
             value={filterBrand}
             onChange={(e) => setFilterBrand(e.target.value)}
-            className="h-11 rounded-xl border border-zinc-200 bg-white px-3 text-[12px] text-zinc-600 outline-none focus:border-zinc-400"
+            className="h-11 rounded-xl border border-zinc-200 bg-white px-3 text-[12px] text-zinc-600 outline-none focus:border-zinc-400 lg:h-12 lg:px-4 lg:text-sm"
           >
             <option value="">Alle Marken</option>
             {brands.map((b) => (
@@ -184,7 +184,7 @@ export default function ProductsPage() {
         )}
         <button
           onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-500 transition-colors active:bg-zinc-50"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-500 transition-colors active:bg-zinc-50 lg:h-12 lg:w-12 lg:hover:bg-zinc-50"
         >
           {viewMode === "grid" ? <LayoutList size={16} /> : <LayoutGrid size={16} />}
         </button>
@@ -223,12 +223,12 @@ export default function ProductsPage() {
         </div>
       ) : viewMode === "grid" ? (
         /* ── Grid View ── */
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-5 xl:grid-cols-5">
           {filtered.map((p) => (
             <Link
               key={p.id}
               href={`/products/${p.id}`}
-              className="group overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm transition-all active:scale-[0.98] sm:hover:-translate-y-0.5 sm:hover:shadow-lg"
+              className="group overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm transition-all active:scale-[0.98] sm:hover:-translate-y-0.5 sm:hover:shadow-lg lg:hover:shadow-xl"
             >
               {/* Image */}
               <div className="relative aspect-square overflow-hidden bg-zinc-50">
@@ -294,21 +294,29 @@ export default function ProductsPage() {
       ) : (
         /* ── List View ── */
         <div className="rounded-2xl border border-zinc-100 bg-white divide-y divide-zinc-100 overflow-hidden shadow-sm">
+          {/* Desktop table header */}
+          <div className="hidden items-center gap-4 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 lg:flex">
+            <div className="w-12 shrink-0" />
+            <div className="flex-1">Produkt</div>
+            <div className="w-20 text-center">Bestand</div>
+            <div className="w-20 text-center">Verkäufe</div>
+            <div className="w-28 text-right">Preis</div>
+          </div>
           {filtered.map((p) => (
             <Link
               key={p.id}
               href={`/products/${p.id}`}
-              className="flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50"
+              className="flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50 lg:gap-4 lg:px-5 lg:py-4 lg:hover:bg-zinc-50"
             >
               {/* Thumbnail */}
-              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-zinc-100">
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-zinc-100 lg:h-14 lg:w-14">
                 {p.mainImage ? (
                   <Image
                     src={p.mainImage}
                     alt={p.name}
                     fill
                     className="object-contain p-1"
-                    sizes="48px"
+                    sizes="56px"
                     unoptimized={p.mainImage.startsWith("data:") || p.mainImage.startsWith("http")}
                   />
                 ) : (
@@ -320,25 +328,52 @@ export default function ProductsPage() {
 
               {/* Details */}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[13px] font-semibold text-zinc-900">
+                <p className="truncate text-[13px] font-semibold text-zinc-900 lg:text-sm">
                   {p.name}
                 </p>
-                <p className="mt-0.5 text-[11px] text-zinc-400">
-                  {p.brand} · {p.quantity} Stk.
+                <p className="mt-0.5 text-[11px] text-zinc-400 lg:text-xs">
+                  {p.brand}
+                  <span className="lg:hidden"> · {p.quantity} Stk.</span>
                   {p._count.sales > 0 && (
-                    <span className="text-emerald-600"> · {p._count.sales} verkauft</span>
+                    <span className="text-emerald-600 lg:hidden"> · {p._count.sales} verkauft</span>
                   )}
                 </p>
               </div>
 
+              {/* Desktop: Stock column */}
+              <div className="hidden w-20 text-center lg:block">
+                <span className={cn(
+                  "inline-block rounded-full px-2.5 py-1 text-[11px] font-bold",
+                  p.status === "OUT_OF_STOCK"
+                    ? "bg-red-100 text-red-600"
+                    : p.status === "LOW_STOCK"
+                    ? "bg-amber-100 text-amber-600"
+                    : "bg-zinc-100 text-zinc-600"
+                )}>
+                  {p.quantity} Stk.
+                </span>
+              </div>
+
+              {/* Desktop: Sales column */}
+              <div className="hidden w-20 text-center lg:block">
+                {p._count.sales > 0 ? (
+                  <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-emerald-600">
+                    <TrendingUp size={12} />
+                    {p._count.sales}
+                  </span>
+                ) : (
+                  <span className="text-[12px] text-zinc-300">—</span>
+                )}
+              </div>
+
               {/* Price */}
-              <div className="text-right shrink-0">
-                <p className="text-[14px] font-bold text-zinc-900">
+              <div className="text-right shrink-0 lg:w-28">
+                <p className="text-[14px] font-bold text-zinc-900 lg:text-base">
                   {formatCurrency(p.salePriceExpected)}
                 </p>
                 {p.status !== "IN_STOCK" && (
                   <span className={cn(
-                    "mt-0.5 inline-block rounded-full px-1.5 py-0.5 text-[9px] font-bold",
+                    "mt-0.5 inline-block rounded-full px-1.5 py-0.5 text-[9px] font-bold lg:hidden",
                     p.status === "OUT_OF_STOCK"
                       ? "bg-red-100 text-red-600"
                       : "bg-amber-100 text-amber-600"
