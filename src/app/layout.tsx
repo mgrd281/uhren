@@ -6,6 +6,7 @@ import { Providers } from "@/components/providers";
 import Sidebar from "@/components/sidebar";
 import ServiceWorker from "@/components/service-worker";
 import StockAlerts from "@/components/stock-alerts";
+import RoleNotifier from "@/components/role-notifier";
 import AppShell from "@/components/app-shell";
 
 const geistSans = Geist({
@@ -79,6 +80,7 @@ export default function RootLayout({
         <StockAlerts />
         <Providers>
           <Sidebar />
+          <RoleNotifier />
           <AppShell>{children}</AppShell>
           <Toaster
             position="bottom-right"
