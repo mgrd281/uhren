@@ -116,3 +116,16 @@ model AuthorizedUser {
   image     String?
   createdAt DateTime @default(now())
 }
+
+model AccessRequest {
+  id        String   @id @default(cuid())
+  email     String
+  name      String?
+  image     String?
+  googleUid String
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}

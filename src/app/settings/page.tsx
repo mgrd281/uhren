@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { PageHeader, Card, Input, Button, Skeleton } from "@/components/ui";
 import { toast } from "sonner";
-import { Save, Download, FileJson, FileSpreadsheet, Database } from "lucide-react";
+import { Save, Download, FileJson, FileSpreadsheet, Database, ShieldCheck, ShieldX, Trash2, UserCheck } from "lucide-react";
 
 interface Settings {
   storeName: string;
@@ -12,17 +12,32 @@ interface Settings {
   rtlEnabled: boolean;
 }
 
+interface AccessRequest {
+  id: string;
+  email: string;
+  name: string | null;
+  image: string | null;
+  status: string;
+  createdAt: string;
+}
+
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState<"json" | "csv" | "">("");
+  const [requests, setRequests] = useState<AccessRequest[]>([]);
+  const [actionLoading, setActionLoading] = useState<string>("");
 
   useEffect(() => {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((d) => setSettings(d))
       .finally(() => setLoading(false));
+    fetch("/api/access-requests")
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d)) setRequests(d); })
+      .catch(() => {});
   }, []);
 
   async function handleSave() {
@@ -71,6 +86,35 @@ export default function SettingsPage() {
       toast.error("Verbindungsfehler");
     } finally {
       setDownloading("");
+    }
+  }
+
+  async function handleAccessAction(id: string, action: "approve" | "reject" | "delete") {
+    setActionLoading(`${id}-${action}`);
+    try {
+      const res = await fetch("/api/access-requests", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action }),
+      });
+      if (res.ok) {
+        if (action === "delete") {
+          setRequests((prev) => prev.filter((r) => r.id !== id));
+          toast.success("Anfrage gelöscht");
+        } else if (action === "approve") {
+          setRequests((prev) => prev.map((r) => r.id === id ? { ...r, status: "approved" } : r));
+          toast.success("Zugriff genehmigt");
+        } else {
+          setRequests((prev) => prev.map((r) => r.id === id ? { ...r, status: "rejected" } : r));
+          toast.success("Zugriff abgelehnt");
+        }
+      } else {
+        toast.error("Aktion fehlgeschlagen");
+      }
+    } catch {
+      toast.error("Verbindungsfehler");
+    } finally {
+      setActionLoading("");
     }
   }
 
@@ -195,6 +239,111 @@ export default function SettingsPage() {
             <Download size={16} className="shrink-0 text-zinc-400" />
           </button>
         </div>
+      </Card>
+
+      {/* ── Access Requests ── */}
+      <Card className="max-w-2xl">
+        <div className="mb-1 flex items-center gap-2.5">
+          <UserCheck size={18} className="text-zinc-500" />
+          <h3 className="text-sm font-semibold text-zinc-700">
+            Zugriffsanfragen
+          </h3>
+          {requests.filter((r) => r.status === "pending").length > 0 && (
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+              {requests.filter((r) => r.status === "pending").length}
+            </span>
+          )}
+        </div>
+        <p className="mb-5 text-[12px] text-zinc-400">
+          Benutzer die Zugriff auf das System angefragt haben
+        </p>
+
+        {requests.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-zinc-200 py-8 text-center">
+            <p className="text-[13px] text-zinc-400">Keine Anfragen vorhanden</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {requests.map((req) => (
+              <div
+                key={req.id}
+                className="flex items-center gap-4 rounded-2xl border border-zinc-200 bg-white px-5 py-4 transition-all hover:border-zinc-300"
+              >
+                {/* Avatar */}
+                {req.image ? (
+                  <img
+                    src={req.image}
+                    alt=""
+                    className="h-10 w-10 shrink-0 rounded-full"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-[13px] font-bold text-zinc-500">
+                    {(req.name || req.email)[0]?.toUpperCase()}
+                  </div>
+                )}
+
+                {/* Info */}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-semibold text-zinc-900">
+                    {req.name || "Unbekannt"}
+                  </p>
+                  <p className="truncate text-[11px] text-zinc-400">{req.email}</p>
+                  <p className="mt-0.5 text-[10px] text-zinc-300">
+                    {new Date(req.createdAt).toLocaleDateString("de-DE", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
+
+                {/* Status / Actions */}
+                {req.status === "pending" ? (
+                  <div className="flex shrink-0 items-center gap-2">
+                    <button
+                      onClick={() => handleAccessAction(req.id, "approve")}
+                      disabled={!!actionLoading}
+                      className="flex h-9 items-center gap-1.5 rounded-xl bg-emerald-50 px-3 text-[12px] font-semibold text-emerald-600 transition-all hover:bg-emerald-100 active:scale-95 disabled:opacity-50"
+                    >
+                      <ShieldCheck size={14} />
+                      {actionLoading === `${req.id}-approve` ? "…" : "Genehmigen"}
+                    </button>
+                    <button
+                      onClick={() => handleAccessAction(req.id, "reject")}
+                      disabled={!!actionLoading}
+                      className="flex h-9 items-center gap-1.5 rounded-xl bg-red-50 px-3 text-[12px] font-semibold text-red-500 transition-all hover:bg-red-100 active:scale-95 disabled:opacity-50"
+                    >
+                      <ShieldX size={14} />
+                      {actionLoading === `${req.id}-reject` ? "…" : "Ablehnen"}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span
+                      className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
+                        req.status === "approved"
+                          ? "bg-emerald-50 text-emerald-600"
+                          : "bg-red-50 text-red-500"
+                      }`}
+                    >
+                      {req.status === "approved" ? "Genehmigt" : "Abgelehnt"}
+                    </span>
+                    <button
+                      onClick={() => handleAccessAction(req.id, "delete")}
+                      disabled={!!actionLoading}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-300 transition-all hover:bg-zinc-100 hover:text-zinc-500 active:scale-95 disabled:opacity-50"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
     </div>
   );

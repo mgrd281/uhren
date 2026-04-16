@@ -15,7 +15,7 @@ import {
   X,
   LogOut,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signOut } from "next-auth/react";
 
 const nav = [
@@ -25,7 +25,7 @@ const nav = [
   { href: "/import-images", label: "Shopify Bilder", icon: Image },
   { href: "/sales", label: "Verkäufe", icon: ShoppingBag },
   { href: "/reports", label: "Berichte", icon: BarChart3 },
-  { href: "/settings", label: "Einstellungen", icon: Settings },
+  { href: "/settings", label: "Einstellungen", icon: Settings, badge: true },
 ];
 
 /* Bottom tab bar items (mobile app) */
@@ -40,6 +40,18 @@ const tabs = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/access-requests")
+      .then((r) => r.json())
+      .then((data: { status?: string }[]) => {
+        if (Array.isArray(data)) {
+          setPendingCount(data.filter((r) => r.status === "pending").length);
+        }
+      })
+      .catch(() => {});
+  }, [pathname]);
 
   // Hide sidebar on login page
   if (pathname === "/login") return null;
@@ -181,7 +193,12 @@ export default function Sidebar() {
                   )}
                 />
                 {item.label}
-                {active && (
+                {item.badge && pendingCount > 0 && (
+                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                    {pendingCount}
+                  </span>
+                )}
+                {active && !item.badge && (
                   <span className="absolute right-3 h-1.5 w-1.5 rounded-full bg-gold-400" />
                 )}
               </Link>

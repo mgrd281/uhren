@@ -96,7 +96,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return true;
       }
 
-      return false;
+      // Unauthorized user — save access request
+      try {
+        await prisma.$executeRawUnsafe(
+          `CREATE TABLE IF NOT EXISTS "AccessRequest" ("id" TEXT NOT NULL, "email" TEXT NOT NULL, "name" TEXT, "image" TEXT, "googleUid" TEXT NOT NULL, "status" TEXT NOT NULL DEFAULT 'pending', "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "AccessRequest_pkey" PRIMARY KEY ("id"));`
+        );
+        const id = `req_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        await prisma.accessRequest.create({
+          data: {
+            id,
+            email: user.email ?? "unknown",
+            name: user.name,
+            image: user.image,
+            googleUid,
+            status: "pending",
+          },
+        });
+      } catch (e) {
+        console.error("[auth] Failed to save access request:", e);
+      }
+
+      return "/login?error=unauthorized";
     },
 
     async session({ session }) {

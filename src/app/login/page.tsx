@@ -1,7 +1,8 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 /* ─── Animation phases ───
    0  pure black
@@ -41,9 +42,20 @@ function BrandIcon({ size = 28, className = "" }: { size?: number; className?: s
 }
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#060607]" />}>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [p, setP] = useState(0);
+  const searchParams = useSearchParams();
+  const denied = searchParams.get("error") === "unauthorized" || searchParams.get("error") === "AccessDenied";
+  const [requestSent, setRequestSent] = useState(false);
 
   useEffect(() => {
     const meta = document.querySelector('meta[name="theme-color"]');
@@ -271,6 +283,52 @@ export default function LoginPage() {
 
                 <div className="relative">
 
+                  {denied ? (
+                    /* ── Access Denied State ── */
+                    <div className="flex flex-col items-center py-2">
+                      {/* Shield icon */}
+                      <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/[0.06] ring-1 ring-red-500/10">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-red-400/70">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                          <line x1="15" y1="9" x2="9" y2="15" />
+                          <line x1="9" y1="9" x2="15" y2="15" />
+                        </svg>
+                      </div>
+
+                      <h2 className="text-[13px] font-medium tracking-[0.04em] text-white/60">
+                        Zugriff nicht autorisiert
+                      </h2>
+                      <p className="mt-2 text-center text-[11px] leading-relaxed text-white/25">
+                        Dein Google-Konto ist nicht freigeschaltet.
+                        <br />
+                        Eine Anfrage wurde automatisch gesendet.
+                      </p>
+
+                      {/* Status indicator */}
+                      <div className="mt-5 flex items-center gap-2 rounded-full bg-amber-500/[0.06] px-4 py-2 ring-1 ring-amber-500/10">
+                        <span className="relative flex h-2 w-2">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400/40" />
+                          <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400/60" />
+                        </span>
+                        <span className="text-[10px] font-medium tracking-[0.06em] text-amber-400/70">
+                          Anfrage wird geprüft
+                        </span>
+                      </div>
+
+                      {/* Divider */}
+                      <div className="mx-auto mt-7 h-px w-full bg-gradient-to-r from-transparent via-white/[0.035] to-transparent" />
+
+                      {/* Retry */}
+                      <button
+                        onClick={() => window.location.href = "/login"}
+                        className="mt-5 text-[11px] font-normal tracking-[0.04em] text-white/25 transition-colors hover:text-white/50"
+                      >
+                        Mit anderem Konto versuchen
+                      </button>
+                    </div>
+                  ) : (
+                    /* ── Normal Google Sign-In ── */
+                    <>
                   {/* ── Google CTA ── */}
                   <button
                     onClick={handleGoogleSignIn}
@@ -328,6 +386,8 @@ export default function LoginPage() {
                       VERSCHLÜSSELT
                     </span>
                   </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
