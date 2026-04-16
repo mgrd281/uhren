@@ -885,8 +885,6 @@ export default function ProductDetailPage({
                   </button>
                 )}
               </div>
-                )}
-              </div>
 
               {/* Preis & Menge */}
               <div className="grid grid-cols-2 gap-3">
