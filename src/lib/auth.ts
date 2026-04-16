@@ -1,8 +1,12 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import { prisma } from "./prisma";
+import type { NextAuthConfig } from "next-auth";
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+/**
+ * Base config shared between middleware (Edge) and API routes (Node.js).
+ * Must NOT import anything Node-only (e.g. Prisma).
+ */
+export const authConfig = {
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -13,36 +17,44 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/login",
   },
   callbacks: {
-    async authorized({ auth: session, request }) {
+    authorized({ auth: session, request }) {
       const isLoggedIn = !!session?.user;
       const isLoginPage = request.nextUrl.pathname === "/login";
 
       if (isLoginPage) {
-        // Redirect logged-in users away from login page
         if (isLoggedIn) {
           return Response.redirect(new URL("/dashboard", request.nextUrl));
         }
         return true;
       }
 
-      // Protect all other routes
       return isLoggedIn;
     },
+  },
+  trustHost: true,
+} satisfies NextAuthConfig;
+
+/**
+ * Full config with Prisma callbacks — only used in API routes (Node.js runtime).
+ */
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
+  callbacks: {
+    ...authConfig.callbacks,
 
     async signIn({ user, account }) {
       if (account?.provider !== "google" || !account.providerAccountId) {
         return false;
       }
 
+      const { prisma } = await import("./prisma");
       const googleUid = account.providerAccountId;
 
-      // Check if an owner already exists
       const owner = await prisma.authorizedUser.findUnique({
         where: { id: "owner" },
       });
 
       if (!owner) {
-        // First login ever → this Google account becomes the permanent owner
         await prisma.authorizedUser.create({
           data: {
             id: "owner",
@@ -55,12 +67,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return true;
       }
 
-      // Owner exists → only allow if same Google UID
       if (owner.googleUid === googleUid) {
         return true;
       }
 
-      // Any other Google account is blocked
       return false;
     },
 
@@ -68,5 +78,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
   },
-  trustHost: true,
 });
