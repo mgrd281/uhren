@@ -1,30 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
-  Card,
   Button,
   Input,
-  Select,
   Textarea,
   Skeleton,
 } from "@/components/ui";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import {
   Plus,
   X,
-  ChevronRight,
   ShoppingBag,
   Search,
   ArrowUpRight,
-  ArrowDownLeft,
   CreditCard,
   Banknote,
   Gift,
-  Store,
-  Filter,
+  Check,
+  Watch,
+  ChevronDown,
+  Minus,
+  Package,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import Link from "next/link";
+import Image from "next/image";
+
 const PAYMENT_METHODS = [
   { key: "Bar", label: "Bar", icon: Banknote },
   { key: "PayPal", label: "PayPal", icon: CreditCard },
@@ -35,8 +38,6 @@ const MARKETPLACES = [
   { key: "Kaufland", label: "Kaufland" },
   { key: "eBay Kleinanzeigen", label: "eBay KA" },
 ];
-import { toast } from "sonner";
-import Link from "next/link";
 
 interface Sale {
   id: string;
@@ -50,7 +51,7 @@ interface Sale {
   notes: string | null;
   paymentMethod?: string | null;
   marketplace?: string | null;
-  product: { name: string; brand: string; quantity: number };
+  product: { name: string; brand: string; quantity: number; mainImage?: string | null };
 }
 
 interface Product {
@@ -59,6 +60,8 @@ interface Product {
   brand: string;
   quantity: number;
   salePriceExpected: number;
+  mainImage?: string | null;
+  model?: string;
 }
 
 /* ─── Group sales by date ─── */
@@ -84,6 +87,25 @@ function groupByDate(sales: Sale[]): { label: string; sales: Sale[] }[] {
   return Object.entries(groups).map(([label, sales]) => ({ label, sales }));
 }
 
+/* ─── Product Image Component ─── */
+function ProductThumb({ src, name, size = 40 }: { src?: string | null; name: string; size?: number }) {
+  if (src) {
+    return (
+      <div className="relative overflow-hidden rounded-xl bg-zinc-100" style={{ width: size, height: size }}>
+        <Image src={src} alt={name} fill className="object-cover" sizes={`${size}px`} />
+      </div>
+    );
+  }
+  return (
+    <div
+      className="flex items-center justify-center rounded-xl bg-zinc-100"
+      style={{ width: size, height: size }}
+    >
+      <Watch size={size * 0.45} className="text-zinc-300" />
+    </div>
+  );
+}
+
 export default function SalesPage() {
   const [sales, setSales] = useState<Sale[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -93,9 +115,12 @@ export default function SalesPage() {
   const [search, setSearch] = useState("");
   const [filterMarketplace, setFilterMarketplace] = useState("");
 
+  /* Form state */
+  const [formStep, setFormStep] = useState<"product" | "details">("product");
+  const [productSearch, setProductSearch] = useState("");
   const [form, setForm] = useState({
     productId: "",
-    quantitySold: "1",
+    quantitySold: 1,
     salePrice: "",
     customerName: "",
     invoiceNumber: "",
@@ -103,6 +128,7 @@ export default function SalesPage() {
     paymentMethod: "",
     marketplace: "",
   });
+  const [showNotes, setShowNotes] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -116,13 +142,31 @@ export default function SalesPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  function onProductSelect(productId: string) {
+  function resetForm() {
+    setForm({
+      productId: "",
+      quantitySold: 1,
+      salePrice: "",
+      customerName: "",
+      invoiceNumber: "",
+      notes: "",
+      paymentMethod: "",
+      marketplace: "",
+    });
+    setFormStep("product");
+    setProductSearch("");
+    setShowNotes(false);
+  }
+
+  function selectProduct(productId: string) {
     const p = products.find((x) => x.id === productId);
+    if (!p) return;
     setForm((prev) => ({
       ...prev,
       productId,
-      salePrice: p ? String(p.salePriceExpected) : "",
+      salePrice: String(p.salePriceExpected),
     }));
+    setFormStep("details");
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -131,7 +175,7 @@ export default function SalesPage() {
 
     const payload = {
       productId: form.productId,
-      quantitySold: parseInt(form.quantitySold, 10),
+      quantitySold: form.quantitySold,
       salePrice: parseFloat(form.salePrice),
       customerName: form.customerName || null,
       invoiceNumber: form.invoiceNumber || null,
@@ -156,16 +200,7 @@ export default function SalesPage() {
 
       toast.success("Verkauf erfolgreich erfasst");
       setShowForm(false);
-      setForm({
-        productId: "",
-        quantitySold: "1",
-        salePrice: "",
-        customerName: "",
-        invoiceNumber: "",
-        notes: "",
-        paymentMethod: "",
-        marketplace: "",
-      });
+      resetForm();
 
       const [s, p] = await Promise.all([
         fetch("/api/sales").then((r) => r.json()),
@@ -183,8 +218,21 @@ export default function SalesPage() {
   const selectedProduct = products.find((p) => p.id === form.productId);
   const totalRevenue = sales.reduce((s, x) => s + x.totalAmount, 0);
   const totalItems = sales.reduce((s, x) => s + x.quantitySold, 0);
+  const totalAmount = form.salePrice ? form.quantitySold * parseFloat(form.salePrice) : 0;
 
-  /* Filtered sales */
+  /* Available products for picker */
+  const availableProducts = products.filter((p) => {
+    if (p.quantity <= 0) return false;
+    if (!productSearch) return true;
+    const q = productSearch.toLowerCase();
+    return (
+      p.name.toLowerCase().includes(q) ||
+      p.brand.toLowerCase().includes(q) ||
+      (p.model && p.model.toLowerCase().includes(q))
+    );
+  });
+
+  /* Filtered sales list */
   const filtered = sales.filter((s) => {
     const q = search.toLowerCase();
     const matchSearch =
@@ -211,7 +259,10 @@ export default function SalesPage() {
           </p>
         </div>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            if (showForm) resetForm();
+            setShowForm(!showForm);
+          }}
           className={cn(
             "flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 sm:h-auto sm:w-auto sm:gap-2 sm:rounded-xl sm:px-4 sm:py-2.5",
             showForm
@@ -227,193 +278,316 @@ export default function SalesPage() {
       </div>
 
       {/* ── Revenue Summary Cards ── */}
-      <div className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 scrollbar-hide">
-        <div className="flex min-w-[150px] flex-col rounded-2xl bg-zinc-900 px-4 py-3 text-white">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
-            Umsatz
-          </span>
-          <span className="mt-1 text-lg font-bold tracking-tight">
-            {formatCurrency(totalRevenue)}
-          </span>
-          <span className="mt-0.5 text-[10px] text-zinc-500">
-            {totalItems} Stück verkauft
-          </span>
+      {!showForm && (
+        <div className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 scrollbar-hide">
+          <div className="flex min-w-[150px] flex-col rounded-2xl bg-zinc-900 px-4 py-3 text-white">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+              Umsatz
+            </span>
+            <span className="mt-1 text-lg font-bold tracking-tight">
+              {formatCurrency(totalRevenue)}
+            </span>
+            <span className="mt-0.5 text-[10px] text-zinc-500">
+              {totalItems} Stück verkauft
+            </span>
+          </div>
+          <div className="flex min-w-[130px] flex-col rounded-2xl bg-white border border-zinc-100 px-4 py-3 shadow-sm">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+              Ø pro Verkauf
+            </span>
+            <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900">
+              {sales.length > 0 ? formatCurrency(totalRevenue / sales.length) : "–"}
+            </span>
+          </div>
+          <div className="flex min-w-[130px] flex-col rounded-2xl bg-white border border-zinc-100 px-4 py-3 shadow-sm">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+              Diesen Monat
+            </span>
+            <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900">
+              {formatCurrency(
+                sales
+                  .filter((s) => {
+                    const d = new Date(s.soldAt);
+                    const now = new Date();
+                    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                  })
+                  .reduce((sum, s) => sum + s.totalAmount, 0)
+              )}
+            </span>
+          </div>
         </div>
-        <div className="flex min-w-[130px] flex-col rounded-2xl bg-white border border-zinc-100 px-4 py-3 shadow-sm">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
-            Ø pro Verkauf
-          </span>
-          <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900">
-            {sales.length > 0 ? formatCurrency(totalRevenue / sales.length) : "–"}
-          </span>
-        </div>
-        <div className="flex min-w-[130px] flex-col rounded-2xl bg-white border border-zinc-100 px-4 py-3 shadow-sm">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
-            Diesen Monat
-          </span>
-          <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900">
-            {formatCurrency(
-              sales
-                .filter((s) => {
-                  const d = new Date(s.soldAt);
-                  const now = new Date();
-                  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                })
-                .reduce((sum, s) => sum + s.totalAmount, 0)
-            )}
-          </span>
-        </div>
-      </div>
+      )}
 
-      {/* ── New Sale Sheet ── */}
+      {/* ══════════════════════════════════════════════════════ */}
+      {/* ── NEW SALE FORM ── */}
+      {/* ══════════════════════════════════════════════════════ */}
       {showForm && (
-        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-xl sm:p-6">
-          <h3 className="mb-5 text-base font-bold text-zinc-900">
-            Neuen Verkauf erfassen
-          </h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Product picker */}
-            <Select
-              label="Produkt"
-              value={form.productId}
-              onChange={(e) => onProductSelect(e.target.value)}
-              required
-            >
-              <option value="">Produkt auswählen…</option>
-              {products
-                .filter((p) => p.quantity > 0)
-                .map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.brand} – {p.name} ({p.quantity} verfügbar)
-                  </option>
-                ))}
-            </Select>
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                label="Menge"
-                type="number"
-                min="1"
-                max={selectedProduct?.quantity ?? 999}
-                value={form.quantitySold}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, quantitySold: e.target.value }))
-                }
-                required
-              />
-              <Input
-                label="Preis (€)"
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.salePrice}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, salePrice: e.target.value }))
-                }
-                required
-              />
-            </div>
+          {/* ── Step 1: Product Picker ── */}
+          {formStep === "product" && (
+            <div className="space-y-3">
+              {/* Search bar */}
+              <div className="relative">
+                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+                <input
+                  type="text"
+                  placeholder="Uhr suchen…"
+                  value={productSearch}
+                  onChange={(e) => setProductSearch(e.target.value)}
+                  autoFocus
+                  className="h-12 w-full rounded-2xl border border-zinc-200 bg-white pl-10 pr-4 text-[14px] text-zinc-900 outline-none transition-all placeholder:text-zinc-300 focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100"
+                />
+              </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                label="Kunde"
-                placeholder="Optional"
-                value={form.customerName}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, customerName: e.target.value }))
-                }
-              />
-              <Input
-                label="Rechnungsnr."
-                placeholder="Optional"
-                value={form.invoiceNumber}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    invoiceNumber: e.target.value,
-                  }))
-                }
-              />
-            </div>
-
-            {/* Payment Method - pill style */}
-            <div>
-              <p className="mb-2 text-[12px] font-medium text-zinc-500">Zahlung</p>
-              <div className="flex gap-2">
-                {PAYMENT_METHODS.map((m) => (
-                  <button
-                    key={m.key}
-                    type="button"
-                    onClick={() =>
-                      setForm((prev) => ({ ...prev, paymentMethod: m.key }))
-                    }
-                    className={cn(
-                      "flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[12px] font-medium transition-all",
-                      form.paymentMethod === m.key
-                        ? "bg-zinc-900 text-white shadow-md"
-                        : "bg-zinc-100 text-zinc-600 active:bg-zinc-200"
-                    )}
-                  >
-                    <m.icon size={14} />
-                    {m.label}
-                  </button>
-                ))}
+              {/* Product grid */}
+              <div className="space-y-2">
+                {availableProducts.length === 0 ? (
+                  <div className="flex flex-col items-center py-12 text-center">
+                    <Package size={32} className="mb-2 text-zinc-300" />
+                    <p className="text-[13px] text-zinc-400">Keine Produkte verfügbar</p>
+                  </div>
+                ) : (
+                  availableProducts.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => selectProduct(p.id)}
+                      className="flex w-full items-center gap-3.5 rounded-2xl border border-zinc-100 bg-white p-3 text-left shadow-sm transition-all active:scale-[0.98] active:bg-zinc-50"
+                    >
+                      <ProductThumb src={p.mainImage} name={p.name} size={56} />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                          {p.brand}
+                        </p>
+                        <p className="mt-0.5 truncate text-[14px] font-bold text-zinc-900">
+                          {p.name}
+                        </p>
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="text-[13px] font-semibold text-zinc-700">
+                            {formatCurrency(p.salePriceExpected)}
+                          </span>
+                          <span className="text-[11px] text-zinc-400">
+                            · {p.quantity} verfügbar
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronDown size={16} className="-rotate-90 text-zinc-300" />
+                    </button>
+                  ))
+                )}
               </div>
             </div>
+          )}
 
-            {/* Marketplace - pill style */}
-            <div>
-              <p className="mb-2 text-[12px] font-medium text-zinc-500">Plattform</p>
-              <div className="flex gap-2">
-                {MARKETPLACES.map((mp) => (
-                  <button
-                    key={mp.key}
-                    type="button"
-                    onClick={() =>
-                      setForm((prev) => ({ ...prev, marketplace: mp.key }))
-                    }
-                    className={cn(
-                      "rounded-full px-3.5 py-2 text-[12px] font-medium transition-all",
-                      form.marketplace === mp.key
-                        ? "bg-emerald-600 text-white shadow-md"
-                        : "bg-zinc-100 text-zinc-600 active:bg-zinc-200"
-                    )}
-                  >
-                    {mp.label}
-                  </button>
-                ))}
+          {/* ── Step 2: Sale Details ── */}
+          {formStep === "details" && selectedProduct && (
+            <div className="space-y-4">
+              {/* Selected product card */}
+              <div className="flex items-center gap-3.5 rounded-2xl bg-zinc-900 p-3.5">
+                <ProductThumb src={selectedProduct.mainImage} name={selectedProduct.name} size={52} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+                    {selectedProduct.brand}
+                  </p>
+                  <p className="mt-0.5 truncate text-[14px] font-bold text-white">
+                    {selectedProduct.name}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormStep("product");
+                    setForm((prev) => ({ ...prev, productId: "" }));
+                  }}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white/60 transition-colors active:bg-white/20"
+                >
+                  <X size={14} />
+                </button>
               </div>
-            </div>
 
-            <Textarea
-              label="Notizen"
-              value={form.notes}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, notes: e.target.value }))
-              }
-            />
+              {/* Quantity stepper + Price */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="mb-2 text-[12px] font-medium text-zinc-500">Menge</p>
+                  <div className="flex h-12 items-center overflow-hidden rounded-xl border border-zinc-200 bg-white">
+                    <button
+                      type="button"
+                      onClick={() => setForm((prev) => ({ ...prev, quantitySold: Math.max(1, prev.quantitySold - 1) }))}
+                      className="flex h-full w-12 items-center justify-center text-zinc-400 transition-colors active:bg-zinc-100"
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <span className="flex-1 text-center text-[16px] font-bold text-zinc-900">
+                      {form.quantitySold}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          quantitySold: Math.min(selectedProduct.quantity, prev.quantitySold + 1),
+                        }))
+                      }
+                      className="flex h-full w-12 items-center justify-center text-zinc-400 transition-colors active:bg-zinc-100"
+                    >
+                      <Plus size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <p className="mb-2 text-[12px] font-medium text-zinc-500">Preis (€)</p>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={form.salePrice}
+                    onChange={(e) => setForm((prev) => ({ ...prev, salePrice: e.target.value }))}
+                    required
+                    className="h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 text-[16px] font-bold text-zinc-900 outline-none transition-all focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100"
+                  />
+                </div>
+              </div>
 
-            {/* Total */}
-            {selectedProduct && form.salePrice && (
-              <div className="flex items-center justify-between rounded-xl bg-zinc-50 px-4 py-3">
-                <span className="text-[12px] font-medium text-zinc-500">Gesamt</span>
-                <span className="text-xl font-bold text-zinc-900">
-                  {formatCurrency(
-                    parseInt(form.quantitySold) * parseFloat(form.salePrice)
+              {/* Payment Method */}
+              <div>
+                <p className="mb-2 text-[12px] font-medium text-zinc-500">Zahlung</p>
+                <div className="flex gap-2">
+                  {PAYMENT_METHODS.map((m) => (
+                    <button
+                      key={m.key}
+                      type="button"
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          paymentMethod: prev.paymentMethod === m.key ? "" : m.key,
+                        }))
+                      }
+                      className={cn(
+                        "flex flex-1 items-center justify-center gap-1.5 rounded-xl py-3 text-[12px] font-medium transition-all",
+                        form.paymentMethod === m.key
+                          ? "bg-zinc-900 text-white shadow-md"
+                          : "bg-zinc-100 text-zinc-500 active:bg-zinc-200"
+                      )}
+                    >
+                      <m.icon size={15} />
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Marketplace */}
+              <div>
+                <p className="mb-2 text-[12px] font-medium text-zinc-500">Plattform</p>
+                <div className="flex gap-2">
+                  {MARKETPLACES.map((mp) => (
+                    <button
+                      key={mp.key}
+                      type="button"
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          marketplace: prev.marketplace === mp.key ? "" : mp.key,
+                        }))
+                      }
+                      className={cn(
+                        "flex-1 rounded-xl py-3 text-[12px] font-medium transition-all",
+                        form.marketplace === mp.key
+                          ? "bg-emerald-600 text-white shadow-md"
+                          : "bg-zinc-100 text-zinc-500 active:bg-zinc-200"
+                      )}
+                    >
+                      {mp.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Customer & Invoice */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="mb-2 text-[12px] font-medium text-zinc-500">Kunde</p>
+                  <input
+                    type="text"
+                    placeholder="Optional"
+                    value={form.customerName}
+                    onChange={(e) => setForm((prev) => ({ ...prev, customerName: e.target.value }))}
+                    className="h-11 w-full rounded-xl border border-zinc-200 bg-white px-3.5 text-[13px] text-zinc-900 outline-none placeholder:text-zinc-300 focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100"
+                  />
+                </div>
+                <div>
+                  <p className="mb-2 text-[12px] font-medium text-zinc-500">Rechnungsnr.</p>
+                  <input
+                    type="text"
+                    placeholder="Optional"
+                    value={form.invoiceNumber}
+                    onChange={(e) => setForm((prev) => ({ ...prev, invoiceNumber: e.target.value }))}
+                    className="h-11 w-full rounded-xl border border-zinc-200 bg-white px-3.5 text-[13px] text-zinc-900 outline-none placeholder:text-zinc-300 focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100"
+                  />
+                </div>
+              </div>
+
+              {/* Notes toggle */}
+              {!showNotes ? (
+                <button
+                  type="button"
+                  onClick={() => setShowNotes(true)}
+                  className="text-[12px] font-medium text-zinc-400 transition-colors active:text-zinc-600"
+                >
+                  + Notizen hinzufügen
+                </button>
+              ) : (
+                <div>
+                  <p className="mb-2 text-[12px] font-medium text-zinc-500">Notizen</p>
+                  <textarea
+                    value={form.notes}
+                    onChange={(e) => setForm((prev) => ({ ...prev, notes: e.target.value }))}
+                    rows={2}
+                    className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-3 text-[13px] text-zinc-900 outline-none placeholder:text-zinc-300 focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100"
+                    placeholder="Anmerkungen…"
+                    autoFocus
+                  />
+                </div>
+              )}
+
+              {/* Total + Submit */}
+              <div className="space-y-3 pt-1">
+                {form.salePrice && (
+                  <div className="flex items-center justify-between rounded-2xl bg-zinc-50 px-5 py-4">
+                    <span className="text-[13px] font-medium text-zinc-500">Gesamt</span>
+                    <span className="text-2xl font-black tracking-tight text-zinc-900">
+                      {formatCurrency(totalAmount)}
+                    </span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={saving || !form.salePrice}
+                  className={cn(
+                    "flex h-14 w-full items-center justify-center gap-2 rounded-2xl text-[15px] font-bold transition-all",
+                    saving || !form.salePrice
+                      ? "bg-zinc-200 text-zinc-400"
+                      : "bg-zinc-900 text-white shadow-xl shadow-zinc-900/20 active:scale-[0.98]"
                   )}
-                </span>
+                >
+                  {saving ? (
+                    <>
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      Wird erfasst…
+                    </>
+                  ) : (
+                    <>
+                      <Check size={18} strokeWidth={3} />
+                      Verkauf erfassen
+                    </>
+                  )}
+                </button>
               </div>
-            )}
-
-            <Button
-              type="submit"
-              disabled={saving}
-              className="w-full h-12 text-sm"
-            >
-              {saving ? "Wird erfasst…" : "Verkauf erfassen"}
-            </Button>
-          </form>
-        </div>
+            </div>
+          )}
+        </form>
       )}
 
       {/* ── Search & Filter ── */}
@@ -452,7 +626,7 @@ export default function SalesPage() {
             <Skeleton key={i} className="h-16" />
           ))}
         </div>
-      ) : sales.length === 0 ? (
+      ) : sales.length === 0 && !showForm ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-zinc-100">
             <ShoppingBag size={28} className="text-zinc-400" />
@@ -464,7 +638,7 @@ export default function SalesPage() {
             Erfassen Sie Ihren ersten Verkauf
           </p>
         </div>
-      ) : (
+      ) : !showForm ? (
         <div className="space-y-5">
           {grouped.map((group) => (
             <div key={group.label}>
@@ -478,10 +652,16 @@ export default function SalesPage() {
                     href={`/products/${sale.productId}`}
                     className="flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50"
                   >
-                    {/* Icon */}
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50">
-                      <ArrowUpRight size={18} className="text-emerald-600" />
-                    </div>
+                    {/* Product image or icon */}
+                    {sale.product.mainImage ? (
+                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-zinc-100">
+                        <Image src={sale.product.mainImage} alt={sale.product.name} fill className="object-cover" sizes="40px" />
+                      </div>
+                    ) : (
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50">
+                        <ArrowUpRight size={18} className="text-emerald-600" />
+                      </div>
+                    )}
 
                     {/* Info */}
                     <div className="min-w-0 flex-1">
@@ -517,7 +697,7 @@ export default function SalesPage() {
             </div>
           ))}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
