@@ -74,6 +74,9 @@ struct WebView: UIViewRepresentable {
         webView.allowsBackForwardNavigationGestures = true
         webView.navigationDelegate = context.coordinator
 
+        // Use Safari user agent — Google blocks OAuth from default WKWebView user agent
+        webView.customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
+
         viewModel.webView = webView
         webView.load(URLRequest(url: viewModel.url))
         return webView
@@ -122,13 +125,15 @@ struct WebView: UIViewRepresentable {
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             if let url = navigationAction.request.url,
                let host = url.host {
-                // Allow Google OAuth flow inside the WebView
+                // Allow our domain + Google OAuth domains
                 let allowedHosts = [
                     "uhren-mu.vercel.app",
                     "localhost",
                     "accounts.google.com",
                     "googleapis.com",
                     "google.com",
+                    "gstatic.com",
+                    "googleusercontent.com",
                 ]
                 let isAllowed = allowedHosts.contains(where: { host.contains($0) })
                 if !isAllowed {
