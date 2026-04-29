@@ -723,12 +723,17 @@ export default function ProductDetailPage({
                     <div className="flex items-center gap-2">
                       <div className="text-right">
                         <p className="text-[15px] font-bold text-red-600">
-                          {formatCurrency(sale.totalAmount + (sale.shippingCost || 0) + (sale.packagingCost || 0))}
+                          {formatCurrency(sale.totalAmount)}
                         </p>
-                        {(sale.shippingCost > 0 || (sale.packagingCost ?? 0) > 0) && (
-                          <p className="text-[10px] text-zinc-400">
-                            ohne Versand {formatCurrency(sale.totalAmount)}
-                          </p>
+                        {((sale.shippingCost ?? 0) > 0 || (sale.packagingCost ?? 0) > 0) && (
+                          <>
+                            <p className="text-[10px] text-zinc-400">
+                              − Versand {formatCurrency((sale.shippingCost ?? 0) + (sale.packagingCost ?? 0))}
+                            </p>
+                            <p className="text-[11px] font-semibold text-zinc-600">
+                              = {formatCurrency(sale.totalAmount - (sale.shippingCost ?? 0) - (sale.packagingCost ?? 0))}
+                            </p>
+                          </>
                         )}
                       </div>
                       {canEdit && (
