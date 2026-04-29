@@ -432,6 +432,7 @@ export default function InventoryPage() {
                   <thead>
                     <tr className="border-b border-zinc-100 bg-zinc-50/50">
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Modell</th>
+                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Notiert</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Im Bestand</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Wie war es</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Datum</th>
@@ -446,6 +447,7 @@ export default function InventoryPage() {
                           <span className="font-bold text-zinc-900">{item.model}</span>
                           {item.ohneVerpackung && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700">ohne Verpkg.</span>}
                         </td>
+                        <td className="px-5 py-3.5 text-center font-semibold text-zinc-700">{item.soll}</td>
                         <td className="px-5 py-3.5 text-center font-bold text-zinc-900">{item.dbQuantity}</td>
                         <td className="px-5 py-3.5 text-center">
                           {item.prevQuantity !== null ? (
