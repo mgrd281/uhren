@@ -60,7 +60,7 @@ function parseLines(text: string): ParsedItem[] {
 
     // 4. model: alphanumeric first (MK6356), else first number ≥2 digits that isn't EAN/soll/ist
     let model = "";
-    const alphaMatch = line.match(/\b([A-Z]{1,5}\d{3,6})\b/i);
+    const alphaMatch = line.match(/\b([A-Z]{1,5}\d{3,10})\b/i);
     if (alphaMatch) {
       model = alphaMatch[1].toUpperCase();
     } else {
