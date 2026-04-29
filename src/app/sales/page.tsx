@@ -24,6 +24,7 @@ import {
   Package,
   SlidersHorizontal,
   Calendar,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRole } from "@/lib/useRole";
@@ -121,6 +122,7 @@ export default function SalesPage() {
   const [filterPayment, setFilterPayment] = useState("");
   const [filterPeriod, setFilterPeriod] = useState<"all" | "today" | "7d" | "30d">("all");
   const [showFilters, setShowFilters] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { canEdit } = useRole();
 
   /* Form state */
@@ -224,6 +226,22 @@ export default function SalesPage() {
   }
 
   const selectedProduct = products.find((p) => p.id === form.productId);
+
+  async function handleDelete(saleId: string) {
+    if (!confirm("Verkauf wirklich löschen?")) return;
+    setDeletingId(saleId);
+    try {
+      const res = await fetch(`/api/sales/${saleId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      toast.success("Verkauf gelöscht");
+      setSales((prev) => prev.filter((s) => s.id !== saleId));
+    } catch {
+      toast.error("Löschen fehlgeschlagen");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   const totalRevenue = sales.reduce((s, x) => s + x.totalAmount, 0);
   const totalItems = sales.reduce((s, x) => s + x.quantitySold, 0);
   const totalAmount = form.salePrice ? form.quantitySold * parseFloat(form.salePrice) : 0;
@@ -799,51 +817,64 @@ export default function SalesPage() {
               </p>
               <div className="rounded-2xl border border-zinc-100 bg-white divide-y divide-zinc-100 overflow-hidden shadow-sm">
                 {group.sales.map((sale) => (
-                  <Link
-                    key={sale.id}
-                    href={`/products/${sale.productId}`}
-                    className="flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-zinc-50"
-                  >
-                    {/* Product image or icon */}
-                    {sale.product.mainImage ? (
-                      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-zinc-100">
-                        <Image src={sale.product.mainImage} alt={sale.product.name} fill className="object-cover" sizes="40px" />
+                  <div key={sale.id} className="flex items-center transition-colors active:bg-zinc-50">
+                    <Link
+                      href={`/products/${sale.productId}`}
+                      className="flex flex-1 items-center gap-3 px-4 py-3.5"
+                    >
+                      {/* Product image or icon */}
+                      {sale.product.mainImage ? (
+                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-zinc-100">
+                          <Image src={sale.product.mainImage} alt={sale.product.name} fill className="object-cover" sizes="40px" />
+                        </div>
+                      ) : (
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50">
+                          <ArrowUpRight size={18} className="text-emerald-600" />
+                        </div>
+                      )}
+
+                      {/* Info */}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[13px] font-semibold text-zinc-900">
+                          {sale.product.name}
+                        </p>
+                        <p className="mt-0.5 truncate text-[11px] text-zinc-400">
+                          {sale.product.brand}
+                          {sale.marketplace && (
+                            <span className="ml-1 inline-flex items-center rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500">
+                              {sale.marketplace}
+                            </span>
+                          )}
+                          {sale.customerName && ` · ${sale.customerName}`}
+                        </p>
                       </div>
-                    ) : (
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50">
-                        <ArrowUpRight size={18} className="text-emerald-600" />
+
+                      {/* Amount & time */}
+                      <div className="text-right shrink-0">
+                        <p className="text-[14px] font-bold text-zinc-900">
+                          +{formatCurrency(sale.totalAmount)}
+                        </p>
+                        <p className="mt-0.5 text-[10px] text-zinc-400">
+                          {new Date(sale.soldAt).toLocaleTimeString("de-DE", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
                       </div>
+                    </Link>
+
+                    {/* Delete button */}
+                    {canEdit && (
+                      <button
+                        onClick={() => handleDelete(sale.id)}
+                        disabled={deletingId === sale.id}
+                        className="mr-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-300 transition-colors hover:bg-red-50 hover:text-red-400 disabled:opacity-40"
+                        title="Verkauf l\u00f6schen"
+                      >
+                        <Trash2 size={15} />
+                      </button>
                     )}
-
-                    {/* Info */}
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[13px] font-semibold text-zinc-900">
-                        {sale.product.name}
-                      </p>
-                      <p className="mt-0.5 truncate text-[11px] text-zinc-400">
-                        {sale.product.brand}
-                        {sale.marketplace && (
-                          <span className="ml-1 inline-flex items-center rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500">
-                            {sale.marketplace}
-                          </span>
-                        )}
-                        {sale.customerName && ` · ${sale.customerName}`}
-                      </p>
-                    </div>
-
-                    {/* Amount & time */}
-                    <div className="text-right shrink-0">
-                      <p className="text-[14px] font-bold text-zinc-900">
-                        +{formatCurrency(sale.totalAmount)}
-                      </p>
-                      <p className="mt-0.5 text-[10px] text-zinc-400">
-                        {new Date(sale.soldAt).toLocaleTimeString("de-DE", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             </div>
