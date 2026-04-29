@@ -44,20 +44,37 @@ function parseLines(text: string): ParsedItem[] {
   for (const rawLine of text.split("\n")) {
     const line = rawLine.trim();
     if (!line) continue;
-    // Match alphanumeric models (e.g. MK6356) OR pure numeric models 6-8 digits (e.g. BOSS: 1513758)
-    const modelMatch =
-      line.match(/\b([A-Z]{1,5}\d{3,6})\b/i) ??
-      line.match(/\b(\d{6,8})\b/);
-    if (!modelMatch) continue;
-    const model = modelMatch[1].toUpperCase();
-    const allNums = [...line.matchAll(/\b(\d+)\b/g)].map((m) => parseInt(m[1], 10));
-    const ean = allNums.find((n) => n.toString().length >= 10 && n.toString().length <= 14)?.toString() ?? "";
-    const modelIdx = line.toUpperCase().indexOf(model);
-    const afterModel = line.slice(modelIdx + model.length);
-    const sollMatch = afterModel.match(/\b(\d{1,4})\b/);
-    const soll = sollMatch ? parseInt(sollMatch[1], 10) : 0;
-    const istMatch = line.match(/(\d{1,4})\s*St[\u00fcu]ck?\s+Aktueller\s+Bestand/i);
+
+    // 1. EAN: standalone 10–14 digit number
+    const eanMatch = line.match(/\b(\d{10,14})\b/);
+    const ean = eanMatch ? eanMatch[1] : "";
+
+    // 2. ist: number immediately before "Stück Aktueller Bestand"
+    const istMatch = line.match(/(\d{1,4})\s*St[uü]ck?\s+Aktueller\s+Bestand/i);
     const ist = istMatch ? parseInt(istMatch[1], 10) : null;
+
+    // 3. soll: number immediately before "Stk" (not "Stück Aktueller")
+    const sollMatch = line.match(/\b(\d{1,4})\s+Stk\b/i)
+      ?? line.match(/\b(\d{1,4})\s+Stück\b(?!\s+Aktueller)/i);
+    const soll = sollMatch ? parseInt(sollMatch[1], 10) : 0;
+
+    // 4. model: alphanumeric first (MK6356), else first number ≥2 digits that isn't EAN/soll/ist
+    let model = "";
+    const alphaMatch = line.match(/\b([A-Z]{1,5}\d{3,6})\b/i);
+    if (alphaMatch) {
+      model = alphaMatch[1].toUpperCase();
+    } else {
+      for (const m of line.matchAll(/\b(\d{1,8})\b/g)) {
+        const n = m[1];
+        if (n.length >= 10) continue; // skip EAN-length
+        if (soll > 0 && parseInt(n) === soll) continue;
+        if (ist !== null && parseInt(n) === ist) continue;
+        if (n.length >= 2) { model = n; break; }
+      }
+    }
+
+    if (!model) continue;
+
     const ohneVerpackung = /ohne\s*Verpackung/i.test(line);
     results.push({ model, soll, ean, ist, ohneVerpackung, datum: null });
   }
