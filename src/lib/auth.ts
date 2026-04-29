@@ -181,8 +181,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async session({ session, token }) {
-      // Copy role from JWT token to client session
-      (session as unknown as { role: string }).role = (token?.role as string) || "viewer";
+      // Copy role from JWT token into session.user (Auth.js v5 serializes session.user to client)
+      if (session.user) {
+        (session.user as unknown as { role: string }).role = (token?.role as string) || "viewer";
+      }
       return session;
     },
   },

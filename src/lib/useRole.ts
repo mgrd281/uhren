@@ -6,7 +6,7 @@ export type UserRole = "owner" | "manager" | "editor" | "viewer";
 
 export function useRole() {
   const { data: session } = useSession();
-  const role = ((session as unknown as { role?: string })?.role as UserRole) || "viewer";
+  const role = ((session?.user as unknown as { role?: string })?.role as UserRole) || "viewer";
 
   return {
     role,
