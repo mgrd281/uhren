@@ -48,7 +48,7 @@ interface DashboardData {
     salesOverTime: { month: string; revenue: number; profit: number }[];
     topProducts: { name: string; totalSold: number; revenue: number }[];
     topBrands: { brand: string; revenue: number }[];
-    inventoryByBrand: { brand: string; value: number; stock: number; sold: number }[];
+    inventoryByBrand: { brand: string; value: number; stock: number; sold: number; profit: number }[];
   };
   recentSales: {
     id: string;
@@ -160,9 +160,18 @@ export default function DashboardPage() {
             <Activity size={11} className="text-zinc-500" />
             <p className="text-[11px] text-zinc-500">{periodLabel}</p>
           </div>
+          {/* Extra stats */}
+          <div className="relative mt-5 grid grid-cols-2 gap-2">
+            <div className="rounded-xl bg-white/5 px-3 py-2.5">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Gewinn</p>
+              <p className="mt-1 text-[15px] font-bold text-emerald-400">{formatCurrency(kpis.totalProfit)}</p>
+            </div>
+            <div className="rounded-xl bg-white/5 px-3 py-2.5">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Marken</p>
+              <p className="mt-1 text-[15px] font-bold text-white">{charts.inventoryByBrand.length}</p>
+            </div>
+          </div>
         </div>
-
-        {/* Inventory value */}
         <Link href="/products"
           className="group flex flex-col rounded-2xl border border-zinc-100 bg-white p-5 transition-all duration-300 hover:shadow-lg hover:shadow-zinc-100 hover:-translate-y-0.5 active:scale-[0.98] sm:col-span-2 lg:p-6">
           <div className="flex items-center justify-between">
@@ -182,8 +191,13 @@ export default function DashboardPage() {
                 return (
                   <div key={b.brand}>
                     <div className="mb-1 flex items-center justify-between gap-2">
-                      <span className="truncate text-[11px] font-semibold text-zinc-700 max-w-[55%]">{b.brand}</span>
-                      <span className="shrink-0 text-[10px] font-medium text-zinc-400">{formatCurrency(b.value)}</span>
+                      <span className="truncate text-[11px] font-semibold text-zinc-700 max-w-[45%]">{b.brand}</span>
+                      <div className="flex items-center gap-3 shrink-0">
+                        {b.profit > 0 && (
+                          <span className="text-[10px] font-semibold text-emerald-600">+{formatCurrency(b.profit)}</span>
+                        )}
+                        <span className="text-[10px] font-medium text-zinc-400">{formatCurrency(b.value)}</span>
+                      </div>
                     </div>
                     {/* progress bar */}
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
