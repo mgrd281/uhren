@@ -295,7 +295,7 @@ export default function ProductsPage() {
             Alle
           </button>
           {brands.map((b) => {
-            const count = products.filter((p) => p.brand === b).reduce((s, p) => s + p.quantity, 0);
+            const revenue = products.filter((p) => p.brand === b).reduce((s, p) => s + p.totalRevenue, 0);
             return (
               <button
                 key={b}
@@ -312,7 +312,7 @@ export default function ProductsPage() {
                   "ml-1.5 text-[10px] font-medium",
                   filterBrand === b ? "text-zinc-300" : "text-zinc-400"
                 )}>
-                  {count}
+                  {revenue > 0 ? formatCurrency(revenue) : "—"}
                 </span>
               </button>
             );
