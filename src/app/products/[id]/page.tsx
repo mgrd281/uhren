@@ -34,7 +34,12 @@ interface Sale {
   customerName: string | null;
   invoiceNumber: string | null;
   paymentMethod: string | null;
+  marketplace: string | null;
   shippingCost: number;
+  shippingCarrier: string | null;
+  trackingNumber: string | null;
+  packagingCost: number;
+  shippingAddress: string | null;
   soldAt: string;
   notes: string | null;
 }
@@ -101,12 +106,20 @@ export default function ProductDetailPage({
     shippingCarrier: "",
     trackingNumber: "",
     packagingCost: "",
+    shippingAddress: "",
     paymentMethod: "",
     marketplace: "",
     customPayment: "",
     customMarketplace: "",
   });
   const [saleSaving, setSaleSaving] = useState(false);
+  const [editingSale, setEditingSale] = useState<Sale | null>(null);
+  const [editSaving, setEditSaving] = useState(false);
+  const [editForm, setEditForm] = useState({
+    salePrice: "", quantitySold: "1", customerName: "", invoiceNumber: "",
+    paymentMethod: "", marketplace: "", notes: "", soldAt: "",
+    shippingCost: "", shippingCarrier: "", trackingNumber: "", packagingCost: "", shippingAddress: "",
+  });
   const [editingField, setEditingField] = useState<"costPrice" | "salePriceExpected" | "quantity" | null>(null);
   const [editValue, setEditValue] = useState("");
   const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
@@ -188,6 +201,7 @@ export default function ProductDetailPage({
           shippingCarrier: saleForm.shippingCarrier || null,
           trackingNumber: saleForm.trackingNumber || null,
           packagingCost: saleForm.packagingCost ? parseFloat(saleForm.packagingCost) : 0,
+          shippingAddress: saleForm.shippingAddress || null,
           soldAt: saleForm.soldAt ? new Date(saleForm.soldAt).toISOString() : new Date().toISOString(),
         }),
       });
@@ -209,7 +223,7 @@ export default function ProductDetailPage({
         try { new Audio("/cha-ching.mp3").play(); } catch {}
         toast.success(saleForm.versand ? "Verkauf + Versand gespeichert" : "Verkauf erfolgreich gespeichert");
         setShowSaleModal(false);
-        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false, shippingCost: "", shippingCarrier: "", trackingNumber: "", packagingCost: "", paymentMethod: "", marketplace: "", customPayment: "", customMarketplace: "" });
+        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false, shippingCost: "", shippingCarrier: "", trackingNumber: "", packagingCost: "", shippingAddress: "", paymentMethod: "", marketplace: "", customPayment: "", customMarketplace: "" });
         reloadProduct();
       } else {
         const err = await res.json();
@@ -243,6 +257,44 @@ export default function ProductDetailPage({
       reloadProduct();
     } else {
       toast.error("Löschen fehlgeschlagen");
+    }
+  }
+
+  async function handleEditSale(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingSale) return;
+    setEditSaving(true);
+    try {
+      const res = await fetch(`/api/sales/${editingSale.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          salePrice: editForm.salePrice,
+          quantitySold: editForm.quantitySold,
+          customerName: editForm.customerName || null,
+          invoiceNumber: editForm.invoiceNumber || null,
+          paymentMethod: editForm.paymentMethod || null,
+          marketplace: editForm.marketplace || null,
+          notes: editForm.notes || null,
+          shippingCost: editForm.shippingCost || 0,
+          shippingCarrier: editForm.shippingCarrier || null,
+          trackingNumber: editForm.trackingNumber || null,
+          packagingCost: editForm.packagingCost || 0,
+          shippingAddress: editForm.shippingAddress || null,
+          soldAt: editForm.soldAt || null,
+        }),
+      });
+      if (res.ok) {
+        toast.success("Verkauf aktualisiert");
+        setEditingSale(null);
+        reloadProduct();
+      } else {
+        toast.error("Aktualisierung fehlgeschlagen");
+      }
+    } catch {
+      toast.error("Verbindungsfehler");
+    } finally {
+      setEditSaving(false);
     }
   }
 
@@ -654,6 +706,33 @@ export default function ProductDetailPage({
                       <p className="text-[15px] font-bold text-zinc-900">
                         {formatCurrency(sale.totalAmount)}
                       </p>
+                      {canEdit && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setEditingSale(sale);
+                          setEditForm({
+                            salePrice: String(sale.salePrice),
+                            quantitySold: String(sale.quantitySold),
+                            customerName: sale.customerName || "",
+                            invoiceNumber: sale.invoiceNumber || "",
+                            paymentMethod: sale.paymentMethod || "",
+                            marketplace: sale.marketplace || "",
+                            notes: sale.notes || "",
+                            soldAt: sale.soldAt ? new Date(sale.soldAt).toISOString().slice(0, 10) : "",
+                            shippingCost: sale.shippingCost ? String(sale.shippingCost) : "",
+                            shippingCarrier: sale.shippingCarrier || "",
+                            trackingNumber: sale.trackingNumber || "",
+                            packagingCost: sale.packagingCost ? String(sale.packagingCost) : "",
+                            shippingAddress: sale.shippingAddress || "",
+                          });
+                        }}
+                        className="rounded-lg p-1.5 text-zinc-300 transition-colors hover:bg-amber-50 hover:text-amber-500"
+                        title="Verkauf bearbeiten"
+                      >
+                        <Edit size={14} />
+                      </button>
+                      )}
                       {canDelete && (
                       <button
                         onClick={(e) => {
@@ -1077,6 +1156,18 @@ export default function ProductDetailPage({
                     onChange={(e) => setSaleForm((f) => ({ ...f, trackingNumber: e.target.value }))}
                   />
                 </div>
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                    Lieferadresse (optional)
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder={"Max Mustermann\nMusterstraße 1\n12345 Berlin"}
+                    value={saleForm.shippingAddress}
+                    onChange={(e) => setSaleForm((f) => ({ ...f, shippingAddress: e.target.value }))}
+                    className="w-full rounded-xl border border-zinc-200 px-3 py-2.5 text-[13px] text-zinc-900 outline-none transition-all placeholder:text-zinc-300 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100 resize-none"
+                  />
+                </div>
                 </>
               )}
 
@@ -1125,6 +1216,101 @@ export default function ProductDetailPage({
       )}
 
       {/* Christ Image Import Modal */}
+
+      {/* Edit Sale Modal */}
+      {editingSale && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
+          onClick={(e) => { if (e.target === e.currentTarget) setEditingSale(null); }}
+        >
+          <div className="w-full max-w-lg rounded-t-3xl bg-white sm:rounded-2xl max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-4">
+              <h3 className="text-[15px] font-semibold text-zinc-900">Verkauf bearbeiten</h3>
+              <button onClick={() => setEditingSale(null)} className="rounded-xl p-2 text-zinc-400 hover:bg-zinc-100">
+                <X size={18} />
+              </button>
+            </div>
+            <form id="edit-sale-form" onSubmit={handleEditSale} className="overflow-y-auto p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Verkaufspreis (€)</label>
+                  <Input type="number" step="0.01" min="0" value={editForm.salePrice} onChange={(e) => setEditForm((f) => ({ ...f, salePrice: e.target.value }))} required />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Menge</label>
+                  <Input type="number" min="1" value={editForm.quantitySold} onChange={(e) => setEditForm((f) => ({ ...f, quantitySold: e.target.value }))} required />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Kunde</label>
+                  <Input placeholder="Kundenname" value={editForm.customerName} onChange={(e) => setEditForm((f) => ({ ...f, customerName: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Rechnungsnr.</label>
+                  <Input placeholder="optional" value={editForm.invoiceNumber} onChange={(e) => setEditForm((f) => ({ ...f, invoiceNumber: e.target.value }))} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Zahlungsart</label>
+                  <Input placeholder="z.B. Bar, PayPal" value={editForm.paymentMethod} onChange={(e) => setEditForm((f) => ({ ...f, paymentMethod: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Plattform</label>
+                  <Input placeholder="z.B. eBay, Shopify" value={editForm.marketplace} onChange={(e) => setEditForm((f) => ({ ...f, marketplace: e.target.value }))} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Versandkosten (€)</label>
+                  <Input type="number" step="0.01" min="0" placeholder="0.00" value={editForm.shippingCost} onChange={(e) => setEditForm((f) => ({ ...f, shippingCost: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Verpackung (€)</label>
+                  <Input type="number" step="0.01" min="0" placeholder="0.00" value={editForm.packagingCost} onChange={(e) => setEditForm((f) => ({ ...f, packagingCost: e.target.value }))} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Versanddienstleister</label>
+                  <Input placeholder="DHL, Hermes…" value={editForm.shippingCarrier} onChange={(e) => setEditForm((f) => ({ ...f, shippingCarrier: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Sendungsnummer</label>
+                  <Input placeholder="Trackingnummer" value={editForm.trackingNumber} onChange={(e) => setEditForm((f) => ({ ...f, trackingNumber: e.target.value }))} />
+                </div>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Lieferadresse</label>
+                <textarea
+                  rows={3}
+                  placeholder={"Max Mustermann\nMusterstraße 1\n12345 Berlin"}
+                  value={editForm.shippingAddress}
+                  onChange={(e) => setEditForm((f) => ({ ...f, shippingAddress: e.target.value }))}
+                  className="w-full rounded-xl border border-zinc-200 px-3 py-2.5 text-[13px] text-zinc-900 outline-none transition-all placeholder:text-zinc-300 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100 resize-none"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Notiz</label>
+                <Input placeholder="optional" value={editForm.notes} onChange={(e) => setEditForm((f) => ({ ...f, notes: e.target.value }))} />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Verkaufsdatum</label>
+                <Input type="date" value={editForm.soldAt} onChange={(e) => setEditForm((f) => ({ ...f, soldAt: e.target.value }))} />
+              </div>
+            </form>
+            <div className="border-t border-zinc-100 p-4 flex gap-3">
+              <Button type="submit" form="edit-sale-form" disabled={editSaving} className="flex-1 h-11 text-[14px] font-semibold">
+                {editSaving ? "Speichern..." : "Änderungen speichern"}
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => setEditingSale(null)} className="h-11">
+                Abbrechen
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

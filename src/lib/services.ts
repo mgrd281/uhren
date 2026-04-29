@@ -102,6 +102,7 @@ export async function createSale(data: {
   shippingCarrier?: string | null;
   trackingNumber?: string | null;
   packagingCost?: number;
+  shippingAddress?: string | null;
   soldAt?: Date;
   notes?: string | null;
 }) {
@@ -131,6 +132,7 @@ export async function createSale(data: {
       shippingCarrier: data.shippingCarrier ?? null,
       trackingNumber: data.trackingNumber ?? null,
       packagingCost: data.packagingCost ?? 0,
+      shippingAddress: data.shippingAddress ?? null,
       soldAt: data.soldAt ?? new Date(),
       notes: data.notes,
     },

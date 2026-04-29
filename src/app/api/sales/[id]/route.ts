@@ -1,6 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import { deleteSale } from "@/lib/services";
-import { getUserRole, canDelete } from "@/lib/permissions";
+import { prisma } from "@/lib/prisma";
+import { getUserRole, canDelete, canEdit } from "@/lib/permissions";
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const role = await getUserRole();
+  if (!canEdit(role)) return NextResponse.json({ error: "Keine Berechtigung" }, { status: 403 });
+  try {
+    const { id } = await params;
+    const body = await request.json();
+    const sale = await prisma.sale.update({
+      where: { id },
+      data: {
+        salePrice: body.salePrice !== undefined ? parseFloat(body.salePrice) : undefined,
+        quantitySold: body.quantitySold !== undefined ? parseInt(body.quantitySold) : undefined,
+        totalAmount: body.salePrice !== undefined && body.quantitySold !== undefined
+          ? parseFloat(body.salePrice) * parseInt(body.quantitySold)
+          : undefined,
+        customerName: body.customerName ?? undefined,
+        invoiceNumber: body.invoiceNumber ?? undefined,
+        paymentMethod: body.paymentMethod ?? undefined,
+        marketplace: body.marketplace ?? undefined,
+        notes: body.notes ?? undefined,
+        shippingCost: body.shippingCost !== undefined ? parseFloat(body.shippingCost) : undefined,
+        shippingCarrier: body.shippingCarrier ?? undefined,
+        trackingNumber: body.trackingNumber ?? undefined,
+        packagingCost: body.packagingCost !== undefined ? parseFloat(body.packagingCost) : undefined,
+        shippingAddress: body.shippingAddress ?? undefined,
+        soldAt: body.soldAt ? new Date(body.soldAt) : undefined,
+      },
+    });
+    return NextResponse.json(sale);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Serverfehler";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
+}
 
 export async function DELETE(
   _request: NextRequest,

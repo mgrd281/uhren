@@ -29,6 +29,7 @@ export const saleSchema = z.object({
   shippingCarrier: z.string().optional().nullable(),
   trackingNumber: z.string().optional().nullable(),
   packagingCost: z.coerce.number().min(0).optional().default(0),
+  shippingAddress: z.string().optional().nullable(),
   soldAt: z.coerce.date().optional(),
   notes: z.string().optional().nullable(),
 });

@@ -78,6 +78,7 @@ model Sale {
   shippingCarrier  String?
   trackingNumber   String?
   packagingCost    Float    @default(0)
+  shippingAddress  String?
   product       Product  @relation(fields: [productId], references: [id])
 
   @@index([productId])
