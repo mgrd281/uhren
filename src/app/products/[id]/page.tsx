@@ -1025,7 +1025,7 @@ export default function ProductDetailPage({
                 <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Zahlungsart</label>
                 <div className="flex flex-wrap gap-1.5">
                   {[
-                    { key: "Bar" }, { key: "PayPal" }, { key: "Überweisung", label: "Überw." }, { key: "Geschenk", label: "Geschenk 🎁" },
+                    { key: "Bar" }, { key: "PayPal" }, { key: "Überweisung", label: "Überw." }, { key: "eBay Kleinanzeigen", label: "eBay KA" }, { key: "Geschenk", label: "Geschenk 🎁" },
                   ].map(({ key, label }) => (
                     <button key={key} type="button"
                       onClick={() => setSaleForm((f) => ({ ...f, paymentMethod: f.paymentMethod === key ? "" : key, salePrice: key === "Geschenk" ? "0" : f.salePrice }))}

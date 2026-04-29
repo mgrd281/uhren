@@ -36,6 +36,7 @@ const PAYMENT_METHODS = [
   { key: "Bar", label: "Bar", icon: Banknote },
   { key: "PayPal", label: "PayPal", icon: CreditCard },
   { key: "Überweisung", label: "Überw.", icon: CreditCard },
+  { key: "eBay Kleinanzeigen", label: "eBay KA", icon: CreditCard },
   { key: "Geschenk", label: "Geschenk", icon: Gift },
 ];
 const MARKETPLACES = [
