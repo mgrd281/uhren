@@ -287,6 +287,7 @@ export default function SalesPage() {
     return matchSearch && matchMarket && matchPayment && matchPeriod;
   });
   const grouped = groupByDate(filtered);
+  const saleIndexMap = new Map(filtered.map((s, i) => [s.id, i + 1]));
 
   return (
     <div className="space-y-5 animate-fade-in">
@@ -822,6 +823,11 @@ export default function SalesPage() {
                       href={`/products/${sale.productId}`}
                       className="flex flex-1 items-center gap-3 px-4 py-3.5"
                     >
+                      {/* Sequential number */}
+                      <span className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-zinc-100 text-[10px] font-bold text-zinc-500">
+                        {saleIndexMap.get(sale.id)}
+                      </span>
+
                       {/* Product image or icon */}
                       {sale.product.mainImage ? (
                         <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-zinc-100">
@@ -845,8 +851,12 @@ export default function SalesPage() {
                               {sale.marketplace}
                             </span>
                           )}
-                          {sale.customerName && ` · ${sale.customerName}`}
                         </p>
+                        {sale.customerName && (
+                          <p className="mt-0.5 truncate text-[12px] font-medium text-zinc-700">
+                            {sale.customerName}
+                          </p>
+                        )}
                       </div>
 
                       {/* Amount & time */}

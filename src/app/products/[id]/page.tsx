@@ -705,13 +705,16 @@ export default function ProductDetailPage({
                       <p className="text-[13px] font-medium text-zinc-800">
                         {sale.quantitySold} Stück × {formatCurrency(sale.salePrice)}
                       </p>
+                      {sale.customerName && (
+                        <p className="mt-1 text-[12px] font-semibold text-zinc-700">
+                          {sale.customerName}
+                        </p>
+                      )}
                       <p className="mt-0.5 text-[11px] text-zinc-400">
-                        {sale.customerName && `${sale.customerName}`}
-                        {sale.customerName && sale.paymentMethod && ` · `}
                         {sale.paymentMethod && `${sale.paymentMethod}`}
-                        {(sale.customerName || sale.paymentMethod) && sale.shippingCost > 0 && ` · `}
+                        {sale.paymentMethod && sale.shippingCost > 0 && ` · `}
                         {sale.shippingCost > 0 && `Versand ${formatCurrency(sale.shippingCost)}`}
-                        {(sale.customerName || sale.paymentMethod || sale.shippingCost > 0) && sale.invoiceNumber && ` · `}
+                        {(sale.paymentMethod || sale.shippingCost > 0) && sale.invoiceNumber && ` · `}
                         {sale.invoiceNumber && `${sale.invoiceNumber}`}
                       </p>
                     </div>
