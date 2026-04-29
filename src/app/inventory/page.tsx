@@ -29,7 +29,7 @@ interface ParsedItem {
   ean: string;
   ist: number | null;
   ohneVerpackung: boolean;
-  kartons: number | null;
+  datum: string | null;
 }
 
 interface ResultItem extends ParsedItem {
@@ -56,10 +56,7 @@ function parseLines(text: string): ParsedItem[] {
     const istMatch = line.match(/(\d{1,4})\s*St[\u00fcu]ck?\s+Aktueller\s+Bestand/i);
     const ist = istMatch ? parseInt(istMatch[1], 10) : null;
     const ohneVerpackung = /ohne\s*Verpackung/i.test(line);
-    // Kartons: detect "X Karton(s)" in line
-    const kartonMatch = line.match(/(\d{1,3})\s*Kartons?/i);
-    const kartons = kartonMatch ? parseInt(kartonMatch[1], 10) : null;
-    results.push({ model, soll, ean, ist, ohneVerpackung, kartons });
+    results.push({ model, soll, ean, ist, ohneVerpackung, datum: null });
   }
   return results;
 }
@@ -152,7 +149,8 @@ export default function InventoryPage() {
         const prevAnalysis = saved.find((s) => s.label === (brand || ""));
         const prevItem = prevAnalysis?.items.find((pi) => pi.model === item.model);
         const prevQuantity = prevItem ? prevItem.dbQuantity : null;
-        return { ...item, dbQuantity: eff, status, diff, prevQuantity };
+        const datum = new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+        return { ...item, dbQuantity: eff, status, diff, prevQuantity, datum };
       });
       setBrandLabel(brand || "");
       setItems(result);
@@ -348,8 +346,8 @@ export default function InventoryPage() {
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Notiert</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Im Bestand</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Wie war es</th>
-                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Kartons</th>
-                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Diff</th>
+                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Datum</th>
+                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Differenz</th>
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">EAN</th>
                     </tr>
                   </thead>
@@ -374,7 +372,7 @@ export default function InventoryPage() {
                             </span>
                           ) : <span className="text-zinc-300 text-[11px]">—</span>}
                         </td>
-                        <td className="px-5 py-3.5 text-center text-[11px] text-zinc-500">{item.kartons !== null ? `${item.kartons} Ktn` : "—"}</td>
+                        <td className="px-5 py-3.5 text-center text-[11px] text-zinc-500">{item.datum ?? "—"}</td>
                         <td className="px-5 py-3.5 text-center"><DiffBadge diff={item.diff} /></td>
                         <td className="px-5 py-3.5 font-mono text-[11px] text-zinc-400">{item.ean || "—"}</td>
                       </tr>
@@ -436,7 +434,7 @@ export default function InventoryPage() {
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Modell</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Im Bestand</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Wie war es</th>
-                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Kartons</th>
+                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Datum</th>
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">EAN</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Status</th>
                     </tr>
@@ -461,7 +459,7 @@ export default function InventoryPage() {
                             </span>
                           ) : <span className="text-zinc-300 text-[11px]">—</span>}
                         </td>
-                        <td className="px-5 py-3.5 text-center text-[11px] text-zinc-500">{item.kartons !== null ? `${item.kartons} Ktn` : "—"}</td>
+                        <td className="px-5 py-3.5 text-center text-[11px] text-zinc-500">{item.datum ?? "—"}</td>
                         <td className="px-5 py-3.5 font-mono text-[11px] text-zinc-400">{item.ean || "—"}</td>
                         <td className="px-5 py-3.5 text-center"><DiffBadge diff={0} /></td>
                       </tr>
