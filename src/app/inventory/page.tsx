@@ -44,7 +44,10 @@ function parseLines(text: string): ParsedItem[] {
   for (const rawLine of text.split("\n")) {
     const line = rawLine.trim();
     if (!line) continue;
-    const modelMatch = line.match(/\b([A-Z]{1,5}\d{3,6})\b/i);
+    // Match alphanumeric models (e.g. MK6356) OR pure numeric models 6-8 digits (e.g. BOSS: 1513758)
+    const modelMatch =
+      line.match(/\b([A-Z]{1,5}\d{3,6})\b/i) ??
+      line.match(/\b(\d{6,8})\b/);
     if (!modelMatch) continue;
     const model = modelMatch[1].toUpperCase();
     const allNums = [...line.matchAll(/\b(\d+)\b/g)].map((m) => parseInt(m[1], 10));
