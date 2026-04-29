@@ -284,8 +284,7 @@ export async function getDashboardData() {
   }
   const inventoryByBrand = Array.from(invBrandMap.entries())
     .map(([brand, value]) => ({ brand, value }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 4);
+    .sort((a, b) => b.value - a.value);
 
   // Recent sales
   const recentSales = await prisma.sale.findMany({

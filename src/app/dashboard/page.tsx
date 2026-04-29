@@ -175,7 +175,7 @@ export default function DashboardPage() {
 
           {/* Brand breakdown */}
           {charts.inventoryByBrand.length > 0 && (
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 max-h-52 overflow-y-auto space-y-2 pr-1">
               {charts.inventoryByBrand.map((b) => (
                 <div key={b.brand}>
                   <div className="mb-0.5 flex items-center justify-between">
