@@ -345,8 +345,6 @@ export default function InventoryPage() {
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Modell</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Gezählt</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Im Bestand</th>
-                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Wie war es</th>
-                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Datum</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Differenz</th>
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">EAN</th>
                     </tr>
@@ -360,19 +358,6 @@ export default function InventoryPage() {
                         </td>
                         <td className="px-5 py-3.5 text-center font-semibold text-zinc-700">{item.soll}</td>
                         <td className="px-5 py-3.5 text-center font-bold text-zinc-900">{item.dbQuantity}</td>
-                        <td className="px-5 py-3.5 text-center">
-                          {item.prevQuantity !== null ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] text-zinc-500">
-                              {item.prevQuantity}
-                              {item.prevQuantity !== item.dbQuantity && (
-                                <span className={`font-bold ${item.dbQuantity > item.prevQuantity ? "text-emerald-600" : "text-red-500"}`}>
-                                  {item.dbQuantity > item.prevQuantity ? `▲${item.dbQuantity - item.prevQuantity}` : `▼${item.prevQuantity - item.dbQuantity}`}
-                                </span>
-                              )}
-                            </span>
-                          ) : <span className="text-zinc-300 text-[11px]">—</span>}
-                        </td>
-                        <td className="px-5 py-3.5 text-center text-[11px] text-zinc-500">{item.datum ?? "—"}</td>
                         <td className="px-5 py-3.5 text-center"><DiffBadge diff={item.diff} /></td>
                         <td className="px-5 py-3.5 font-mono text-[11px] text-zinc-400">{item.ean || "—"}</td>
                       </tr>
@@ -434,8 +419,6 @@ export default function InventoryPage() {
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Modell</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Gezählt</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Im Bestand</th>
-                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Wie war es</th>
-                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Datum</th>
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">EAN</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Status</th>
                     </tr>
@@ -449,19 +432,6 @@ export default function InventoryPage() {
                         </td>
                         <td className="px-5 py-3.5 text-center font-semibold text-zinc-700">{item.soll}</td>
                         <td className="px-5 py-3.5 text-center font-bold text-zinc-900">{item.dbQuantity}</td>
-                        <td className="px-5 py-3.5 text-center">
-                          {item.prevQuantity !== null ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] text-zinc-500">
-                              {item.prevQuantity}
-                              {item.prevQuantity !== item.dbQuantity && (
-                                <span className={`font-bold ${item.dbQuantity > item.prevQuantity ? "text-emerald-600" : "text-red-500"}`}>
-                                  {item.dbQuantity > item.prevQuantity ? `▲${item.dbQuantity - item.prevQuantity}` : `▼${item.prevQuantity - item.dbQuantity}`}
-                                </span>
-                              )}
-                            </span>
-                          ) : <span className="text-zinc-300 text-[11px]">—</span>}
-                        </td>
-                        <td className="px-5 py-3.5 text-center text-[11px] text-zinc-500">{item.datum ?? "—"}</td>
                         <td className="px-5 py-3.5 font-mono text-[11px] text-zinc-400">{item.ean || "—"}</td>
                         <td className="px-5 py-3.5 text-center"><DiffBadge diff={0} /></td>
                       </tr>
