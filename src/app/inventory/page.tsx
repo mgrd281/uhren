@@ -21,6 +21,7 @@ interface DBProduct {
   model: string;
   brand: string;
   quantity: number;
+  _count: { sales: number };
 }
 
 interface ParsedItem {
@@ -36,7 +37,8 @@ interface ResultItem extends ParsedItem {
   dbQuantity: number;
   status: "ok" | "diff" | "unknown";
   diff: number;
-  prevQuantity: number | null; // from last saved analysis
+  prevQuantity: number | null;
+  totalSold: number;
 }
 
 function parseLines(text: string): ParsedItem[] {
@@ -157,10 +159,12 @@ export default function InventoryPage() {
       }
       const hasIstValues = parsed.some((p) => p.ist !== null);
       let dbMap: Record<string, number> = {};
+      let soldMap: Record<string, number> = {};
       if (!hasIstValues && brand) {
         const res = await fetch(`/api/products?brand=${encodeURIComponent(brand)}`);
         const dbProducts: DBProduct[] = await res.json();
         dbMap = Object.fromEntries(dbProducts.map((p) => [p.model.toUpperCase().replace(/[^A-Z0-9]/g, ""), p.quantity]));
+        soldMap = Object.fromEntries(dbProducts.map((p) => [p.model.toUpperCase().replace(/[^A-Z0-9]/g, ""), p._count?.sales ?? 0]));
       } else if (hasIstValues) {
         parsed.forEach((p) => { if (p.ist !== null) dbMap[p.model] = p.ist; });
       }
@@ -174,7 +178,7 @@ export default function InventoryPage() {
         const prevItem = prevAnalysis?.items.find((pi) => pi.model === item.model);
         const prevQuantity = prevItem ? prevItem.dbQuantity : null;
         const datum = new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
-        return { ...item, dbQuantity: eff, status, diff, prevQuantity, datum };
+        return { ...item, dbQuantity: eff, status, diff, prevQuantity, datum, totalSold: soldMap[item.model] ?? 0 };
       });
       setBrandLabel(brand || "");
       setItems(result);
@@ -227,15 +231,24 @@ export default function InventoryPage() {
         );
       } catch {}
     }
+    const soldMapLoaded: Record<string, number> = {};
+    if (entry.label) {
+      try {
+        const res2 = await fetch(`/api/products?brand=${encodeURIComponent(entry.label)}`);
+        const dbProducts2: DBProduct[] = await res2.json();
+        dbProducts2.forEach((p) => {
+          soldMapLoaded[p.model.toUpperCase().replace(/[^A-Z0-9]/g, "")] = p._count?.sales ?? 0;
+        });
+      } catch {}
+    }
     const updated: ResultItem[] = entry.items.map((item) => {
       const currentQty = currentMap[item.model];
       if (currentQty !== undefined) {
-        // saved dbQuantity → prevQuantity (Wie war es), live value → dbQuantity (Im Bestand)
         const newDiff = currentQty - item.soll;
         const newStatus: ResultItem["status"] = newDiff === 0 ? "ok" : "diff";
-        return { ...item, prevQuantity: item.dbQuantity, dbQuantity: currentQty, diff: newDiff, status: newStatus };
+        return { ...item, prevQuantity: item.dbQuantity, dbQuantity: currentQty, diff: newDiff, status: newStatus, totalSold: soldMapLoaded[item.model] ?? item.totalSold ?? 0 };
       }
-      return item;
+      return { ...item, totalSold: item.totalSold ?? 0 };
     });
     setItems(updated);
     setBrandLabel(entry.label);
@@ -365,11 +378,12 @@ export default function InventoryPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm table-fixed">
                   <colgroup>
-                    <col className="w-[28%]" />
-                    <col className="w-[14%]" />
-                    <col className="w-[18%]" />
-                    <col className="w-[14%]" />
                     <col className="w-[26%]" />
+                    <col className="w-[12%]" />
+                    <col className="w-[14%]" />
+                    <col className="w-[12%]" />
+                    <col className="w-[12%]" />
+                    <col className="w-[24%]" />
                   </colgroup>
                   <thead>
                     <tr className="border-b border-zinc-100 bg-zinc-50/50">
@@ -377,6 +391,7 @@ export default function InventoryPage() {
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Gezählt</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Im Bestand</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Differenz</th>
+                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Verkäufe</th>
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">EAN</th>
                     </tr>
                   </thead>
@@ -390,6 +405,7 @@ export default function InventoryPage() {
                         <td className="px-5 py-3.5 text-center font-semibold text-zinc-700">{item.soll}</td>
                         <td className="px-5 py-3.5 text-center font-bold text-zinc-900">{item.dbQuantity}</td>
                         <td className="px-5 py-3.5 text-center"><DiffBadge diff={item.diff} /></td>
+                        <td className="px-5 py-3.5 text-center text-[13px] font-semibold text-zinc-700">{item.totalSold > 0 ? item.totalSold : "—"}</td>
                         <td className="px-5 py-3.5 font-mono text-[11px] text-zinc-400">{item.ean || "—"}</td>
                       </tr>
                     ))}
@@ -446,11 +462,12 @@ export default function InventoryPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm table-fixed">
                   <colgroup>
-                    <col className="w-[28%]" />
-                    <col className="w-[14%]" />
-                    <col className="w-[18%]" />
-                    <col className="w-[14%]" />
                     <col className="w-[26%]" />
+                    <col className="w-[12%]" />
+                    <col className="w-[14%]" />
+                    <col className="w-[12%]" />
+                    <col className="w-[12%]" />
+                    <col className="w-[24%]" />
                   </colgroup>
                   <thead>
                     <tr className="border-b border-zinc-100 bg-zinc-50/50">
@@ -458,6 +475,7 @@ export default function InventoryPage() {
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Gezählt</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Im Bestand</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Differenz</th>
+                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Verkäufe</th>
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">EAN</th>
                     </tr>
                   </thead>
@@ -471,6 +489,7 @@ export default function InventoryPage() {
                         <td className="px-5 py-3.5 text-center font-semibold text-zinc-700">{item.soll}</td>
                         <td className="px-5 py-3.5 text-center font-bold text-zinc-900">{item.dbQuantity}</td>
                         <td className="px-5 py-3.5 text-center"><DiffBadge diff={0} /></td>
+                        <td className="px-5 py-3.5 text-center text-[13px] font-semibold text-zinc-700">{item.totalSold > 0 ? item.totalSold : "—"}</td>
                         <td className="px-5 py-3.5 font-mono text-[11px] text-zinc-400">{item.ean || "—"}</td>
                       </tr>
                     ))}
