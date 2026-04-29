@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { toast } from "sonner";
 
 interface DBProduct {
   id: string;
@@ -72,6 +73,12 @@ export default function InventoryPage() {
   const [items, setItems] = useState<ResultItem[] | null>(null);
   const [brandLabel, setBrandLabel] = useState("");
 
+  // Live preview: count detected models as user types
+  const liveCount = useMemo(() => {
+    if (!pasteText.trim()) return 0;
+    return parseLines(pasteText).length;
+  }, [pasteText]);
+
   useEffect(() => {
     fetch("/api/products")
       .then((r) => r.json())
@@ -90,7 +97,11 @@ export default function InventoryPage() {
     setItems(null);
     try {
       const parsed = parseLines(pasteText);
-      if (parsed.length === 0) { setLoading(false); return; }
+      if (parsed.length === 0) {
+        toast.error("Keine Modelle erkannt – bitte Format prüfen");
+        setLoading(false);
+        return;
+      }
       const hasIstValues = parsed.some((p) => p.ist !== null);
       let dbMap: Record<string, number> = {};
       if (!hasIstValues && brand) {
@@ -109,8 +120,8 @@ export default function InventoryPage() {
       });
       setBrandLabel(brand || "");
       setItems(result);
-    } catch {
-      alert("Fehler beim Analysieren.");
+    } catch (e) {
+      toast.error("Fehler beim Analysieren: " + (e instanceof Error ? e.message : String(e)));
     } finally {
       setLoading(false);
     }
@@ -168,6 +179,11 @@ export default function InventoryPage() {
               placeholder={"MK6356  - 20 Stk - 4053858642355 - 16 Stück Aktueller Bestand\nMK8281  -  7 Stk - 4051432739415 - 6 Stück Aktueller Bestand"}
               className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3.5 font-mono text-[12px] leading-relaxed text-zinc-800 placeholder:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-zinc-300"
             />
+            {pasteText.trim() && (
+              <p className={`mt-2 text-[11px] font-medium ${liveCount > 0 ? "text-emerald-600" : "text-red-500"}`}>
+                {liveCount > 0 ? `✓ ${liveCount} Modelle erkannt` : "⚠ Keine Modelle erkannt – bitte Format prüfen"}
+              </p>
+            )}
           </div>
           <button onClick={handleAnalyze} disabled={!pasteText.trim() || loading} className="w-full rounded-xl bg-zinc-900 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-zinc-700 active:scale-[0.98] disabled:opacity-40">
             {loading ? "Wird analysiert…" : "Analyse starten"}
