@@ -48,6 +48,7 @@ interface DashboardData {
     salesOverTime: { month: string; revenue: number; profit: number }[];
     topProducts: { name: string; totalSold: number; revenue: number }[];
     topBrands: { brand: string; revenue: number }[];
+    inventoryByBrand: { brand: string; value: number }[];
   };
   recentSales: {
     id: string;
@@ -163,7 +164,7 @@ export default function DashboardPage() {
 
         {/* Inventory value */}
         <Link href="/products"
-          className="group flex flex-col justify-between rounded-2xl border border-zinc-100 bg-white p-5 transition-all duration-300 hover:shadow-lg hover:shadow-zinc-100 hover:-translate-y-0.5 active:scale-[0.98] lg:p-6">
+          className="group flex flex-col rounded-2xl border border-zinc-100 bg-white p-5 transition-all duration-300 hover:shadow-lg hover:shadow-zinc-100 hover:-translate-y-0.5 active:scale-[0.98] lg:p-6">
           <div className="flex items-center justify-between">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">Bestandswert</p>
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-100">
@@ -171,7 +172,26 @@ export default function DashboardPage() {
             </div>
           </div>
           <p className="mt-3 text-2xl font-bold tracking-tight text-zinc-900 lg:text-3xl">{formatCurrency(kpis.expectedSalesValue)}</p>
-          <p className="mt-1 text-[11px] text-zinc-400">Aktueller Lagerbestand</p>
+
+          {/* Brand breakdown */}
+          {charts.inventoryByBrand.length > 0 && (
+            <div className="mt-4 space-y-2">
+              {charts.inventoryByBrand.map((b) => (
+                <div key={b.brand}>
+                  <div className="mb-0.5 flex items-center justify-between">
+                    <span className="text-[10px] font-medium text-zinc-500 truncate max-w-[70%]">{b.brand}</span>
+                    <span className="text-[10px] font-semibold text-zinc-700">{formatCurrency(b.value)}</span>
+                  </div>
+                  <div className="h-1 w-full overflow-hidden rounded-full bg-zinc-100">
+                    <div
+                      className="h-full rounded-full bg-zinc-900 transition-all"
+                      style={{ width: `${Math.round((b.value / kpis.expectedSalesValue) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </Link>
       </div>
 

@@ -14,7 +14,7 @@ const emptyDashboard = {
     revenueLast30Days: 0,
     revenueLast60Days: 0,
   },
-  charts: { salesOverTime: [], topProducts: [], topBrands: [] },
+  charts: { salesOverTime: [], topProducts: [], topBrands: [], inventoryByBrand: [] },
   recentSales: [],
   alerts: [],
 };

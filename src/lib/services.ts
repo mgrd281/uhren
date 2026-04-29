@@ -277,6 +277,16 @@ export async function getDashboardData() {
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 5);
 
+  // Top brands by inventory value
+  const invBrandMap = new Map<string, number>();
+  for (const p of products) {
+    invBrandMap.set(p.brand, (invBrandMap.get(p.brand) ?? 0) + p.salePriceExpected * p.quantity);
+  }
+  const inventoryByBrand = Array.from(invBrandMap.entries())
+    .map(([brand, value]) => ({ brand, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 4);
+
   // Recent sales
   const recentSales = await prisma.sale.findMany({
     include: { product: true },
@@ -301,6 +311,7 @@ export async function getDashboardData() {
       salesOverTime,
       topProducts,
       topBrands,
+      inventoryByBrand,
     },
     recentSales,
     alerts: lowStockProducts,
