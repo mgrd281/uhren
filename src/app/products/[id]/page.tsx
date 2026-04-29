@@ -857,47 +857,41 @@ export default function ProductDetailPage({
         >
           <div className="mx-4 w-full max-w-2xl rounded-3xl bg-white shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
             {/* Header */}
-            <div className="flex items-start gap-4 border-b border-zinc-100 p-6">
-              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-50">
+            <div className="flex items-center gap-4 bg-zinc-950 px-6 py-4">
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-white/10">
                 {product.mainImage ? (
                   <Image
                     src={product.mainImage}
                     alt={product.name}
                     fill
                     className="object-contain p-1"
-                    sizes="56px"
+                    sizes="48px"
                     unoptimized={product.mainImage.startsWith("data:") || product.mainImage.startsWith("http")}
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center">
-                    <Watch size={24} className="text-zinc-300" />
+                    <Watch size={22} className="text-white/30" />
                   </div>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-bold text-zinc-900">Verkauf erfassen</h3>
-                <p className="mt-0.5 text-[13px] text-zinc-500 truncate">
-                  {product.brand} · {product.name}
-                </p>
-                <div className="mt-1.5 flex items-center gap-2">
-                  <Badge className="bg-zinc-100 text-zinc-600 text-[10px]">
-                    Bestand: {product.quantity} Stück
-                  </Badge>
-                  <Badge className="bg-amber-50 text-amber-700 text-[10px]">
-                    EK: {formatCurrency(product.costPrice)}
-                  </Badge>
+                <h3 className="text-[15px] font-bold text-white leading-tight">Verkauf erfassen</h3>
+                <p className="text-[11px] text-zinc-400 truncate">{product.brand} · {product.name}</p>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-zinc-300">Bestand: {product.quantity} Stück</span>
+                  <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-semibold text-amber-300">EK: {formatCurrency(product.costPrice)}</span>
                 </div>
               </div>
               <button
                 onClick={() => setShowSaleModal(false)}
-                className="rounded-xl p-2 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600"
+                className="rounded-xl p-2 text-zinc-500 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <X size={18} />
               </button>
             </div>
 
             {/* Scrollable form */}
-            <form id="sale-form" onSubmit={handleSale} className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+            <form id="sale-form" onSubmit={handleSale} className="flex-1 overflow-y-auto px-6 py-4 space-y-3.5">
 
               {/* ── Preis & Menge ── */}
               <div className="grid grid-cols-2 gap-3">
@@ -996,15 +990,13 @@ export default function ProductDetailPage({
 
               </div>
 
-              {/* ── Datum · Kunde · Rechnung · Notiz ── */}
-              <div className="grid grid-cols-4 gap-2">
+              <div className="h-px bg-zinc-100" />
+
+              {/* ── Datum · Rechnung · Notiz ── */}
+              <div className="grid grid-cols-3 gap-2">
                 <div>
                   <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Datum</label>
                   <Input type="date" value={saleForm.soldAt} onChange={(e) => setSaleForm((f) => ({ ...f, soldAt: e.target.value }))} className="text-[12px]" />
-                </div>
-                <div>
-                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Kunde</label>
-                  <Input placeholder="optional" value={saleForm.customerName} onChange={(e) => setSaleForm((f) => ({ ...f, customerName: e.target.value }))} className="text-[12px]" />
                 </div>
                 <div>
                   <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Rechnung</label>
@@ -1018,10 +1010,12 @@ export default function ProductDetailPage({
 
               {/* ── Lieferadresse ── */}
               <div>
-                <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">📍 Lieferadresse <span className="font-normal normal-case text-zinc-300">optional</span></label>
+                <label className="mb-1.5 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                  <span>📍</span> Lieferadresse <span className="font-normal normal-case text-zinc-300">optional</span>
+                </label>
                 <textarea
-                  rows={3}
-                  placeholder={"Max Mustermann\nMusterstraße 1\n12345 Berlin"}
+                  rows={2}
+                  placeholder={"Name · Straße · PLZ Ort"}
                   value={saleForm.shippingAddress}
                   onChange={(e) => setSaleForm((f) => ({ ...f, shippingAddress: e.target.value }))}
                   className="w-full rounded-xl border border-zinc-200 px-3 py-2.5 text-[13px] outline-none placeholder:text-zinc-300 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100 resize-none bg-white"
