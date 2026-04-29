@@ -199,6 +199,10 @@ export default function DashboardPage() {
             </div>
           </div>
           <p className="mt-3 text-2xl font-bold tracking-tight text-zinc-900 lg:text-3xl">{formatCurrency(kpis.expectedSalesValue)}</p>
+          <div className="mt-1.5 flex items-center gap-1.5">
+            <Warehouse size={11} className="text-zinc-400" />
+            <p className="text-[12px] font-semibold text-zinc-500">{formatNumber(kpis.totalStock)} Stk. auf Lager</p>
+          </div>
 
           {/* Brand breakdown */}
           {charts.inventoryByBrand.length > 0 && (
