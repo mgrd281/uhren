@@ -84,7 +84,7 @@ export default function AccessRequestsPage() {
   const [search, setSearch] = useState("");
   const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
-  const isOwner = (session as unknown as { role?: string })?.role === "owner";
+  const isOwner = (session?.user as unknown as { role?: string })?.role === "owner";
 
   useEffect(() => {
     if (sessionStatus === "loading") return;

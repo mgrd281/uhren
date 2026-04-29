@@ -45,7 +45,7 @@ export default function Sidebar() {
   const [pendingCount, setPendingCount] = useState(0);
   const prevCountRef = useRef(0);
   const { data: session } = useSession();
-  const role = ((session as unknown as { role?: string })?.role) || "viewer";
+  const role = ((session?.user as unknown as { role?: string })?.role) || "viewer";
   const isOwner = role === "owner";
   const userCanEdit = role === "owner" || role === "manager" || role === "editor";
 
