@@ -871,9 +871,13 @@ export default function SalesPage() {
 
                       {/* Amount & time */}
                       <div className="text-right shrink-0">
-                        <p className="text-[14px] font-bold text-zinc-900">
-                          +{formatCurrency(sale.totalAmount)}
-                        </p>
+                        {sale.paymentMethod === "Geschenk" ? (
+                          <p className="rounded-full bg-pink-50 px-2.5 py-1 text-[12px] font-bold text-pink-500">Geschenk 🎁</p>
+                        ) : (
+                          <p className="text-[14px] font-bold text-zinc-900">
+                            +{formatCurrency(sale.totalAmount)}
+                          </p>
+                        )}
                         <p className="mt-0.5 text-[10px] text-zinc-400">
                           {new Date(sale.soldAt).toLocaleTimeString("de-DE", {
                             hour: "2-digit",
