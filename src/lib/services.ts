@@ -116,7 +116,7 @@ export async function createSale(data: {
     );
   }
 
-  const totalAmount = data.quantitySold * data.salePrice;
+  const totalAmount = data.quantitySold * data.salePrice - (data.shippingCost ?? 0) - (data.packagingCost ?? 0);
 
   const sale = await prisma.sale.create({
     data: {

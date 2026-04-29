@@ -19,6 +19,8 @@ export async function PATCH(
         quantitySold: body.quantitySold !== undefined ? parseInt(body.quantitySold) : undefined,
         totalAmount: body.salePrice !== undefined && body.quantitySold !== undefined
           ? parseFloat(body.salePrice) * parseInt(body.quantitySold)
+            - (body.shippingCost !== undefined ? parseFloat(body.shippingCost) : 0)
+            - (body.packagingCost !== undefined ? parseFloat(body.packagingCost) : 0)
           : undefined,
         customerName: body.customerName ?? undefined,
         invoiceNumber: body.invoiceNumber ?? undefined,

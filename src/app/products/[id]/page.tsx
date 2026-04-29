@@ -734,14 +734,9 @@ export default function ProductDetailPage({
                           {formatCurrency(sale.totalAmount)}
                         </p>
                         {((sale.shippingCost ?? 0) > 0 || (sale.packagingCost ?? 0) > 0) && (
-                          <>
-                            <p className="text-[10px] text-zinc-400">
-                              − Versand {formatCurrency((sale.shippingCost ?? 0) + (sale.packagingCost ?? 0))}
-                            </p>
-                            <p className="text-[11px] font-semibold text-zinc-600">
-                              = {formatCurrency(sale.totalAmount - (sale.shippingCost ?? 0) - (sale.packagingCost ?? 0))}
-                            </p>
-                          </>
+                          <p className="text-[10px] text-zinc-400">
+                            inkl. − {formatCurrency((sale.shippingCost ?? 0) + (sale.packagingCost ?? 0))} Versand
+                          </p>
                         )}
                       </div>
                       {canEdit && (
@@ -927,14 +922,15 @@ export default function ProductDetailPage({
                 const packaging = parseFloat(saleForm.packagingCost || "0");
                 const total = price * qty;
                 const costs = shipping + packaging;
-                const profit = (price - product.costPrice) * qty - costs;
+                const net = total - costs;
+                const profit = net - product.costPrice * qty;
                 return (
                   <div className="rounded-2xl bg-zinc-950 px-4 py-3 text-white">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-[9px] font-semibold text-zinc-500 uppercase tracking-wider">Einnahmen</p>
-                        <p className="text-[22px] font-black tracking-tight leading-none mt-0.5">{formatCurrency(total)}</p>
-                        {costs > 0 && <p className="text-[10px] text-zinc-500 mt-0.5">− Kosten {formatCurrency(costs)} = {formatCurrency(total - costs)}</p>}
+                        <p className="text-[9px] font-semibold text-zinc-500 uppercase tracking-wider">Einnahmen (netto)</p>
+                        <p className="text-[22px] font-black tracking-tight leading-none mt-0.5">{formatCurrency(net)}</p>
+                        {costs > 0 && <p className="text-[10px] text-zinc-500 mt-0.5">{formatCurrency(total)} − {formatCurrency(costs)} Versand</p>}
                       </div>
                       <div className="text-right">
                         <p className="text-[9px] font-semibold text-zinc-500 uppercase tracking-wider">Gewinn</p>
