@@ -339,7 +339,14 @@ export default function InventoryPage() {
                 </div>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm table-fixed">
+                  <colgroup>
+                    <col className="w-[28%]" />
+                    <col className="w-[14%]" />
+                    <col className="w-[18%]" />
+                    <col className="w-[14%]" />
+                    <col className="w-[26%]" />
+                  </colgroup>
                   <thead>
                     <tr className="border-b border-zinc-100 bg-zinc-50/50">
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Modell</th>
@@ -413,14 +420,21 @@ export default function InventoryPage() {
                 </div>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm table-fixed">
+                  <colgroup>
+                    <col className="w-[28%]" />
+                    <col className="w-[14%]" />
+                    <col className="w-[18%]" />
+                    <col className="w-[14%]" />
+                    <col className="w-[26%]" />
+                  </colgroup>
                   <thead>
                     <tr className="border-b border-zinc-100 bg-zinc-50/50">
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Modell</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Gezählt</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Im Bestand</th>
+                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Differenz</th>
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">EAN</th>
-                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -432,8 +446,8 @@ export default function InventoryPage() {
                         </td>
                         <td className="px-5 py-3.5 text-center font-semibold text-zinc-700">{item.soll}</td>
                         <td className="px-5 py-3.5 text-center font-bold text-zinc-900">{item.dbQuantity}</td>
-                        <td className="px-5 py-3.5 font-mono text-[11px] text-zinc-400">{item.ean || "—"}</td>
                         <td className="px-5 py-3.5 text-center"><DiffBadge diff={0} /></td>
+                        <td className="px-5 py-3.5 font-mono text-[11px] text-zinc-400">{item.ean || "—"}</td>
                       </tr>
                     ))}
                   </tbody>
