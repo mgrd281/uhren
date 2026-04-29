@@ -100,6 +100,7 @@ export default function ProductDetailPage({
     shippingCost: "",
     shippingCarrier: "",
     trackingNumber: "",
+    packagingCost: "",
     paymentMethod: "",
     marketplace: "",
     customPayment: "",
@@ -186,6 +187,7 @@ export default function ProductDetailPage({
           shippingCost: saleForm.shippingCost ? parseFloat(saleForm.shippingCost) : 0,
           shippingCarrier: saleForm.shippingCarrier || null,
           trackingNumber: saleForm.trackingNumber || null,
+          packagingCost: saleForm.packagingCost ? parseFloat(saleForm.packagingCost) : 0,
           soldAt: saleForm.soldAt ? new Date(saleForm.soldAt).toISOString() : new Date().toISOString(),
         }),
       });
@@ -207,7 +209,7 @@ export default function ProductDetailPage({
         try { new Audio("/cha-ching.mp3").play(); } catch {}
         toast.success(saleForm.versand ? "Verkauf + Versand gespeichert" : "Verkauf erfolgreich gespeichert");
         setShowSaleModal(false);
-        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false, shippingCost: "", shippingCarrier: "", trackingNumber: "", paymentMethod: "", marketplace: "", customPayment: "", customMarketplace: "" });
+        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false, shippingCost: "", shippingCarrier: "", trackingNumber: "", packagingCost: "", paymentMethod: "", marketplace: "", customPayment: "", customMarketplace: "" });
         reloadProduct();
       } else {
         const err = await res.json();
@@ -1077,6 +1079,21 @@ export default function ProductDetailPage({
                 </div>
                 </>
               )}
+
+              {/* Verpackung */}
+              <div>
+                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                  Verpackungskosten (€, optional)
+                </label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="z.B. 2.50"
+                  value={saleForm.packagingCost}
+                  onChange={(e) => setSaleForm((f) => ({ ...f, packagingCost: e.target.value }))}
+                />
+              </div>
             </form>
 
             {/* Footer */}
