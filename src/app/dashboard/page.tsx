@@ -217,11 +217,11 @@ export default function DashboardPage() {
                         <span className="text-[10px] font-medium text-zinc-400">{formatCurrency(b.value)}</span>
                       </div>
                     </div>
-                    {/* progress bar */}
+                    {/* progress bar — remaining stock % */}
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
                       <div
                         className="h-full rounded-full bg-zinc-900 transition-all"
-                        style={{ width: `${Math.round((b.value / kpis.expectedSalesValue) * 100)}%` }}
+                        style={{ width: `${totalItems > 0 ? Math.round((b.stock / totalItems) * 100) : 0}%` }}
                       />
                     </div>
                     {/* sold / remaining chips */}
