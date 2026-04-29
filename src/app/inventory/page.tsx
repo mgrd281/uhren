@@ -73,6 +73,12 @@ function parseLines(text: string): ParsedItem[] {
       }
     }
 
+    // 5. Fallback: if ist detected but no model, use full product name before " - N"
+    if (!model && ist !== null) {
+      const namePart = line.match(/^(.+?)\s*[-–]\s*\d/);
+      if (namePart) model = namePart[1].trim().substring(0, 80);
+    }
+
     if (!model) continue;
 
     const ohneVerpackung = /ohne\s*Verpackung/i.test(line);
