@@ -8,21 +8,54 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum StockStatus {
-  IN_STOCK
-  LOW_STOCK
-  OUT_OF_STOCK
+model AccessRequest {
+  id          String   @id
+  email       String
+  name        String?
+  image       String?
+  googleUid   String
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  city        String?
+  country     String?
+  ip          String?
+  userAgent   String?
+  fingerprint String?
+  role        String   @default("viewer")
+
+  @@index([createdAt])
+  @@index([fingerprint])
+  @@index([googleUid])
+  @@index([ip])
+  @@index([status])
 }
 
-enum MovementType {
-  ADD
-  SALE
-  ADJUSTMENT
-  SHIPPING
+model AuthorizedUser {
+  id        String   @id @default("owner")
+  googleUid String   @unique
+  email     String
+  name      String?
+  image     String?
+  createdAt DateTime @default(now())
+}
+
+model InventoryMovement {
+  id          String       @id
+  productId   String
+  type        MovementType
+  quantity    Int
+  referenceId String?
+  note        String?
+  createdAt   DateTime     @default(now())
+  Product     Product      @relation(fields: [productId], references: [id])
+
+  @@index([createdAt])
+  @@index([productId])
+  @@index([type])
 }
 
 model Product {
-  id                String              @id @default(cuid())
+  id                String              @id
   name              String
   brand             String
   model             String
@@ -36,70 +69,55 @@ model Product {
   lowStockThreshold Int                 @default(2)
   status            StockStatus         @default(IN_STOCK)
   mainImage         String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  notes             String?
   ebayStatus        String              @default("")
   shopifyListed     Boolean             @default(false)
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  notes             String?
   storageLocation   String?
   storagePhoto      String?
-  galleryImages     ProductImage[]
-  sales             Sale[]
-  inventoryMoves    InventoryMovement[]
+  InventoryMovement InventoryMovement[]
+  ProductImage      ProductImage[]
+  Sale              Sale[]
 
   @@index([brand])
-  @@index([status])
   @@index([createdAt])
+  @@index([status])
 }
 
 model ProductImage {
-  id        String   @id @default(cuid())
+  id        String   @id
   productId String
   imageUrl  String
   isPrimary Boolean  @default(false)
   createdAt DateTime @default(now())
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  Product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
 }
 
 model Sale {
-  id            String   @id @default(cuid())
-  productId     String
-  quantitySold  Int
-  salePrice     Float
-  totalAmount   Float
-  customerName  String?
-  invoiceNumber String?
-  soldAt        DateTime @default(now())
-  notes         String?
-  createdAt     DateTime @default(now())
-  paymentMethod    String?
-  marketplace      String?
-  shippingCost     Float    @default(0)
-  shippingCarrier  String?
-  trackingNumber   String?
-  packagingCost    Float    @default(0)
-  shippingAddress  String?
-  product       Product  @relation(fields: [productId], references: [id])
+  id              String   @id
+  productId       String
+  quantitySold    Int
+  salePrice       Float
+  totalAmount     Float
+  customerName    String?
+  invoiceNumber   String?
+  soldAt          DateTime @default(now())
+  notes           String?
+  createdAt       DateTime @default(now())
+  paymentMethod   String?
+  shippingCost    Float    @default(0)
+  marketplace     String?
+  shippingCarrier String?
+  trackingNumber  String?
+  packagingCost   Float    @default(0)
+  shippingAddress String?
+  Product         Product  @relation(fields: [productId], references: [id])
 
   @@index([productId])
   @@index([soldAt])
-}
-
-model InventoryMovement {
-  id          String       @id @default(cuid())
-  productId   String
-  type        MovementType
-  quantity    Int
-  referenceId String?
-  note        String?
-  createdAt   DateTime     @default(now())
-  product     Product      @relation(fields: [productId], references: [id])
-
-  @@index([productId])
-  @@index([type])
-  @@index([createdAt])
 }
 
 model StoreSettings {
@@ -109,38 +127,20 @@ model StoreSettings {
   currencyCode String   @default("EUR")
   rtlEnabled   Boolean  @default(false)
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  updatedAt    DateTime
   password     String
   totpSecret   String?
 }
 
-model AuthorizedUser {
-  id        String   @id @default("owner")
-  googleUid String   @unique
-  email     String
-  name      String?
-  image     String?
-  createdAt DateTime @default(now())
+enum MovementType {
+  ADD
+  SALE
+  ADJUSTMENT
+  SHIPPING
 }
 
-model AccessRequest {
-  id          String   @id @default(cuid())
-  email       String
-  name        String?
-  image       String?
-  googleUid   String
-  status      String   @default("pending")
-  ip          String?
-  userAgent   String?
-  country     String?
-  city        String?
-  fingerprint String?
-  role        String   @default("viewer")
-  createdAt   DateTime @default(now())
-
-  @@index([status])
-  @@index([createdAt])
-  @@index([googleUid])
-  @@index([ip])
-  @@index([fingerprint])
+enum StockStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
 }

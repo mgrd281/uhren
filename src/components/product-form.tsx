@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, Button, Input, Textarea, Select, PageHeader } from "@/components/ui";
 import { toast } from "sonner";
 import { Save, Upload, X, Check, Loader2, ImagePlus, Trash2 } from "lucide-react";
+import { upload } from "@vercel/blob/client";
 import Image from "next/image";
 
 interface ProductFormData {
@@ -145,55 +146,24 @@ export default function ProductForm({
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/avif"];
-    if (!allowedTypes.includes(file.type)) {
-      toast.error("Nur JPEG, PNG oder WebP erlaubt");
+    if (!file.type.startsWith("image/")) {
+      toast.error("Nur Bilddateien erlaubt");
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Maximal 10 MB");
-      return;
-    }
-
     setUploading(true);
     try {
-      const dataUrl = await compressImage(file, 800, 0.75);
-      updateField("mainImage", dataUrl);
-      toast.success("Bild geladen");
+      const blob = await upload(`watches/${Date.now()}-${file.name}`, file, {
+        access: "public",
+        handleUploadUrl: "/api/upload",
+      });
+      updateField("mainImage", blob.url);
+      toast.success("Bild hochgeladen");
     } catch {
-      toast.error("Bild konnte nicht geladen werden");
+      toast.error("Bild konnte nicht hochgeladen werden");
     } finally {
       setUploading(false);
+      e.target.value = "";
     }
-  }
-
-  function compressImage(file: File, maxWidth: number, quality: number): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const img = document.createElement("img");
-      const reader = new FileReader();
-      reader.onload = () => {
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          let w = img.width;
-          let h = img.height;
-          if (w > maxWidth) {
-            h = Math.round((h * maxWidth) / w);
-            w = maxWidth;
-          }
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext("2d");
-          if (!ctx) return reject(new Error("Canvas error"));
-          ctx.drawImage(img, 0, 0, w, h);
-          resolve(canvas.toDataURL("image/jpeg", quality));
-        };
-        img.onerror = reject;
-        img.src = reader.result as string;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -505,15 +475,15 @@ export default function ProductForm({
                     for (const file of files) {
                       if (!file.type.startsWith("image/")) continue;
                       try {
-                        const fd = new FormData();
-                        fd.append("file", file);
-                        const upRes = await fetch("/api/upload", { method: "POST", body: fd });
-                        if (!upRes.ok) { toast.error(`${file.name}: Upload fehlgeschlagen`); continue; }
-                        const { url } = await upRes.json();
+                        const blob = await upload(
+                          `watches/${Date.now()}-${file.name}`,
+                          file,
+                          { access: "public", handleUploadUrl: "/api/upload" }
+                        );
                         const saveRes = await fetch(`/api/products/${productId}/gallery-images`, {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ imageUrl: url }),
+                          body: JSON.stringify({ imageUrl: blob.url }),
                         });
                         if (saveRes.ok) {
                           const img = await saveRes.json();

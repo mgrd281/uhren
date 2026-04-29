@@ -1,31 +1,26 @@
+import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
 
-export async function POST(request: NextRequest) {
-  const formData = await request.formData();
-  const file = formData.get("file") as File | null;
-
-  if (!file) {
-    return NextResponse.json({ error: "Keine Datei" }, { status: 400 });
-  }
-
-  if (!file.type.startsWith("image/")) {
-    return NextResponse.json({ error: "Nur Bilddateien erlaubt" }, { status: 400 });
-  }
-
-  if (file.size > 20 * 1024 * 1024) {
-    return NextResponse.json({ error: "Dateigröße überschreitet 10 MB" }, { status: 400 });
-  }
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  const body = (await request.json()) as HandleUploadBody;
 
   try {
-    const blob = await put(`watches/${Date.now()}-${file.name}`, file, {
-      access: "public",
+    const jsonResponse = await handleUpload({
+      body,
+      request,
+      onBeforeGenerateToken: async () => ({
+        allowedContentTypes: ["image/*"],
+        maximumSizeInBytes: 100 * 1024 * 1024, // 100 MB
+      }),
+      onUploadCompleted: async () => {
+        // nothing needed server-side after upload
+      },
     });
-    return NextResponse.json({ url: blob.url });
-  } catch {
+    return NextResponse.json(jsonResponse);
+  } catch (error) {
     return NextResponse.json(
-      { error: "Bild-Upload fehlgeschlagen — BLOB_READ_WRITE_TOKEN prüfen" },
-      { status: 500 }
+      { error: (error as Error).message },
+      { status: 400 }
     );
   }
 }
