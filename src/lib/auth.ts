@@ -159,24 +159,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return "/login?error=unauthorized";
     },
 
-    async session({ session }) {
-      // Attach role to session
-      if (session?.user?.email) {
+    async jwt({ token }) {
+      // Fetch and store role in the JWT token on every refresh
+      if (token?.email) {
         try {
           const { prisma } = await import("./prisma");
           const owner = await prisma.authorizedUser.findUnique({ where: { id: "owner" } });
-          if (owner?.email === session.user.email) {
-            (session as unknown as { role: string }).role = "owner";
+          if (owner?.email === token.email) {
+            token.role = "owner";
           } else {
             const req = await prisma.accessRequest.findFirst({
-              where: { email: session.user.email, status: "approved" },
+              where: { email: String(token.email), status: "approved" },
             });
-            (session as unknown as { role: string }).role = req?.role || "viewer";
+            token.role = req?.role || "viewer";
           }
         } catch {
-          (session as unknown as { role: string }).role = "owner";
+          token.role = "owner";
         }
       }
+      return token;
+    },
+
+    async session({ session, token }) {
+      // Copy role from JWT token to client session
+      (session as unknown as { role: string }).role = (token?.role as string) || "viewer";
       return session;
     },
   },
