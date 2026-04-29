@@ -871,7 +871,7 @@ export default function SalesPage() {
 
                       {/* Amount & time */}
                       <div className="text-right shrink-0">
-                        {sale.paymentMethod === "Geschenk" ? (
+                        {sale.paymentMethod === "Geschenk" || sale.totalAmount === 0 ? (
                           <p className="rounded-full bg-pink-50 px-2.5 py-1 text-[12px] font-bold text-pink-500">Geschenk 🎁</p>
                         ) : (
                           <p className="text-[14px] font-bold text-zinc-900">
