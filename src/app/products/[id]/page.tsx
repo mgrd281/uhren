@@ -98,6 +98,7 @@ export default function ProductDetailPage({
     soldAt: "",
     versand: false,
     shippingCost: "",
+    shippingCarrier: "",
     paymentMethod: "",
     marketplace: "",
     customPayment: "",
@@ -182,6 +183,7 @@ export default function ProductDetailPage({
           paymentMethod: (saleForm.paymentMethod === "__custom" ? saleForm.customPayment : saleForm.paymentMethod) || null,
           marketplace: (saleForm.marketplace === "__custom" ? saleForm.customMarketplace : saleForm.marketplace) || null,
           shippingCost: saleForm.shippingCost ? parseFloat(saleForm.shippingCost) : 0,
+          shippingCarrier: saleForm.shippingCarrier || null,
           soldAt: saleForm.soldAt ? new Date(saleForm.soldAt).toISOString() : new Date().toISOString(),
         }),
       });
@@ -203,7 +205,7 @@ export default function ProductDetailPage({
         try { new Audio("/cha-ching.mp3").play(); } catch {}
         toast.success(saleForm.versand ? "Verkauf + Versand gespeichert" : "Verkauf erfolgreich gespeichert");
         setShowSaleModal(false);
-        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false, shippingCost: "", paymentMethod: "", marketplace: "", customPayment: "", customMarketplace: "" });
+        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false, shippingCost: "", shippingCarrier: "", paymentMethod: "", marketplace: "", customPayment: "", customMarketplace: "" });
         reloadProduct();
       } else {
         const err = await res.json();
@@ -1025,6 +1027,7 @@ export default function ProductDetailPage({
                 </div>
               </label>
               {saleForm.versand && (
+                <>
                 <div>
                   <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
                     Versandkosten (€)
@@ -1038,6 +1041,28 @@ export default function ProductDetailPage({
                     onChange={(e) => setSaleForm((f) => ({ ...f, shippingCost: e.target.value }))}
                   />
                 </div>
+                <div>
+                  <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                    Versanddienstleister
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {["DHL", "DHL Express", "Hermes", "GLS", "DPD", "Andere"].map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setSaleForm((f) => ({ ...f, shippingCarrier: f.shippingCarrier === c ? "" : c }))}
+                        className={`rounded-xl border-2 py-2 px-1 text-center text-[12px] font-medium transition-all ${
+                          saleForm.shippingCarrier === c
+                            ? "border-blue-600 bg-blue-600 text-white"
+                            : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300"
+                        }`}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                </>
               )}
             </form>
 

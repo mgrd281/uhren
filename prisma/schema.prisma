@@ -72,9 +72,10 @@ model Sale {
   soldAt        DateTime @default(now())
   notes         String?
   createdAt     DateTime @default(now())
-  paymentMethod String?
-  marketplace   String?
-  shippingCost  Float    @default(0)
+  paymentMethod    String?
+  marketplace      String?
+  shippingCost     Float    @default(0)
+  shippingCarrier  String?
   product       Product  @relation(fields: [productId], references: [id])
 
   @@index([productId])

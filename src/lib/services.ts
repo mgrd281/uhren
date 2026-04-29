@@ -99,6 +99,7 @@ export async function createSale(data: {
   paymentMethod?: string | null;
   marketplace?: string | null;
   shippingCost?: number;
+  shippingCarrier?: string | null;
   soldAt?: Date;
   notes?: string | null;
 }) {
@@ -125,6 +126,7 @@ export async function createSale(data: {
       paymentMethod: data.paymentMethod,
       marketplace: data.marketplace,
       shippingCost: data.shippingCost ?? 0,
+      shippingCarrier: data.shippingCarrier ?? null,
       soldAt: data.soldAt ?? new Date(),
       notes: data.notes,
     },
