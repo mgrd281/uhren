@@ -135,6 +135,7 @@ export default function SalesPage() {
     productId: "",
     quantitySold: 1,
     salePrice: "",
+    shippingCost: "",
     customerName: "",
     invoiceNumber: "",
     notes: "",
@@ -160,6 +161,7 @@ export default function SalesPage() {
       productId: "",
       quantitySold: 1,
       salePrice: "",
+      shippingCost: "",
       customerName: "",
       invoiceNumber: "",
       notes: "",
@@ -190,6 +192,7 @@ export default function SalesPage() {
       productId: form.productId,
       quantitySold: form.quantitySold,
       salePrice: parseFloat(form.salePrice),
+      shippingCost: parseFloat(form.shippingCost) || 0,
       customerName: form.customerName || null,
       invoiceNumber: form.invoiceNumber || null,
       paymentMethod: form.paymentMethod || null,
@@ -254,7 +257,7 @@ export default function SalesPage() {
   const revenueLast60 = sales.filter((s) => new Date(s.soldAt) >= sixtyDaysAgo).reduce((s, x) => s + x.totalAmount, 0);
   const displayRevenue = revPeriod === "all" ? totalRevenue : revPeriod === "30" ? revenueLast30 : revenueLast60;
   const periodLabel = revPeriod === "all" ? `${totalItems} Stück` : revPeriod === "30" ? "Letzte 30 Tage" : "Letzte 60 Tage";
-  const totalAmount = form.salePrice ? form.quantitySold * parseFloat(form.salePrice) : 0;
+  const totalAmount = form.salePrice ? form.quantitySold * parseFloat(form.salePrice) - (parseFloat(form.shippingCost) || 0) : 0;
 
   /* Available products for picker */
   const availableProducts = products.filter((p) => {
@@ -491,6 +494,18 @@ export default function SalesPage() {
                     className="h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 text-[16px] font-bold text-zinc-900 outline-none transition-all focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100"
                   />
                 </div>
+              </div>
+              <div>
+                <p className="mb-2 text-[12px] font-medium text-zinc-500">Versandkosten (€) <span className="text-zinc-300">— optional</span></p>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={form.shippingCost}
+                  onChange={(e) => setForm((prev) => ({ ...prev, shippingCost: e.target.value }))}
+                  className="h-11 w-full rounded-xl border border-zinc-200 bg-white px-4 text-[14px] text-zinc-900 outline-none placeholder:text-zinc-300 transition-all focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100"
+                />
               </div>
 
               {/* Payment Method */}
