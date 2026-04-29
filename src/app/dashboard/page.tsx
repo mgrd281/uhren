@@ -171,12 +171,8 @@ export default function DashboardPage() {
               <p className="mt-1 text-[15px] font-bold text-white">{charts.inventoryByBrand.length}</p>
             </div>
             <div className="rounded-xl bg-white/5 px-3 py-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Ø Verkauf</p>
-              <p className="mt-1 text-[15px] font-bold text-white">
-                {charts.inventoryByBrand.reduce((s, b) => s + b.sold, 0) > 0
-                  ? formatCurrency(kpis.totalRevenue / charts.inventoryByBrand.reduce((s, b) => s + b.sold, 0))
-                  : "—"}
-              </p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Letzte 30 Tage</p>
+              <p className="mt-1 text-[15px] font-bold text-white">{formatCurrency(kpis.revenueLast30Days)}</p>
             </div>
             <div className="rounded-xl bg-white/5 px-3 py-2.5">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Auf Lager</p>
