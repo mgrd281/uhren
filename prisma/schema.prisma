@@ -9,7 +9,7 @@ datasource db {
 }
 
 model AccessRequest {
-  id          String   @id
+  id          String   @id @default(cuid())
   email       String
   name        String?
   image       String?
@@ -40,14 +40,14 @@ model AuthorizedUser {
 }
 
 model InventoryMovement {
-  id          String       @id
+  id          String       @id @default(cuid())
   productId   String
   type        MovementType
   quantity    Int
   referenceId String?
   note        String?
   createdAt   DateTime     @default(now())
-  Product     Product      @relation(fields: [productId], references: [id])
+  product     Product      @relation(fields: [productId], references: [id])
 
   @@index([createdAt])
   @@index([productId])
@@ -55,7 +55,7 @@ model InventoryMovement {
 }
 
 model Product {
-  id                String              @id
+  id                String              @id @default(cuid())
   name              String
   brand             String
   model             String
@@ -70,15 +70,15 @@ model Product {
   status            StockStatus         @default(IN_STOCK)
   mainImage         String?
   createdAt         DateTime            @default(now())
-  updatedAt         DateTime
+  updatedAt         DateTime            @updatedAt
   notes             String?
   ebayStatus        String              @default("")
   shopifyListed     Boolean             @default(false)
   storageLocation   String?
   storagePhoto      String?
-  InventoryMovement InventoryMovement[]
-  ProductImage      ProductImage[]
-  Sale              Sale[]
+  inventoryMoves    InventoryMovement[]
+  galleryImages     ProductImage[]
+  sales             Sale[]
 
   @@index([brand])
   @@index([createdAt])
@@ -86,18 +86,18 @@ model Product {
 }
 
 model ProductImage {
-  id        String   @id
+  id        String   @id @default(cuid())
   productId String
   imageUrl  String
   isPrimary Boolean  @default(false)
   createdAt DateTime @default(now())
-  Product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
 }
 
 model Sale {
-  id              String   @id
+  id              String   @id @default(cuid())
   productId       String
   quantitySold    Int
   salePrice       Float
@@ -114,7 +114,7 @@ model Sale {
   trackingNumber  String?
   packagingCost   Float    @default(0)
   shippingAddress String?
-  Product         Product  @relation(fields: [productId], references: [id])
+  product     Product  @relation(fields: [productId], references: [id])
 
   @@index([productId])
   @@index([soldAt])
@@ -127,7 +127,7 @@ model StoreSettings {
   currencyCode String   @default("EUR")
   rtlEnabled   Boolean  @default(false)
   createdAt    DateTime @default(now())
-  updatedAt    DateTime
+  updatedAt    DateTime @updatedAt
   password     String
   totpSecret   String?
 }
