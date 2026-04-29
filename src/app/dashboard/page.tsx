@@ -183,9 +183,11 @@ export default function DashboardPage() {
               <p className="mt-1 text-[15px] font-bold text-white">{formatNumber(kpis.totalStock)} Stk.</p>
             </div>
             <div className="col-span-2 rounded-xl bg-white/5 px-3 py-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Marge</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Ø Gewinn / Verkauf</p>
               <p className="mt-1 text-[15px] font-bold text-blue-400">
-                {kpis.totalRevenue > 0 ? `${Math.round((kpis.totalProfit / kpis.totalRevenue) * 100)}%` : "—"}
+                {charts.inventoryByBrand.reduce((s, b) => s + b.sold, 0) > 0
+                  ? formatCurrency(kpis.totalProfit / charts.inventoryByBrand.reduce((s, b) => s + b.sold, 0))
+                  : "—"}
               </p>
             </div>
           </div>
