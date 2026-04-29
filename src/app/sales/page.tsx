@@ -76,12 +76,13 @@ function groupByDate(sales: Sale[]): { label: string; sales: Sale[] }[] {
   const yesterday = new Date(Date.now() - 86400000).toDateString();
 
   for (const sale of sales) {
-    const d = new Date(sale.soldAt).toDateString();
+    const d = new Date(new Date(sale.soldAt).toLocaleString("en-US", { timeZone: "Europe/Berlin" })).toDateString();
     let label: string;
     if (d === today) label = "Heute";
     else if (d === yesterday) label = "Gestern";
     else
       label = new Date(sale.soldAt).toLocaleDateString("de-DE", {
+        timeZone: "Europe/Berlin",
         day: "numeric",
         month: "long",
         year: "numeric",

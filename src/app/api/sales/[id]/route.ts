@@ -32,7 +32,7 @@ export async function PATCH(
         trackingNumber: body.trackingNumber ?? undefined,
         packagingCost: body.packagingCost !== undefined ? parseFloat(body.packagingCost) : undefined,
         shippingAddress: body.shippingAddress ?? undefined,
-        soldAt: body.soldAt ? new Date(body.soldAt) : undefined,
+        soldAt: body.soldAt ? new Date(body.soldAt.length === 10 ? body.soldAt + "T12:00:00" : body.soldAt) : undefined,
       },
     });
     return NextResponse.json(sale);

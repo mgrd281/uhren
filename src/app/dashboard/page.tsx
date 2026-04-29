@@ -330,7 +330,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="hidden shrink-0 text-[11px] text-zinc-400 lg:block">
-                    {new Date(sale.soldAt).toLocaleDateString("de-DE", { day: "2-digit", month: "short" })}
+                    {new Date(sale.soldAt).toLocaleDateString("de-DE", { day: "2-digit", month: "short", timeZone: "Europe/Berlin" })}
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-[14px] font-bold text-zinc-900 lg:text-[15px]">

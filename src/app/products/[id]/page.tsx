@@ -204,7 +204,7 @@ export default function ProductDetailPage({
           trackingNumber: saleForm.trackingNumber || null,
           packagingCost: saleForm.packagingCost ? parseFloat(saleForm.packagingCost) : 0,
           shippingAddress: saleForm.shippingAddress || null,
-          soldAt: saleForm.soldAt ? new Date(saleForm.soldAt).toISOString() : new Date().toISOString(),
+          soldAt: saleForm.soldAt ? new Date(saleForm.soldAt + "T12:00:00").toISOString() : new Date().toISOString(),
         }),
       });
       if (res.ok) {
@@ -694,7 +694,7 @@ export default function ProductDetailPage({
                   {/* Date badge */}
                   <div className="mb-2.5 flex items-center gap-1.5">
                     <span className="inline-flex items-center rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-semibold text-zinc-600">
-                      {new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(sale.soldAt))}
+                      {new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "short", year: "numeric", timeZone: "Europe/Berlin" }).format(new Date(sale.soldAt))}
                     </span>
                     {sale.marketplace && (
                       <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ${
