@@ -222,9 +222,9 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     {/* progress bar — remaining stock % */}
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
+                    <div className="h-1 w-full overflow-hidden rounded-full bg-zinc-100">
                       <div
-                        className="h-full rounded-full bg-zinc-900 transition-all"
+                        className="h-full rounded-full bg-zinc-300 transition-all"
                         style={{ width: `${totalItems > 0 ? Math.round((b.stock / totalItems) * 100) : 0}%` }}
                       />
                     </div>
