@@ -209,7 +209,7 @@ export async function getDashboardData() {
   );
   const totalRevenue = sales.reduce((sum, s) => sum + s.totalAmount, 0);
   const totalProfit = sales.reduce(
-    (sum, s) => sum + (s.salePrice - s.product.costPrice) * s.quantitySold,
+    (sum, s) => sum + (s.totalAmount - s.product.costPrice * s.quantitySold),
     0
   );
 
@@ -295,7 +295,7 @@ export async function getDashboardData() {
     const existing = invBrandMap.get(s.product.brand);
     if (existing) {
       existing.sold += s.quantitySold;
-      existing.profit += (s.salePrice - s.product.costPrice) * s.quantitySold;
+      existing.profit += s.totalAmount - s.product.costPrice * s.quantitySold;
     }
   }
   const inventoryByBrand = Array.from(invBrandMap.entries())
