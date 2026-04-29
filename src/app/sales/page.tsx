@@ -123,6 +123,7 @@ export default function SalesPage() {
   const [filterMarketplace, setFilterMarketplace] = useState("");
   const [filterPayment, setFilterPayment] = useState("");
   const [filterPeriod, setFilterPeriod] = useState<"all" | "today" | "7d" | "30d">("all");
+  const [revPeriod, setRevPeriod] = useState<"all" | "30" | "60">("all");
   const [showFilters, setShowFilters] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const { canEdit } = useRole();
@@ -246,6 +247,13 @@ export default function SalesPage() {
 
   const totalRevenue = sales.reduce((s, x) => s + x.totalAmount, 0);
   const totalItems = sales.reduce((s, x) => s + x.quantitySold, 0);
+
+  const thirtyDaysAgo = new Date(); thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const sixtyDaysAgo = new Date(); sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+  const revenueLast30 = sales.filter((s) => new Date(s.soldAt) >= thirtyDaysAgo).reduce((s, x) => s + x.totalAmount, 0);
+  const revenueLast60 = sales.filter((s) => new Date(s.soldAt) >= sixtyDaysAgo).reduce((s, x) => s + x.totalAmount, 0);
+  const displayRevenue = revPeriod === "all" ? totalRevenue : revPeriod === "30" ? revenueLast30 : revenueLast60;
+  const periodLabel = revPeriod === "all" ? `${totalItems} Stück` : revPeriod === "30" ? "Letzte 30 Tage" : "Letzte 60 Tage";
   const totalAmount = form.salePrice ? form.quantitySold * parseFloat(form.salePrice) : 0;
 
   /* Available products for picker */
@@ -324,44 +332,33 @@ export default function SalesPage() {
         )}
       </div>
 
-      {/* ── Revenue Summary Cards ── */}
+      {/* ── Revenue Summary Card ── */}
       {!showForm && (
-        <div className="grid grid-cols-3 gap-3">
-          <div className="flex flex-col rounded-2xl bg-zinc-900 px-3.5 py-3 text-white shadow-lg shadow-zinc-900/20">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
-              Umsatz
-            </span>
-            <span className="mt-1 text-[16px] font-bold tracking-tight sm:text-lg">
-              {formatCurrency(totalRevenue)}
-            </span>
-            <span className="mt-0.5 text-[9px] text-zinc-500">
-              {totalItems} Stück
-            </span>
+        <div className="relative overflow-hidden rounded-2xl bg-zinc-900 px-5 py-4 shadow-lg shadow-zinc-900/20">
+          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/5" />
+          <div className="absolute -right-2 -bottom-6 h-16 w-16 rounded-full bg-white/5" />
+          {/* Period buttons */}
+          <div className="relative mb-3 flex gap-1.5">
+            {(["all", "30", "60"] as const).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setRevPeriod(p)}
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all",
+                  revPeriod === p
+                    ? "bg-white text-zinc-900"
+                    : "bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white"
+                )}
+              >
+                {p === "all" ? "Umsatz" : p === "30" ? "Letzte 30 Tage" : "Letzte 60 Tage"}
+              </button>
+            ))}
           </div>
-          <div className="flex flex-col rounded-2xl border border-zinc-100/80 bg-white px-3.5 py-3 shadow-sm">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
-              Ø Verkauf
-            </span>
-            <span className="mt-1 text-[16px] font-bold tracking-tight text-zinc-900 sm:text-lg">
-              {sales.length > 0 ? formatCurrency(totalRevenue / sales.length) : "–"}
-            </span>
-          </div>
-          <div className="flex flex-col rounded-2xl border border-zinc-100 bg-white px-3.5 py-3 shadow-sm">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
-              Monat
-            </span>
-            <span className="mt-1 text-[16px] font-bold tracking-tight text-zinc-900 sm:text-lg">
-              {formatCurrency(
-                sales
-                  .filter((s) => {
-                    const d = new Date(s.soldAt);
-                    const now = new Date();
-                    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                  })
-                  .reduce((sum, s) => sum + s.totalAmount, 0)
-              )}
-            </span>
-          </div>
+          <p className="relative text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            {formatCurrency(displayRevenue)}
+          </p>
+          <p className="relative mt-1 text-[11px] text-zinc-500">{periodLabel}</p>
         </div>
       )}
 
