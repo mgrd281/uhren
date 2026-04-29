@@ -848,6 +848,11 @@ export default function SalesPage() {
                         </p>
                         <p className="mt-0.5 truncate text-[11px] text-zinc-400">
                           {sale.product.brand}
+                          {(sale.paymentMethod === "Geschenk" || sale.totalAmount === 0) && (
+                            <span className="ml-1 inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-pink-50 text-pink-500">
+                              Geschenk
+                            </span>
+                          )}
                           {sale.marketplace && (
                             <span className={`ml-1 inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium ${
                               sale.marketplace === "Shopify" ? "bg-emerald-50 text-emerald-700" :
@@ -871,13 +876,9 @@ export default function SalesPage() {
 
                       {/* Amount & time */}
                       <div className="text-right shrink-0">
-                        {sale.paymentMethod === "Geschenk" || sale.totalAmount === 0 ? (
-                          <p className="rounded-full bg-pink-50 px-2.5 py-1 text-[12px] font-bold text-pink-500">Geschenk</p>
-                        ) : (
-                          <p className="text-[14px] font-bold text-zinc-900">
-                            +{formatCurrency(sale.totalAmount)}
-                          </p>
-                        )}
+                        <p className="text-[14px] font-bold text-zinc-900">
+                          {sale.totalAmount > 0 ? `+${formatCurrency(sale.totalAmount)}` : "—"}
+                        </p>
                         <p className="mt-0.5 text-[10px] text-zinc-400">
                           {new Date(sale.soldAt).toLocaleTimeString("de-DE", {
                             hour: "2-digit",
