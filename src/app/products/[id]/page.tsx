@@ -1155,6 +1155,33 @@ export default function ProductDetailPage({
                   <Input type="number" min="1" value={editForm.quantitySold} onChange={(e) => setEditForm((f) => ({ ...f, quantitySold: e.target.value }))} required />
                 </div>
               </div>
+
+              {/* ── Live-Vorschau ── */}
+              {(() => {
+                const price = parseFloat(editForm.salePrice || "0");
+                const qty = parseInt(editForm.quantitySold || "1");
+                const shipping = parseFloat(editForm.shippingCost || "0");
+                const packaging = parseFloat(editForm.packagingCost || "0");
+                const gross = price * qty;
+                const costs = shipping + packaging;
+                const net = gross - costs;
+                if (!price || !qty) return null;
+                return (
+                  <div className="rounded-xl bg-zinc-950 px-4 py-3 text-white flex items-center justify-between">
+                    <div>
+                      <p className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500">Gesamt (brutto)</p>
+                      <p className="text-[20px] font-black tracking-tight leading-none mt-0.5">{formatCurrency(gross)}</p>
+                    </div>
+                    {costs > 0 && (
+                      <div className="text-right">
+                        <p className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500">Netto</p>
+                        <p className="text-[20px] font-black tracking-tight leading-none mt-0.5 text-emerald-400">{formatCurrency(net)}</p>
+                        <p className="text-[10px] text-zinc-600 mt-0.5">− {formatCurrency(costs)} Versand</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Kunde</label>
