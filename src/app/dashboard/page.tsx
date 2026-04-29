@@ -42,6 +42,7 @@ interface DashboardData {
     totalRevenue: number;
     totalProfit: number;
     revenueLast30Days: number;
+    soldLast30Days: number;
     revenueLast60Days: number;
   };
   charts: {
@@ -163,8 +164,8 @@ export default function DashboardPage() {
           {/* Extra stats grid */}
           <div className="relative mt-5 grid grid-cols-2 gap-2">
             <div className="rounded-xl bg-white/5 px-3 py-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Gewinn</p>
-              <p className="mt-1 text-[15px] font-bold text-emerald-400">{formatCurrency(kpis.totalProfit)}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Verkauft (30 Tage)</p>
+              <p className="mt-1 text-[15px] font-bold text-emerald-400">{kpis.soldLast30Days} Stk.</p>
             </div>
             <div className="rounded-xl bg-white/5 px-3 py-2.5">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Marken</p>

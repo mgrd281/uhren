@@ -219,6 +219,9 @@ export async function getDashboardData() {
   const revenueLast30Days = sales
     .filter((s) => new Date(s.soldAt) >= thirtyDaysAgo)
     .reduce((sum, s) => sum + s.totalAmount, 0);
+  const soldLast30Days = sales
+    .filter((s) => new Date(s.soldAt) >= thirtyDaysAgo)
+    .reduce((sum, s) => sum + s.quantitySold, 0);
 
   const sixtyDaysAgo = new Date();
   sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
@@ -317,6 +320,7 @@ export async function getDashboardData() {
       totalRevenue,
       totalProfit,
       revenueLast30Days,
+      soldLast30Days,
       revenueLast60Days,
     },
     charts: {
