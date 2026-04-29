@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -205,6 +206,25 @@ export default function Sidebar() {
             {/* Divider */}
             <div className="mx-4 my-1 h-px bg-zinc-100" />
 
+            {/* Profile row */}
+            {session?.user && (
+              <div className="flex items-center gap-3 rounded-2xl px-4 py-3">
+                <div className="relative shrink-0 h-9 w-9 rounded-full overflow-hidden bg-zinc-200 ring-2 ring-white shadow">
+                  {session.user.image ? (
+                    <Image src={session.user.image} alt={session.user.name || ""} fill className="object-cover" />
+                  ) : (
+                    <span className="flex h-full w-full items-center justify-center text-[12px] font-bold text-zinc-500">
+                      {(session.user.name || session.user.email || "?")[0].toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-[13px] font-semibold text-zinc-800">{session.user.name || session.user.email}</p>
+                  <p className="text-[11px] font-medium capitalize text-zinc-400">{role}</p>
+                </div>
+              </div>
+            )}
+
             {/* Logout */}
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
@@ -274,7 +294,25 @@ export default function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="mt-auto border-t border-zinc-100/80 pt-4">
+        <div className="mt-auto border-t border-zinc-100/80 pt-4 space-y-1">
+          {/* Profile card */}
+          {session?.user && (
+            <div className="flex items-center gap-3 rounded-xl px-3 py-2.5">
+              <div className="relative shrink-0 h-8 w-8 rounded-full overflow-hidden bg-zinc-200 ring-2 ring-white shadow">
+                {session.user.image ? (
+                  <Image src={session.user.image} alt={session.user.name || ""} fill className="object-cover" />
+                ) : (
+                  <span className="flex h-full w-full items-center justify-center text-[11px] font-bold text-zinc-500">
+                    {(session.user.name || session.user.email || "?")[0].toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[12px] font-semibold text-zinc-800">{session.user.name || session.user.email}</p>
+                <p className="text-[10px] font-medium capitalize text-zinc-400">{role}</p>
+              </div>
+            </div>
+          )}
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium text-zinc-400 transition-all duration-200 hover:bg-red-50 hover:text-red-600"
@@ -282,9 +320,6 @@ export default function Sidebar() {
             <LogOut size={18} strokeWidth={1.6} className="shrink-0 text-zinc-400 group-hover:text-red-500" />
             Abmelden
           </button>
-          <p className="mt-3 text-center text-[10px] font-medium text-zinc-300">
-            Luxury Watch SaaS v1.0
-          </p>
         </div>
       </aside>
     </>
