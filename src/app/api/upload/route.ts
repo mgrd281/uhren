@@ -9,8 +9,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       body,
       request,
       onBeforeGenerateToken: async () => ({
-        allowedContentTypes: ["image/*"],
         maximumSizeInBytes: 100 * 1024 * 1024, // 100 MB
+        addRandomSuffix: true,
       }),
       onUploadCompleted: async () => {
         // nothing needed server-side after upload

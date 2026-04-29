@@ -155,11 +155,12 @@ export default function ProductForm({
       const blob = await upload(`watches/${Date.now()}-${file.name}`, file, {
         access: "public",
         handleUploadUrl: "/api/upload",
+        multipart: file.size > 4 * 1024 * 1024,
       });
       updateField("mainImage", blob.url);
       toast.success("Bild hochgeladen");
-    } catch {
-      toast.error("Bild konnte nicht hochgeladen werden");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Bild konnte nicht hochgeladen werden");
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -478,7 +479,11 @@ export default function ProductForm({
                         const blob = await upload(
                           `watches/${Date.now()}-${file.name}`,
                           file,
-                          { access: "public", handleUploadUrl: "/api/upload" }
+                          {
+                            access: "public",
+                            handleUploadUrl: "/api/upload",
+                            multipart: file.size > 4 * 1024 * 1024,
+                          }
                         );
                         const saveRes = await fetch(`/api/products/${productId}/gallery-images`, {
                           method: "POST",
@@ -490,7 +495,7 @@ export default function ProductForm({
                           setGallery((prev) => [...prev, img]);
                           added++;
                         }
-                      } catch { toast.error(`${file.name}: Fehler`); }
+                      } catch (err) { toast.error(`${file.name}: ${err instanceof Error ? err.message : "Upload fehlgeschlagen"}`); }
                     }
                     if (added > 0) toast.success(`${added} Bild${added > 1 ? "er" : ""} hinzugefügt`);
                     setGalleryUploading(false);
