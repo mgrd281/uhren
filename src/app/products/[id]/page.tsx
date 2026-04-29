@@ -897,23 +897,23 @@ export default function ProductDetailPage({
             </div>
 
             {/* Scrollable form */}
-            <form id="sale-form" onSubmit={handleSale} className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+            <form id="sale-form" onSubmit={handleSale} className="flex-1 overflow-y-auto px-5 py-4 space-y-3.5">
 
               {/* ── Preis & Menge ── */}
               <div className="grid grid-cols-2 gap-3">
                 {saleForm.paymentMethod !== "Geschenk" ? (
                   <div>
-                    <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Preis (€) *</label>
-                    <Input type="number" step="0.01" min="0.01" required placeholder="0.00" value={saleForm.salePrice} onChange={(e) => setSaleForm((f) => ({ ...f, salePrice: e.target.value }))} className="text-[17px] font-bold" />
+                    <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Preis (€) *</label>
+                    <Input type="number" step="0.01" min="0.01" required placeholder="0.00" value={saleForm.salePrice} onChange={(e) => setSaleForm((f) => ({ ...f, salePrice: e.target.value }))} className="text-[18px] font-bold h-12" />
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 flex items-center justify-center px-3">
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 flex items-center justify-center h-12 mt-[22px]">
                     <p className="text-[13px] font-semibold text-emerald-700">🎁 Geschenk — 0 €</p>
                   </div>
                 )}
                 <div>
-                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Menge *</label>
-                  <Input type="number" min="1" max={product.quantity} required value={saleForm.quantitySold} onChange={(e) => setSaleForm((f) => ({ ...f, quantitySold: e.target.value }))} className="text-[17px] font-bold" />
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Menge *</label>
+                  <Input type="number" min="1" max={product.quantity} required value={saleForm.quantitySold} onChange={(e) => setSaleForm((f) => ({ ...f, quantitySold: e.target.value }))} className="text-[18px] font-bold h-12" />
                 </div>
               </div>
 
@@ -924,24 +924,22 @@ export default function ProductDetailPage({
                 const shipping = saleForm.versand ? parseFloat(saleForm.shippingCost || "0") : 0;
                 const packaging = parseFloat(saleForm.packagingCost || "0");
                 const total = price * qty;
-                const totalWithCosts = total + shipping + packaging;
-                const profit = (price - product.costPrice) * qty - shipping - packaging;
+                const costs = shipping + packaging;
+                const profit = (price - product.costPrice) * qty - costs;
                 return (
-                  <div className="rounded-2xl bg-zinc-950 px-4 py-3.5 text-white">
+                  <div className="rounded-2xl bg-zinc-950 px-4 py-3 text-white">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Gesamt</p>
-                        <p className="text-[22px] font-black tracking-tight leading-none mt-0.5">{formatCurrency(totalWithCosts)}</p>
-                        {(shipping > 0 || packaging > 0) && (
-                          <p className="text-[10px] text-zinc-500 mt-0.5">ohne Versand {formatCurrency(total)}</p>
-                        )}
+                        <p className="text-[9px] font-semibold text-zinc-500 uppercase tracking-wider">Einnahmen</p>
+                        <p className="text-[22px] font-black tracking-tight leading-none mt-0.5">{formatCurrency(total)}</p>
+                        {costs > 0 && <p className="text-[10px] text-zinc-500 mt-0.5">− Kosten {formatCurrency(costs)} = {formatCurrency(total - costs)}</p>}
                       </div>
                       <div className="text-right">
-                        <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Gewinn</p>
-                        <p className={`text-[18px] font-black tracking-tight leading-none mt-0.5 ${profit >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                        <p className="text-[9px] font-semibold text-zinc-500 uppercase tracking-wider">Gewinn</p>
+                        <p className={`text-[20px] font-black tracking-tight leading-none mt-0.5 ${profit >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                           {profit >= 0 ? "+" : ""}{formatCurrency(profit)}
                         </p>
-                        <p className="text-[10px] text-zinc-500 mt-0.5">EK: {formatCurrency(product.costPrice)}</p>
+                        <p className="text-[10px] text-zinc-600 mt-0.5">EK: {formatCurrency(product.costPrice)}</p>
                       </div>
                     </div>
                   </div>
@@ -950,121 +948,140 @@ export default function ProductDetailPage({
 
               {/* ── Zahlungsart ── */}
               <div>
-                <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Zahlungsart</label>
-                <div className="flex flex-wrap gap-2">
+                <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Zahlungsart</label>
+                <div className="flex flex-wrap gap-1.5">
                   {[
-                    { key: "Bar", label: "Bar" },
-                    { key: "PayPal", label: "PayPal" },
-                    { key: "Überweisung", label: "Überw." },
-                    { key: "Geschenk", label: "Geschenk 🎁" },
+                    { key: "Bar" }, { key: "PayPal" }, { key: "Überweisung", label: "Überw." }, { key: "Geschenk", label: "Geschenk 🎁" },
                   ].map(({ key, label }) => (
                     <button key={key} type="button"
                       onClick={() => setSaleForm((f) => ({ ...f, paymentMethod: f.paymentMethod === key ? "" : key, salePrice: key === "Geschenk" ? "0" : f.salePrice }))}
-                      className={`rounded-xl px-3.5 py-2 text-[12px] font-semibold transition-all ${saleForm.paymentMethod === key ? "bg-zinc-900 text-white shadow-md" : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"}`}>
-                      {label}
+                      className={`rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all ${saleForm.paymentMethod === key ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"}`}>
+                      {label || key}
                     </button>
                   ))}
                   {saleForm.paymentMethod === "__custom" ? (
-                    <div className="flex gap-2 flex-1">
-                      <Input autoFocus placeholder="Zahlungsart…" className="flex-1 h-9" value={saleForm.customPayment || ""} onChange={(e) => setSaleForm((f) => ({ ...f, customPayment: e.target.value }))} />
-                      <button type="button" onClick={() => setSaleForm((f) => ({ ...f, paymentMethod: "", customPayment: "" }))} className="rounded-xl px-2 text-zinc-400 ring-1 ring-zinc-200 hover:bg-zinc-50"><X size={13} /></button>
+                    <div className="flex gap-1.5 flex-1 min-w-[160px]">
+                      <Input autoFocus placeholder="Zahlungsart…" className="flex-1 h-8 text-[12px]" value={saleForm.customPayment || ""} onChange={(e) => setSaleForm((f) => ({ ...f, customPayment: e.target.value }))} />
+                      <button type="button" onClick={() => setSaleForm((f) => ({ ...f, paymentMethod: "", customPayment: "" }))} className="rounded-lg px-2 text-zinc-400 ring-1 ring-zinc-200 hover:bg-zinc-50"><X size={12} /></button>
                     </div>
                   ) : (
-                    <button type="button" onClick={() => setSaleForm((f) => ({ ...f, paymentMethod: "__custom", customPayment: "" }))} className="rounded-xl px-3.5 py-2 text-[12px] font-semibold text-zinc-300 ring-1 ring-dashed ring-zinc-200 hover:text-zinc-500">+ Andere</button>
+                    <button type="button" onClick={() => setSaleForm((f) => ({ ...f, paymentMethod: "__custom", customPayment: "" }))} className="rounded-lg px-3 py-1.5 text-[12px] font-semibold text-zinc-300 ring-1 ring-dashed ring-zinc-200 hover:text-zinc-400">+ Andere</button>
                   )}
                 </div>
               </div>
 
-              {/* ── Verkaufskanal ── */}
+              {/* ── Kanal ── */}
               <div>
-                <label className="mb-2 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Kanal <span className="font-normal normal-case text-zinc-300">optional</span></label>
-                <div className="flex flex-wrap gap-2">
+                <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Kanal <span className="font-normal normal-case text-zinc-300">optional</span></label>
+                <div className="flex flex-wrap gap-1.5">
                   {[
-                    { key: "Shopify", label: "Shopify" },
-                    { key: "eBay Kleinanzeigen", label: "eBay KA" },
-                    { key: "Kaufland", label: "Kaufland" },
+                    { key: "Shopify" }, { key: "eBay Kleinanzeigen", label: "eBay KA" }, { key: "Kaufland" },
                   ].map(({ key, label }) => (
                     <button key={key} type="button"
                       onClick={() => setSaleForm((f) => ({ ...f, marketplace: f.marketplace === key ? "" : key }))}
-                      className={`rounded-xl px-3.5 py-2 text-[12px] font-semibold transition-all ${saleForm.marketplace === key ? "bg-zinc-900 text-white shadow-md" : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"}`}>
-                      {label}
+                      className={`rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all ${saleForm.marketplace === key ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"}`}>
+                      {label || key}
                     </button>
                   ))}
                   {saleForm.marketplace === "__custom" ? (
-                    <div className="flex gap-2 flex-1">
-                      <Input autoFocus placeholder="Kanal…" className="flex-1 h-9" value={saleForm.customMarketplace || ""} onChange={(e) => setSaleForm((f) => ({ ...f, customMarketplace: e.target.value }))} />
-                      <button type="button" onClick={() => setSaleForm((f) => ({ ...f, marketplace: "", customMarketplace: "" }))} className="rounded-xl px-2 text-zinc-400 ring-1 ring-zinc-200 hover:bg-zinc-50"><X size={13} /></button>
+                    <div className="flex gap-1.5 flex-1 min-w-[140px]">
+                      <Input autoFocus placeholder="Kanal…" className="flex-1 h-8 text-[12px]" value={saleForm.customMarketplace || ""} onChange={(e) => setSaleForm((f) => ({ ...f, customMarketplace: e.target.value }))} />
+                      <button type="button" onClick={() => setSaleForm((f) => ({ ...f, marketplace: "", customMarketplace: "" }))} className="rounded-lg px-2 text-zinc-400 ring-1 ring-zinc-200 hover:bg-zinc-50"><X size={12} /></button>
                     </div>
                   ) : (
-                    <button type="button" onClick={() => setSaleForm((f) => ({ ...f, marketplace: "__custom", customMarketplace: "" }))} className="rounded-xl px-3.5 py-2 text-[12px] font-semibold text-zinc-300 ring-1 ring-dashed ring-zinc-200 hover:text-zinc-500">+ Andere</button>
+                    <button type="button" onClick={() => setSaleForm((f) => ({ ...f, marketplace: "__custom", customMarketplace: "" }))} className="rounded-lg px-3 py-1.5 text-[12px] font-semibold text-zinc-300 ring-1 ring-dashed ring-zinc-200 hover:text-zinc-400">+ Andere</button>
                   )}
                 </div>
               </div>
 
               {/* ── Datum · Kunde · Rechnung ── */}
-              <div className="grid grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Datum</label>
-                  <Input type="date" value={saleForm.soldAt} onChange={(e) => setSaleForm((f) => ({ ...f, soldAt: e.target.value }))} />
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Datum</label>
+                  <Input type="date" value={saleForm.soldAt} onChange={(e) => setSaleForm((f) => ({ ...f, soldAt: e.target.value }))} className="text-[12px]" />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Kunde</label>
-                  <Input placeholder="optional" value={saleForm.customerName} onChange={(e) => setSaleForm((f) => ({ ...f, customerName: e.target.value }))} />
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Kunde</label>
+                  <Input placeholder="optional" value={saleForm.customerName} onChange={(e) => setSaleForm((f) => ({ ...f, customerName: e.target.value }))} className="text-[12px]" />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Rechnung</label>
-                  <Input placeholder="Nr." value={saleForm.invoiceNumber || ""} onChange={(e) => setSaleForm((f) => ({ ...f, invoiceNumber: e.target.value }))} />
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Rechnung</label>
+                  <Input placeholder="Nr." value={saleForm.invoiceNumber || ""} onChange={(e) => setSaleForm((f) => ({ ...f, invoiceNumber: e.target.value }))} className="text-[12px]" />
                 </div>
               </div>
 
               {/* ── Notiz ── */}
               <div>
-                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Notiz <span className="font-normal normal-case text-zinc-300">optional</span></label>
-                <Input placeholder="z.B. Abholung vereinbart…" value={saleForm.notes} onChange={(e) => setSaleForm((f) => ({ ...f, notes: e.target.value }))} />
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Notiz <span className="font-normal normal-case text-zinc-300">optional</span></label>
+                <Input placeholder="z.B. Abholung vereinbart…" value={saleForm.notes} onChange={(e) => setSaleForm((f) => ({ ...f, notes: e.target.value }))} className="text-[12px]" />
               </div>
 
               {/* ── Versand Toggle ── */}
-              <label className={`flex items-center gap-3 rounded-xl border p-3 cursor-pointer transition-all ${saleForm.versand ? "border-blue-200 bg-blue-50" : "border-zinc-100 hover:border-zinc-200 hover:bg-zinc-50"}`}>
-                <input type="checkbox" checked={saleForm.versand} onChange={(e) => setSaleForm((f) => ({ ...f, versand: e.target.checked }))} className="h-4 w-4 rounded accent-blue-600" />
-                <span className="text-[13px] font-medium text-zinc-700">📦 Versand</span>
-                <span className="ml-auto text-[11px] text-zinc-400">als versendet markieren</span>
-              </label>
+              <div className={`rounded-xl border transition-all ${saleForm.versand ? "border-blue-200 bg-blue-50/60" : "border-zinc-100"}`}>
+                <label className="flex cursor-pointer items-center gap-3 px-3.5 py-3">
+                  <input type="checkbox" checked={saleForm.versand} onChange={(e) => setSaleForm((f) => ({ ...f, versand: e.target.checked }))} className="h-4 w-4 rounded accent-blue-600 shrink-0" />
+                  <span className="text-[13px] font-semibold text-zinc-700">📦 Versand</span>
+                  <span className="ml-auto text-[11px] text-zinc-400">als versendet markieren</span>
+                </label>
 
-              {saleForm.versand && (
-                <div className="space-y-3 rounded-xl border border-blue-100 bg-blue-50/40 p-3.5">
-                  <div className="grid grid-cols-2 gap-2.5">
+                {saleForm.versand && (
+                  <div className="space-y-3 border-t border-blue-100 px-3.5 pb-3.5 pt-3">
+
+                    {/* Lieferadresse — prominent */}
                     <div>
-                      <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Versandkosten (€)</label>
-                      <Input type="number" step="0.01" min="0" placeholder="0.00" value={saleForm.shippingCost} onChange={(e) => setSaleForm((f) => ({ ...f, shippingCost: e.target.value }))} />
+                      <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-500">📍 Lieferadresse</label>
+                      <textarea
+                        rows={3}
+                        placeholder={"Max Mustermann\nMusterstraße 1\n12345 Berlin"}
+                        value={saleForm.shippingAddress}
+                        onChange={(e) => setSaleForm((f) => ({ ...f, shippingAddress: e.target.value }))}
+                        className="w-full rounded-xl border border-blue-200 bg-white px-3 py-2.5 text-[13px] outline-none placeholder:text-zinc-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 resize-none"
+                      />
                     </div>
+
+                    {/* Kosten */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Versandkosten (€)</label>
+                        <Input type="number" step="0.01" min="0" placeholder="0.00" value={saleForm.shippingCost} onChange={(e) => setSaleForm((f) => ({ ...f, shippingCost: e.target.value }))} className="text-[13px]" />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Verpackung (€)</label>
+                        <Input type="number" step="0.01" min="0" placeholder="0.00" value={saleForm.packagingCost} onChange={(e) => setSaleForm((f) => ({ ...f, packagingCost: e.target.value }))} className="text-[13px]" />
+                      </div>
+                    </div>
+
+                    {/* Dienstleister */}
                     <div>
-                      <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Sendungsnummer</label>
-                      <Input placeholder="optional" value={saleForm.trackingNumber} onChange={(e) => setSaleForm((f) => ({ ...f, trackingNumber: e.target.value }))} />
+                      <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Dienstleister</label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {["DHL", "DHL Express", "Hermes", "GLS", "DPD", "Andere"].map((c) => (
+                          <button key={c} type="button" onClick={() => setSaleForm((f) => ({ ...f, shippingCarrier: f.shippingCarrier === c ? "" : c }))}
+                            className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-all ${saleForm.shippingCarrier === c ? "bg-blue-600 text-white" : "bg-white text-zinc-600 ring-1 ring-zinc-200 hover:ring-zinc-300"}`}>
+                            {c}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Dienstleister</label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {["DHL", "DHL Express", "Hermes", "GLS", "DPD", "Andere"].map((c) => (
-                        <button key={c} type="button" onClick={() => setSaleForm((f) => ({ ...f, shippingCarrier: f.shippingCarrier === c ? "" : c }))}
-                          className={`rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all ${saleForm.shippingCarrier === c ? "bg-blue-600 text-white" : "bg-white text-zinc-600 ring-1 ring-zinc-200 hover:ring-zinc-300"}`}>
-                          {c}
-                        </button>
-                      ))}
+
+                    {/* Sendungsnummer */}
+                    <div>
+                      <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Sendungsnummer</label>
+                      <Input placeholder="optional" value={saleForm.trackingNumber} onChange={(e) => setSaleForm((f) => ({ ...f, trackingNumber: e.target.value }))} className="text-[12px]" />
                     </div>
+
                   </div>
-                  <div>
-                    <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Lieferadresse</label>
-                    <textarea rows={2} placeholder={"Max Mustermann\nMusterstraße 1, 12345 Berlin"} value={saleForm.shippingAddress} onChange={(e) => setSaleForm((f) => ({ ...f, shippingAddress: e.target.value }))} className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-[13px] outline-none placeholder:text-zinc-300 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100 resize-none bg-white" />
-                  </div>
+                )}
+              </div>
+
+              {/* ── Verpackungskosten (ohne Versand) ── */}
+              {!saleForm.versand && (
+                <div>
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Verpackung (€) <span className="font-normal normal-case text-zinc-300">optional</span></label>
+                  <Input type="number" step="0.01" min="0" placeholder="0.00" value={saleForm.packagingCost} onChange={(e) => setSaleForm((f) => ({ ...f, packagingCost: e.target.value }))} className="text-[13px]" />
                 </div>
               )}
 
-              {/* ── Verpackungskosten ── */}
-              <div>
-                <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Verpackungskosten (€) <span className="font-normal normal-case text-zinc-300">optional</span></label>
-                <Input type="number" step="0.01" min="0" placeholder="0.00" value={saleForm.packagingCost} onChange={(e) => setSaleForm((f) => ({ ...f, packagingCost: e.target.value }))} />
-              </div>
             </form>
 
             {/* Footer */}
