@@ -689,17 +689,30 @@ export default function ProductDetailPage({
 
                 {/* Content */}
                 <div className="flex-1 rounded-xl border border-zinc-100 p-4 transition-colors hover:bg-zinc-50">
+                  {/* Date badge */}
+                  <div className="mb-2.5 flex items-center gap-1.5">
+                    <span className="inline-flex items-center rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-semibold text-zinc-600">
+                      {new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(sale.soldAt))}
+                    </span>
+                    {sale.marketplace && (
+                      <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-600">
+                        {sale.marketplace}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
                       <p className="text-[13px] font-medium text-zinc-800">
                         {sale.quantitySold} Stück × {formatCurrency(sale.salePrice)}
                       </p>
-                      <p className="text-[11px] text-zinc-400">
-                        {formatDateTime(sale.soldAt)}
-                        {sale.customerName && ` · ${sale.customerName}`}
-                        {sale.paymentMethod && ` · ${sale.paymentMethod}`}
-                        {sale.shippingCost > 0 && ` · Versand ${formatCurrency(sale.shippingCost)}`}
-                        {sale.invoiceNumber && ` · ${sale.invoiceNumber}`}
+                      <p className="mt-0.5 text-[11px] text-zinc-400">
+                        {sale.customerName && `${sale.customerName}`}
+                        {sale.customerName && sale.paymentMethod && ` · `}
+                        {sale.paymentMethod && `${sale.paymentMethod}`}
+                        {(sale.customerName || sale.paymentMethod) && sale.shippingCost > 0 && ` · `}
+                        {sale.shippingCost > 0 && `Versand ${formatCurrency(sale.shippingCost)}`}
+                        {(sale.customerName || sale.paymentMethod || sale.shippingCost > 0) && sale.invoiceNumber && ` · `}
+                        {sale.invoiceNumber && `${sale.invoiceNumber}`}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
