@@ -9,7 +9,7 @@ import {
   Warehouse,
   AlertTriangle,
   XCircle,
-  TrendingUp,
+  TrendingUp as _TrendingUp,
   Gem,
   ArrowUpRight,
   ShoppingBag,
@@ -42,6 +42,7 @@ interface DashboardData {
     totalRevenue: number;
     totalProfit: number;
     revenueLast30Days: number;
+    revenueLast60Days: number;
   };
   charts: {
     salesOverTime: { month: string; revenue: number; profit: number }[];
@@ -73,6 +74,7 @@ const COLORS = ["#18181b", "#3f3f46", "#71717a", "#a1a1aa", "#d4d4d8"];
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [revPeriod, setRevPeriod] = useState<"all" | "30" | "60">("all");
 
   useEffect(() => {
     fetch("/api/dashboard")
@@ -100,6 +102,16 @@ export default function DashboardPage() {
   if (!data) return null;
   const { kpis, charts, recentSales, alerts } = data;
 
+  const displayRevenue =
+    revPeriod === "all" ? kpis.totalRevenue :
+    revPeriod === "30" ? kpis.revenueLast30Days :
+    kpis.revenueLast60Days;
+
+  const periodLabel =
+    revPeriod === "all" ? "Alle Verkäufe" :
+    revPeriod === "30" ? "Letzte 30 Tage" :
+    "Letzte 60 Tage";
+
   return (
     <div className="space-y-6 lg:space-y-7 animate-fade-in">
 
@@ -117,31 +129,37 @@ export default function DashboardPage() {
       {/* ── Hero Revenue Row ── */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
 
-        {/* Total Revenue — dark hero */}
-        <Link href="/sales"
-          className="group relative overflow-hidden rounded-2xl bg-zinc-900 p-5 transition-all duration-300 hover:shadow-2xl hover:shadow-zinc-900/30 hover:-translate-y-0.5 active:scale-[0.98] lg:p-6">
-          <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/5 transition-all group-hover:scale-110" />
+        {/* Revenue hero with period toggle */}
+        <div className="group relative overflow-hidden rounded-2xl bg-zinc-900 p-5 transition-all duration-300 hover:shadow-2xl hover:shadow-zinc-900/30 sm:col-span-2 lg:p-6">
+          <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/5" />
           <div className="absolute -right-2 -bottom-8 h-20 w-20 rounded-full bg-white/5" />
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">Gesamtumsatz</p>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-white lg:text-4xl">{formatCurrency(kpis.totalRevenue)}</p>
-          <div className="mt-3 flex items-center gap-1.5">
-            <Activity size={11} className="text-zinc-500" />
-            <p className="text-[11px] text-zinc-500">Alle Verkäufe</p>
-          </div>
-        </Link>
 
-        {/* Last 30 days */}
-        <Link href="/sales"
-          className="group flex flex-col justify-between rounded-2xl border border-zinc-100 bg-white p-5 transition-all duration-300 hover:shadow-lg hover:shadow-zinc-100 hover:-translate-y-0.5 active:scale-[0.98] lg:p-6">
-          <div className="flex items-center justify-between">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">Letzte 30 Tage</p>
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-50">
-              <TrendingUp size={14} className="text-blue-500" />
-            </div>
+          {/* Period buttons */}
+          <div className="relative mb-4 flex gap-1.5">
+            {(["all", "30", "60"] as const).map((p) => (
+              <button
+                key={p}
+                onClick={() => setRevPeriod(p)}
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all",
+                  revPeriod === p
+                    ? "bg-white text-zinc-900"
+                    : "bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white"
+                )}
+              >
+                {p === "all" ? "Umsatz" : p === "30" ? "Letzte 30 Tage" : "Letzte 60 Tage"}
+              </button>
+            ))}
           </div>
-          <p className="mt-3 text-2xl font-bold tracking-tight text-zinc-900 lg:text-3xl">{formatCurrency(kpis.revenueLast30Days)}</p>
-          <p className="mt-1 text-[11px] text-zinc-400">Umsatz im laufenden Monat</p>
-        </Link>
+
+          <p className="relative text-3xl font-bold tracking-tight text-white lg:text-4xl">
+            {formatCurrency(displayRevenue)}
+          </p>
+          <div className="relative mt-3 flex items-center gap-1.5">
+            <Activity size={11} className="text-zinc-500" />
+            <p className="text-[11px] text-zinc-500">{periodLabel}</p>
+          </div>
+        </div>
 
         {/* Inventory value */}
         <Link href="/products"
