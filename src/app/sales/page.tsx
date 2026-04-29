@@ -287,7 +287,7 @@ export default function SalesPage() {
     return matchSearch && matchMarket && matchPayment && matchPeriod;
   });
   const grouped = groupByDate(filtered);
-  const saleIndexMap = new Map(filtered.map((s, i) => [s.id, i + 1]));
+  const saleIndexMap = new Map(filtered.map((s, i) => [s.id, filtered.length - i]));
 
   return (
     <div className="space-y-5 animate-fade-in">

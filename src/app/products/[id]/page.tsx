@@ -684,7 +684,7 @@ export default function ProductDetailPage({
               <div key={sale.id} className="relative flex gap-5 pb-6">
                 {/* Dot */}
                 <div className="relative z-10 mt-1.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-white">
-                  <span className="text-[10px] font-bold">{idx + 1}</span>
+                  <span className="text-[10px] font-bold">{product.sales.length - idx}</span>
                 </div>
 
                 {/* Content */}
