@@ -855,7 +855,7 @@ export default function ProductDetailPage({
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={(e) => { if (e.target === e.currentTarget) setShowSaleModal(false); }}
         >
-          <div className="mx-4 w-full max-w-lg rounded-3xl bg-white shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+          <div className="mx-4 w-full max-w-2xl rounded-3xl bg-white shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
             {/* Header */}
             <div className="flex items-start gap-4 border-b border-zinc-100 p-6">
               <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-50">
@@ -897,7 +897,7 @@ export default function ProductDetailPage({
             </div>
 
             {/* Scrollable form */}
-            <form id="sale-form" onSubmit={handleSale} className="flex-1 overflow-y-auto px-5 py-4 space-y-3.5">
+            <form id="sale-form" onSubmit={handleSale} className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
 
               {/* ── Preis & Menge ── */}
               <div className="grid grid-cols-2 gap-3">
@@ -946,7 +946,8 @@ export default function ProductDetailPage({
                 );
               })()}
 
-              {/* ── Zahlungsart ── */}
+              {/* ── Zahlungsart + Kanal ── */}
+              <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Zahlungsart</label>
                 <div className="flex flex-wrap gap-1.5">
@@ -970,7 +971,6 @@ export default function ProductDetailPage({
                 </div>
               </div>
 
-              {/* ── Kanal ── */}
               <div>
                 <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Kanal <span className="font-normal normal-case text-zinc-300">optional</span></label>
                 <div className="flex flex-wrap gap-1.5">
@@ -994,8 +994,10 @@ export default function ProductDetailPage({
                 </div>
               </div>
 
-              {/* ── Datum · Kunde · Rechnung ── */}
-              <div className="grid grid-cols-3 gap-2">
+              </div>
+
+              {/* ── Datum · Kunde · Rechnung · Notiz ── */}
+              <div className="grid grid-cols-4 gap-2">
                 <div>
                   <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Datum</label>
                   <Input type="date" value={saleForm.soldAt} onChange={(e) => setSaleForm((f) => ({ ...f, soldAt: e.target.value }))} className="text-[12px]" />
@@ -1008,12 +1010,10 @@ export default function ProductDetailPage({
                   <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Rechnung</label>
                   <Input placeholder="Nr." value={saleForm.invoiceNumber || ""} onChange={(e) => setSaleForm((f) => ({ ...f, invoiceNumber: e.target.value }))} className="text-[12px]" />
                 </div>
-              </div>
-
-              {/* ── Notiz ── */}
-              <div>
-                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Notiz <span className="font-normal normal-case text-zinc-300">optional</span></label>
-                <Input placeholder="z.B. Abholung vereinbart…" value={saleForm.notes} onChange={(e) => setSaleForm((f) => ({ ...f, notes: e.target.value }))} className="text-[12px]" />
+                <div>
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Notiz <span className="font-normal normal-case text-zinc-300">optional</span></label>
+                  <Input placeholder="z.B. Abholung…" value={saleForm.notes} onChange={(e) => setSaleForm((f) => ({ ...f, notes: e.target.value }))} className="text-[12px]" />
+                </div>
               </div>
 
               {/* ── Lieferadresse ── */}
