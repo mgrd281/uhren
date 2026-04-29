@@ -41,6 +41,8 @@ model Product {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   notes             String?
+  storageLocation   String?
+  storagePhoto      String?
   galleryImages     ProductImage[]
   sales             Sale[]
   inventoryMoves    InventoryMovement[]

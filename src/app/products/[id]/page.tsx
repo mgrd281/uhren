@@ -77,6 +77,8 @@ interface Product {
   createdAt: string;
   updatedAt: string;
   notes: string | null;
+  storageLocation: string | null;
+  storagePhoto: string | null;
   galleryImages: GalleryImage[];
   sales: Sale[];
   inventoryMoves: Movement[];
@@ -124,6 +126,9 @@ export default function ProductDetailPage({
   const [editingField, setEditingField] = useState<"costPrice" | "salePriceExpected" | "quantity" | null>(null);
   const [editValue, setEditValue] = useState("");
   const [deletingImageId, setDeletingImageId] = useState<string | null>(null);
+  const [showStorageModal, setShowStorageModal] = useState(false);
+  const [storageForm, setStorageForm] = useState({ location: "", photo: "" });
+  const [storageSaving, setStorageSaving] = useState(false);
 
   useEffect(() => {
     setLoadError(null);
@@ -180,6 +185,27 @@ export default function ProductDetailPage({
     } else {
       toast.error("Fehler beim Speichern");
     }
+  }
+
+  async function handleSaveStorage() {
+    if (!product) return;
+    setStorageSaving(true);
+    const res = await fetch(`/api/products/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        storageLocation: storageForm.location || null,
+        storagePhoto: storageForm.photo || null,
+      }),
+    });
+    if (res.ok) {
+      toast.success("Lagerort gespeichert");
+      setShowStorageModal(false);
+      reloadProduct();
+    } else {
+      toast.error("Fehler beim Speichern");
+    }
+    setStorageSaving(false);
   }
 
   async function handleSale(e: React.FormEvent) {
@@ -405,6 +431,22 @@ export default function ProductDetailPage({
               >
                 <DollarSign size={14} />
                 Verkauf erfassen
+              </Button>
+            )}
+            {canEdit && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  setStorageForm({
+                    location: product.storageLocation || "",
+                    photo: product.storagePhoto || "",
+                  });
+                  setShowStorageModal(true);
+                }}
+              >
+                <span className="text-[13px]">📦</span>
+                Lagerort
               </Button>
             )}
             {canEdit && (
@@ -660,6 +702,17 @@ export default function ProductDetailPage({
             <span>Warngrenze: {product.lowStockThreshold}</span>
             <span>·</span>
             <span>eBay: {isPostedOnEbay ? "Kleinanzeige" : "Nicht gepostet"}</span>
+            {product.storageLocation && (
+              <>
+                <span>·</span>
+                <button
+                  onClick={() => { setStorageForm({ location: product.storageLocation || "", photo: product.storagePhoto || "" }); setShowStorageModal(true); }}
+                  className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700 hover:bg-amber-100 transition-colors"
+                >
+                  📦 {product.storageLocation}
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -1130,6 +1183,95 @@ export default function ProductDetailPage({
       )}
 
       {/* Christ Image Import Modal */}
+
+      {/* Lagerort Modal */}
+      {showStorageModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowStorageModal(false); }}
+        >
+          <div className="w-full max-w-md rounded-t-3xl bg-white sm:rounded-2xl max-h-[90vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center gap-3 bg-zinc-950 px-5 py-4 rounded-t-3xl sm:rounded-t-2xl">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500 text-white text-lg">📦</div>
+              <div className="flex-1">
+                <h3 className="text-[14px] font-bold text-white">Lagerort</h3>
+                <p className="text-[11px] text-zinc-400">{product.brand} · {product.name}</p>
+              </div>
+              <button onClick={() => setShowStorageModal(false)} className="rounded-xl p-2 text-zinc-500 hover:bg-white/10 hover:text-white">
+                <X size={17} />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto p-5 space-y-4">
+              {/* Lagerort Text */}
+              <div>
+                <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Lagerort / Position</label>
+                <Input
+                  placeholder="z.B. Vitrine A · Fach 3 · Reihe 2"
+                  value={storageForm.location}
+                  onChange={(e) => setStorageForm((f) => ({ ...f, location: e.target.value }))}
+                  className="text-[14px] font-medium"
+                />
+                <p className="mt-1.5 text-[10px] text-zinc-400">Beispiele: Vitrine B / Schublade 4 / Regal 2 Fach 1 / Box 07</p>
+              </div>
+
+              {/* Foto */}
+              <div>
+                <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Foto des Lagerorts <span className="font-normal normal-case text-zinc-300">optional</span></label>
+                {storageForm.photo ? (
+                  <div className="relative rounded-xl overflow-hidden border border-zinc-200">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={storageForm.photo} alt="Lagerort" className="w-full max-h-48 object-cover" />
+                    <button
+                      onClick={() => setStorageForm((f) => ({ ...f, photo: "" }))}
+                      className="absolute top-2 right-2 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/80"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-200 py-8 hover:border-zinc-300 hover:bg-zinc-50 transition-colors">
+                    <span className="text-3xl">📷</span>
+                    <span className="text-[12px] font-medium text-zinc-500">Foto hochladen</span>
+                    <span className="text-[10px] text-zinc-300">JPG, PNG bis 5 MB</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = (ev) => setStorageForm((f) => ({ ...f, photo: ev.target?.result as string }));
+                      reader.readAsDataURL(file);
+                    }} />
+                  </label>
+                )}
+              </div>
+
+              {/* Quick-Vorschläge */}
+              <div>
+                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Schnellauswahl</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {["Vitrine A", "Vitrine B", "Vitrine C", "Schublade 1", "Schublade 2", "Schublade 3", "Regal 1", "Regal 2", "Box 01", "Box 02", "Tresor"].map((loc) => (
+                    <button key={loc} type="button"
+                      onClick={() => setStorageForm((f) => ({ ...f, location: loc }))}
+                      className={`rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-all ${storageForm.location === loc ? "bg-amber-500 text-white" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"}`}>
+                      {loc}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-zinc-100 p-4 flex gap-3">
+              <Button onClick={handleSaveStorage} disabled={storageSaving} className="flex-1 h-11 text-[14px] font-semibold bg-amber-500 hover:bg-amber-600">
+                {storageSaving ? "Speichert…" : "💾 Lagerort speichern"}
+              </Button>
+              <Button variant="secondary" onClick={() => setShowStorageModal(false)} className="h-11 px-5">
+                Abbrechen
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Sale Modal */}
       {editingSale && (

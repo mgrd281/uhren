@@ -15,6 +15,8 @@ export const productSchema = z.object({
   mainImage: z.string().optional().nullable(),
   ebayStatus: z.string().default("Nicht gepostet"),
   notes: z.string().optional().nullable(),
+  storageLocation: z.string().optional().nullable(),
+  storagePhoto: z.string().optional().nullable(),
 });
 
 export const saleSchema = z.object({
