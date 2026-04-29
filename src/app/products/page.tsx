@@ -83,7 +83,7 @@ export default function ProductsPage() {
   // Group filtered products by brand (sorted alphabetically)
   const groupedBrands = [...new Set(filtered.map((p) => p.brand))].sort().map((brand) => ({
     brand,
-    items: filtered.filter((p) => p.brand === brand),
+    items: filtered.filter((p) => p.brand === brand).sort((a, b) => b.quantity - a.quantity),
   }));
 
   async function importImages() {
@@ -502,7 +502,7 @@ export default function ProductsPage() {
                       <h3 className="truncate text-[13px] font-bold text-zinc-900">
                         {p.name}
                       </h3>
-                      <div className="mt-2 flex items-center justify-between">
+                      <div className="mt-1.5 flex items-center justify-between gap-1">
                         <span className="text-[15px] font-black tracking-tight text-zinc-900">
                           {formatCurrency(p.salePriceExpected)}
                         </span>
@@ -512,6 +512,16 @@ export default function ProductsPage() {
                             {p._count.sales}
                           </span>
                         )}
+                      </div>
+                      <div className="mt-1.5">
+                        <span className={cn(
+                          "inline-flex items-center rounded-md px-1.5 py-0.5 text-[9px] font-semibold",
+                          p.ebayStatus === "eBay Kleinanzeigen" || p.ebayStatus === "eBay Kleinanzeige"
+                            ? "bg-yellow-50 text-yellow-700"
+                            : "bg-zinc-100 text-zinc-400"
+                        )}>
+                          {p.ebayStatus === "eBay Kleinanzeigen" || p.ebayStatus === "eBay Kleinanzeige" ? "eBay Kleinanzeige" : "Nicht gepostet"}
+                        </span>
                       </div>
                     </div>
                     </>
