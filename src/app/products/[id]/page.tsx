@@ -1052,10 +1052,24 @@ export default function ProductDetailPage({
                     <div>
                       <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Dienstleister</label>
                       <div className="flex flex-wrap gap-1.5">
-                        {["DHL", "DHL Express", "Hermes", "GLS", "DPD", "Andere"].map((c) => (
-                          <button key={c} type="button" onClick={() => setSaleForm((f) => ({ ...f, shippingCarrier: f.shippingCarrier === c ? "" : c }))}
-                            className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-all ${saleForm.shippingCarrier === c ? "bg-blue-600 text-white" : "bg-white text-zinc-600 ring-1 ring-zinc-200 hover:ring-zinc-300"}`}>
-                            {c}
+                        {[
+                          { key: "DHL", price: "6.19" },
+                          { key: "DHL Express", price: null },
+                          { key: "Hermes", price: "5.79" },
+                          { key: "GLS", price: null },
+                          { key: "DPD", price: null },
+                          { key: "Andere", price: null },
+                        ].map(({ key, price }) => (
+                          <button key={key} type="button" onClick={() => setSaleForm((f) => {
+                            const toggling = f.shippingCarrier === key;
+                            return {
+                              ...f,
+                              shippingCarrier: toggling ? "" : key,
+                              shippingCost: !toggling && price ? price : f.shippingCost,
+                            };
+                          })}
+                            className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-all ${saleForm.shippingCarrier === key ? "bg-blue-600 text-white" : "bg-white text-zinc-600 ring-1 ring-zinc-200 hover:ring-zinc-300"}`}>
+                            {key}{price && <span className={`ml-1 text-[10px] ${saleForm.shippingCarrier === key ? "text-blue-200" : "text-zinc-400"}`}>{price} €</span>}
                           </button>
                         ))}
                       </div>
