@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
+import { Check } from "lucide-react";
 
 const STORAGE_KEY = "bestandscheck_saved";
 
@@ -74,7 +75,11 @@ function StatCard({ label, value, sub, accent }: { label: string; value: string 
 }
 
 function DiffBadge({ diff }: { diff: number }) {
-  if (diff === 0) return <span className="inline-flex h-6 items-center rounded-full bg-emerald-50 px-2.5 text-[11px] font-semibold text-emerald-600">&#10003;</span>;
+  if (diff === 0) return (
+    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100">
+      <Check size={12} className="text-emerald-600" strokeWidth={3} />
+    </span>
+  );
   return (
     <span className={`inline-flex h-6 items-center rounded-full px-2.5 text-[11px] font-bold ${diff < 0 ? "bg-red-50 text-red-600" : "bg-blue-50 text-blue-600"}`}>
       {diff > 0 ? `+${diff}` : diff}
@@ -188,8 +193,29 @@ export default function InventoryPage() {
     toast.success(`✓ Analyse gespeichert — ${brandLabel || ""} ${ok.length + diffs.length} Modelle`);
   }
 
-  function loadSaved(entry: SavedAnalysis) {
-    setItems(entry.items);
+  async function loadSaved(entry: SavedAnalysis) {
+    // Fetch current live quantities from DB so "Im Bestand" is always up to date
+    let currentMap: Record<string, number> = {};
+    if (entry.label) {
+      try {
+        const res = await fetch(`/api/products?brand=${encodeURIComponent(entry.label)}`);
+        const dbProducts: DBProduct[] = await res.json();
+        currentMap = Object.fromEntries(
+          dbProducts.map((p) => [p.model.toUpperCase().replace(/[^A-Z0-9]/g, ""), p.quantity])
+        );
+      } catch {}
+    }
+    const updated: ResultItem[] = entry.items.map((item) => {
+      const currentQty = currentMap[item.model];
+      if (currentQty !== undefined) {
+        // saved dbQuantity → prevQuantity (Wie war es), live value → dbQuantity (Im Bestand)
+        const newDiff = currentQty - item.soll;
+        const newStatus: ResultItem["status"] = newDiff === 0 ? "ok" : "diff";
+        return { ...item, prevQuantity: item.dbQuantity, dbQuantity: currentQty, diff: newDiff, status: newStatus };
+      }
+      return item;
+    });
+    setItems(updated);
     setBrandLabel(entry.label);
     setShowSaved(false);
   }
