@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, Button, Input, Textarea, Select, PageHeader } from "@/components/ui";
 import { toast } from "sonner";
 import { Save, Upload, X, Check, Loader2, ImagePlus, Trash2 } from "lucide-react";
-import { upload } from "@vercel/blob/client";
+import { put } from "@vercel/blob/client";
 import Image from "next/image";
 
 interface ProductFormData {
@@ -152,9 +152,15 @@ export default function ProductForm({
     }
     setUploading(true);
     try {
-      const blob = await upload(`watches/${Date.now()}-${file.name}`, file, {
+      const pathname = `watches/${Date.now()}-${file.name}`;
+      const { clientToken } = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pathname }),
+      }).then((r) => r.json());
+      const blob = await put(pathname, file, {
         access: "public",
-        handleUploadUrl: "/api/upload",
+        token: clientToken,
         multipart: file.size > 4 * 1024 * 1024,
       });
       updateField("mainImage", blob.url);
@@ -476,15 +482,18 @@ export default function ProductForm({
                     for (const file of files) {
                       if (!file.type.startsWith("image/")) continue;
                       try {
-                        const blob = await upload(
-                          `watches/${Date.now()}-${file.name}`,
-                          file,
-                          {
-                            access: "public",
-                            handleUploadUrl: "/api/upload",
-                            multipart: file.size > 4 * 1024 * 1024,
-                          }
-                        );
+                        const pathname = `watches/${Date.now()}-${file.name}`;
+                        const { clientToken, error: tokenErr } = await fetch("/api/upload", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ pathname }),
+                        }).then((r) => r.json());
+                        if (tokenErr) { toast.error(`${file.name}: ${tokenErr}`); continue; }
+                        const blob = await put(pathname, file, {
+                          access: "public",
+                          token: clientToken,
+                          multipart: file.size > 4 * 1024 * 1024,
+                        });
                         const saveRes = await fetch(`/api/products/${productId}/gallery-images`, {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
