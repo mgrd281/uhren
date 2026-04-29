@@ -1057,8 +1057,24 @@ export default function ProductDetailPage({
               {/* ── Datum · Rechnung · Notiz ── */}
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Datum</label>
-                  <Input type="date" value={saleForm.soldAt} onChange={(e) => setSaleForm((f) => ({ ...f, soldAt: e.target.value }))} className="text-[12px]" />
+                  <div className="mb-1 flex items-center justify-between">
+                    <label className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Datum</label>
+                    <button
+                      type="button"
+                      onClick={() => setSaleForm((f) => ({ ...f, soldAt: "" }))}
+                      className={`rounded px-1.5 py-0.5 text-[9px] font-semibold transition-all ${!saleForm.soldAt ? "bg-zinc-800 text-white" : "text-zinc-400 hover:bg-zinc-100"}`}
+                    >
+                      ? Unbekannt
+                    </button>
+                  </div>
+                  {saleForm.soldAt ? (
+                    <Input type="date" value={saleForm.soldAt} onChange={(e) => setSaleForm((f) => ({ ...f, soldAt: e.target.value }))} className="text-[12px]" />
+                  ) : (
+                    <div className="flex h-9 items-center rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-3">
+                      <span className="text-[11px] text-zinc-400">Datum unbekannt</span>
+                      <button type="button" onClick={() => setSaleForm((f) => ({ ...f, soldAt: new Date().toISOString().slice(0,10) }))} className="ml-auto text-[10px] text-zinc-400 hover:text-zinc-600">heute</button>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Rechnung</label>
