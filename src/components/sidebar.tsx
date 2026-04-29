@@ -16,6 +16,7 @@ import {
   X,
   LogOut,
   UserCheck,
+  ClipboardList,
 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { signOut, useSession } from "next-auth/react";
@@ -26,6 +27,7 @@ const nav: { href: string; label: string; icon: typeof LayoutDashboard; badge?: 
   { href: "/products/add", label: "Produkt hinzufügen", icon: PlusCircle, editOnly: true },
   { href: "/import-images", label: "Shopify Bilder", icon: ImageIcon, editOnly: true },
   { href: "/sales", label: "Verkäufe", icon: ShoppingBag },
+  { href: "/inventory", label: "Bestandscheck", icon: ClipboardList },
   { href: "/reports", label: "Berichte", icon: BarChart3 },
   { href: "/access-requests", label: "Zugriffsanfragen", icon: UserCheck, badge: true, ownerOnly: true },
   { href: "/settings", label: "Einstellungen", icon: Settings },
