@@ -3,6 +3,18 @@
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 
+const STORAGE_KEY = "bestandscheck_saved";
+
+interface SavedAnalysis {
+  id: string;
+  label: string;
+  savedAt: string;
+  items: ResultItem[];
+  totalSoll: number;
+  totalIst: number;
+  fehlmenge: number;
+}
+
 interface DBProduct {
   id: string;
   model: string;
@@ -72,6 +84,16 @@ export default function InventoryPage() {
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<ResultItem[] | null>(null);
   const [brandLabel, setBrandLabel] = useState("");
+  const [saved, setSaved] = useState<SavedAnalysis[]>([]);
+  const [showSaved, setShowSaved] = useState(false);
+
+  // Load saved analyses from localStorage
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) setSaved(JSON.parse(raw));
+    } catch {}
+  }, []);
 
   // Live preview: count detected models as user types
   const liveCount = useMemo(() => {
@@ -120,6 +142,7 @@ export default function InventoryPage() {
       });
       setBrandLabel(brand || "");
       setItems(result);
+      setShowSaved(false);
     } catch (e) {
       toast.error("Fehler beim Analysieren: " + (e instanceof Error ? e.message : String(e)));
     } finally {
@@ -132,6 +155,40 @@ export default function InventoryPage() {
     setPasteText("");
     setBrand("");
     setBrandLabel("");
+  }
+
+  function handleSave() {
+    if (!items) return;
+    const ok = items.filter((i) => i.status === "ok");
+    const diffs = items.filter((i) => i.status === "diff");
+    const tSoll = items.reduce((s, i) => s + i.soll, 0);
+    const tIst = items.reduce((s, i) => s + i.dbQuantity, 0);
+    const fm = diffs.reduce((s, i) => s + Math.abs(i.diff), 0);
+    const entry: SavedAnalysis = {
+      id: Date.now().toString(),
+      label: brandLabel || "Analyse",
+      savedAt: new Date().toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+      items,
+      totalSoll: tSoll,
+      totalIst: tIst,
+      fehlmenge: fm,
+    };
+    const updated = [entry, ...saved].slice(0, 20);
+    setSaved(updated);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(updated)); } catch {}
+    toast.success(`✓ Analyse gespeichert — ${brandLabel || ""} ${ok.length + diffs.length} Modelle`);
+  }
+
+  function loadSaved(entry: SavedAnalysis) {
+    setItems(entry.items);
+    setBrandLabel(entry.label);
+    setShowSaved(false);
+  }
+
+  function deleteSaved(id: string) {
+    const updated = saved.filter((s) => s.id !== id);
+    setSaved(updated);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(updated)); } catch {}
   }
 
   const ok = items?.filter((i) => i.status === "ok") ?? [];
@@ -149,14 +206,49 @@ export default function InventoryPage() {
           <h1 className="text-xl font-bold tracking-tight text-zinc-900 sm:text-2xl lg:text-3xl">Bestandscheck</h1>
           <p className="mt-1 text-[12px] text-zinc-400 lg:text-sm">Gezählte Bestände mit dem System vergleichen</p>
         </div>
-        {items && (
-          <button onClick={handleReset} className="rounded-xl border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-zinc-600 shadow-sm transition hover:bg-zinc-50 active:scale-95">
-            Neue Analyse
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {saved.length > 0 && (
+            <button
+              onClick={() => { setShowSaved(!showSaved); if (items) { setItems(null); setBrandLabel(""); } }}
+              className="rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-xs font-semibold text-zinc-600 shadow-sm transition hover:bg-zinc-50 active:scale-95"
+            >
+              📂 Gespeichert ({saved.length})
+            </button>
+          )}
+          {items && (
+            <>
+              <button onClick={handleSave} className="rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-xs font-semibold text-zinc-600 shadow-sm transition hover:bg-zinc-50 active:scale-95">
+                💾 Speichern
+              </button>
+              <button onClick={handleReset} className="rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-xs font-semibold text-zinc-600 shadow-sm transition hover:bg-zinc-50 active:scale-95">
+                Neue Analyse
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
-      {!items ? (
+      {/* ── Saved analyses list ── */}
+      {showSaved && !items && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-bold text-zinc-800">Gespeicherte Analysen</h3>
+          {saved.map((entry) => (
+            <div key={entry.id} className="flex items-center justify-between rounded-2xl border border-zinc-200 bg-white px-5 py-4 shadow-sm">
+              <div>
+                <p className="text-sm font-bold text-zinc-900">{entry.label}</p>
+                <p className="mt-0.5 text-[11px] text-zinc-400">{entry.savedAt} · {entry.items.length} Modelle · Soll {entry.totalSoll} / Ist {entry.totalIst}</p>
+                {entry.fehlmenge > 0 && <p className="mt-0.5 text-[11px] font-semibold text-red-500">Fehlmenge: {entry.fehlmenge} Stk</p>}
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => loadSaved(entry)} className="rounded-lg bg-zinc-900 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-zinc-700">Öffnen</button>
+                <button onClick={() => deleteSaved(entry.id)} className="rounded-lg border border-zinc-200 px-2.5 py-1.5 text-[11px] font-semibold text-zinc-400 transition hover:border-red-200 hover:text-red-500">✕</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!items && !showSaved ? (
         <div className="space-y-5 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm lg:p-8">
           <div>
             <label className="mb-2 block text-xs font-semibold uppercase tracking-widest text-zinc-400">
@@ -189,7 +281,7 @@ export default function InventoryPage() {
             {loading ? "Wird analysiert…" : "Analyse starten"}
           </button>
         </div>
-      ) : (
+      ) : !items ? null : (
         <div className="space-y-6">
           <h2 className="text-lg font-bold text-zinc-800">
             {brandLabel && <span className="mr-2 font-medium text-zinc-400">{brandLabel}</span>}
