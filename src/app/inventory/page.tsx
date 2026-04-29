@@ -73,9 +73,7 @@ function StatCard({ label, value, sub, accent }: { label: string; value: string 
 
 function DiffBadge({ diff }: { diff: number }) {
   if (diff === 0) return (
-    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100">
-      <Check size={12} className="text-emerald-600" strokeWidth={3} />
-    </span>
+    <span className="text-lg leading-none">✔️</span>
   );
   return (
     <span className={`inline-flex h-6 items-center rounded-full px-2.5 text-[11px] font-bold ${diff < 0 ? "bg-red-50 text-red-600" : "bg-blue-50 text-blue-600"}`}>
