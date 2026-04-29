@@ -257,7 +257,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* ── Search + Filter + View Toggle ── */}
+      {/* ── Search + View Toggle ── */}
       <div className="flex gap-2 lg:gap-3">
         <div className="relative flex-1">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -272,18 +272,6 @@ export default function ProductsPage() {
             className="h-11 w-full rounded-xl border border-zinc-200 bg-white pl-10 pr-3 text-[13px] text-zinc-900 outline-none transition-all duration-200 placeholder:text-zinc-300 focus:border-zinc-300 focus:ring-4 focus:ring-zinc-100 hover:border-zinc-300 lg:h-12 lg:text-sm"
           />
         </div>
-        {brands.length > 1 && (
-          <select
-            value={filterBrand}
-            onChange={(e) => setFilterBrand(e.target.value)}
-            className="h-11 rounded-xl border border-zinc-200 bg-white px-3 text-[12px] text-zinc-600 outline-none focus:border-zinc-400 lg:h-12 lg:px-4 lg:text-sm"
-          >
-            <option value="">Alle Marken</option>
-            {brands.map((b) => (
-              <option key={b} value={b}>{b}</option>
-            ))}
-          </select>
-        )}
         <button
           onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-500 transition-colors active:bg-zinc-50 lg:h-12 lg:w-12 lg:hover:bg-zinc-50"
@@ -291,6 +279,46 @@ export default function ProductsPage() {
           {viewMode === "grid" ? <LayoutList size={16} /> : <LayoutGrid size={16} />}
         </button>
       </div>
+
+      {/* ── Brand chips ── */}
+      {brands.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-3 px-3 scrollbar-hide lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0 lg:pb-0">
+          <button
+            onClick={() => setFilterBrand("")}
+            className={cn(
+              "shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition-all active:scale-95",
+              filterBrand === ""
+                ? "bg-zinc-900 text-white shadow-sm"
+                : "bg-white border border-zinc-200 text-zinc-500 hover:border-zinc-400 hover:text-zinc-800"
+            )}
+          >
+            Alle
+          </button>
+          {brands.map((b) => {
+            const count = products.filter((p) => p.brand === b).reduce((s, p) => s + p.quantity, 0);
+            return (
+              <button
+                key={b}
+                onClick={() => setFilterBrand(filterBrand === b ? "" : b)}
+                className={cn(
+                  "shrink-0 rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition-all active:scale-95",
+                  filterBrand === b
+                    ? "bg-zinc-900 text-white shadow-sm"
+                    : "bg-white border border-zinc-200 text-zinc-600 hover:border-zinc-400 hover:text-zinc-900"
+                )}
+              >
+                {b}
+                <span className={cn(
+                  "ml-1.5 text-[10px] font-medium",
+                  filterBrand === b ? "text-zinc-300" : "text-zinc-400"
+                )}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* ── Bulk Action Panel ── */}
       {bulkMode && (
