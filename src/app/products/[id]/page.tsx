@@ -555,15 +555,32 @@ export default function ProductDetailPage({
             <Badge className={stockStatusColor(product.status)}>
               {stockStatusLabel(product.status)}
             </Badge>
-            <Badge
-              className={
-                isPostedOnEbay
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : "border-zinc-200 bg-zinc-50 text-zinc-500"
-              }
-            >
-              {isPostedOnEbay ? "eBay Kleinanzeige" : "Nicht gepostet"}
-            </Badge>
+            {canEdit ? (
+              <button
+                onClick={async () => {
+                  const newStatus = isPostedOnEbay ? "Nicht gepostet" : "eBay Kleinanzeigen";
+                  const res = await fetch(`/api/products/${id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ebayStatus: newStatus }),
+                  });
+                  if (res.ok) { toast.success(newStatus === "eBay Kleinanzeigen" ? "✅ Als eBay Kleinanzeige markiert" : "Nicht gepostet"); reloadProduct(); }
+                  else toast.error("Fehler");
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12px] font-semibold transition-all hover:scale-105 active:scale-95 ${
+                  isPostedOnEbay
+                    ? "border-yellow-300 bg-yellow-50 text-yellow-700 hover:bg-yellow-100"
+                    : "border-zinc-200 bg-zinc-50 text-zinc-400 hover:border-yellow-300 hover:bg-yellow-50 hover:text-yellow-700"
+                }`}
+              >
+                <span className="text-[11px]">{isPostedOnEbay ? "✅" : "⬜"}</span>
+                {isPostedOnEbay ? "eBay Kleinanzeige" : "Nicht gepostet"}
+              </button>
+            ) : (
+              <Badge className={isPostedOnEbay ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-zinc-200 bg-zinc-50 text-zinc-500"}>
+                {isPostedOnEbay ? "eBay Kleinanzeige" : "Nicht gepostet"}
+              </Badge>
+            )}
             <span className="text-[12px] text-zinc-400">{product.sku}</span>
           </div>
 
