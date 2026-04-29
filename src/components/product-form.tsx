@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Card, Button, Input, Textarea, Select, PageHeader } from "@/components/ui";
 import { toast } from "sonner";
-import { Save, Upload, X, Check, Loader2 } from "lucide-react";
+import { Save, Upload, X, Check, Loader2, ImagePlus, Trash2 } from "lucide-react";
 import Image from "next/image";
 
 interface ProductFormData {
@@ -83,6 +83,18 @@ export default function ProductForm({
   const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const hasChanged = useRef(false);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Gallery
+  const [gallery, setGallery] = useState<{ id: string; imageUrl: string; isPrimary: boolean }[]>([]);
+  const [galleryUploading, setGalleryUploading] = useState(false);
+
+  useEffect(() => {
+    if (!productId) return;
+    fetch(`/api/products/${productId}/gallery-images`)
+      .then((r) => r.json())
+      .then((imgs) => { if (Array.isArray(imgs)) setGallery(imgs); })
+      .catch(() => {});
+  }, [productId]);
 
   function updateField(key: keyof ProductFormData, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -466,6 +478,97 @@ export default function ProductForm({
             ))}
           </div>
         </Card>
+
+        {/* Gallery */}
+        {isEdit && (
+          <Card>
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-zinc-700">Galerie</h3>
+              <label className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-4 py-2 text-[12px] font-medium transition-colors ${
+                galleryUploading
+                  ? "border-zinc-100 bg-zinc-50 text-zinc-400 cursor-not-allowed"
+                  : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
+              }`}>
+                {galleryUploading ? <Loader2 size={14} className="animate-spin" /> : <ImagePlus size={14} />}
+                {galleryUploading ? "Wird hochgeladen..." : "Bilder hinzufügen"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  disabled={galleryUploading}
+                  onChange={async (e) => {
+                    const files = Array.from(e.target.files ?? []);
+                    if (!files.length) return;
+                    setGalleryUploading(true);
+                    let added = 0;
+                    for (const file of files) {
+                      if (!file.type.startsWith("image/")) continue;
+                      try {
+                        const fd = new FormData();
+                        fd.append("file", file);
+                        const upRes = await fetch("/api/upload", { method: "POST", body: fd });
+                        if (!upRes.ok) { toast.error(`${file.name}: Upload fehlgeschlagen`); continue; }
+                        const { url } = await upRes.json();
+                        const saveRes = await fetch(`/api/products/${productId}/gallery-images`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ imageUrl: url }),
+                        });
+                        if (saveRes.ok) {
+                          const img = await saveRes.json();
+                          setGallery((prev) => [...prev, img]);
+                          added++;
+                        }
+                      } catch { toast.error(`${file.name}: Fehler`); }
+                    }
+                    if (added > 0) toast.success(`${added} Bild${added > 1 ? "er" : ""} hinzugefügt`);
+                    setGalleryUploading(false);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+            </div>
+            {gallery.length === 0 ? (
+              <p className="py-6 text-center text-[13px] text-zinc-400">Noch keine Bilder hochgeladen</p>
+            ) : (
+              <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+                {gallery.map((img) => (
+                  <div key={img.id} className="group relative aspect-square overflow-hidden rounded-xl bg-zinc-50">
+                    <Image
+                      src={img.imageUrl}
+                      alt="Galeriebild"
+                      fill
+                      className="object-cover"
+                      sizes="160px"
+                      unoptimized
+                    />
+                    {img.isPrimary && (
+                      <span className="absolute left-1 top-1 rounded-md bg-zinc-900/80 px-1.5 py-0.5 text-[9px] font-semibold text-white">
+                        Haupt
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const res = await fetch(`/api/gallery-images/${img.id}`, { method: "DELETE" });
+                        if (res.ok) {
+                          setGallery((prev) => prev.filter((i) => i.id !== img.id));
+                          toast.success("Bild gelöscht");
+                        } else {
+                          toast.error("Löschen fehlgeschlagen");
+                        }
+                      }}
+                      className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-white opacity-0 shadow-md transition-all group-hover:opacity-100"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        )}
 
         {/* Actions */}
         <div className="flex justify-end gap-3">
