@@ -719,9 +719,16 @@ export default function ProductDetailPage({
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <p className="text-[15px] font-bold text-zinc-900">
-                        {formatCurrency(sale.totalAmount)}
-                      </p>
+                      <div className="text-right">
+                        <p className="text-[15px] font-bold text-red-600">
+                          {formatCurrency(sale.totalAmount)}
+                        </p>
+                        {sale.shippingCost > 0 && (
+                          <p className="text-[10px] text-zinc-400">
+                            inkl. Versand {formatCurrency(sale.shippingCost)}
+                          </p>
+                        )}
+                      </div>
                       {canEdit && (
                       <button
                         onClick={(e) => {
