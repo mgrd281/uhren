@@ -9,7 +9,7 @@ import {
   Warehouse,
   AlertTriangle,
   XCircle,
-  TrendingUp as _TrendingUp,
+  // TrendingUp removed
   Gem,
   ArrowUpRight,
   ShoppingBag,
@@ -131,7 +131,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
 
         {/* Revenue hero with period toggle */}
-        <div className="group relative overflow-hidden rounded-2xl bg-zinc-900 p-5 transition-all duration-300 hover:shadow-2xl hover:shadow-zinc-900/30 sm:col-span-2 lg:p-6">
+        <div className="group relative overflow-hidden rounded-2xl bg-zinc-900 p-5 transition-all duration-300 hover:shadow-2xl hover:shadow-zinc-900/30 lg:p-6">
           <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/5" />
           <div className="absolute -right-2 -bottom-8 h-20 w-20 rounded-full bg-white/5" />
 
@@ -164,7 +164,7 @@ export default function DashboardPage() {
 
         {/* Inventory value */}
         <Link href="/products"
-          className="group flex flex-col rounded-2xl border border-zinc-100 bg-white p-5 transition-all duration-300 hover:shadow-lg hover:shadow-zinc-100 hover:-translate-y-0.5 active:scale-[0.98] lg:p-6">
+          className="group flex flex-col rounded-2xl border border-zinc-100 bg-white p-5 transition-all duration-300 hover:shadow-lg hover:shadow-zinc-100 hover:-translate-y-0.5 active:scale-[0.98] sm:col-span-2 lg:p-6">
           <div className="flex items-center justify-between">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">Bestandswert</p>
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-100">
@@ -175,7 +175,7 @@ export default function DashboardPage() {
 
           {/* Brand breakdown */}
           {charts.inventoryByBrand.length > 0 && (
-            <div className="mt-4 max-h-64 overflow-y-auto space-y-3 pr-0.5">
+            <div className="mt-4 space-y-3">
               {charts.inventoryByBrand.map((b) => {
                 const totalItems = b.stock + b.sold;
                 const soldPct = totalItems > 0 ? Math.round((b.sold / totalItems) * 100) : 0;
