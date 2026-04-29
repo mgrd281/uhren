@@ -703,14 +703,17 @@ export default function ProductDetailPage({
                     )}
                   </div>
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-[13px] font-medium text-zinc-800">
                         {sale.quantitySold} Stück × {formatCurrency(sale.salePrice)}
                       </p>
                       {sale.customerName && (
-                        <p className="mt-1 text-[12px] font-semibold text-zinc-700">
-                          {sale.customerName}
-                        </p>
+                        <div className="mt-1.5 flex items-center gap-1.5">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-zinc-900 px-3 py-0.5">
+                            <span className="text-[10px] text-zinc-400">👤</span>
+                            <span className="text-[12px] font-semibold tracking-tight text-white">{sale.customerName}</span>
+                          </span>
+                        </div>
                       )}
                       <p className="mt-0.5 text-[11px] text-zinc-400">
                         {sale.paymentMethod && `${sale.paymentMethod}`}

@@ -853,9 +853,12 @@ export default function SalesPage() {
                           )}
                         </p>
                         {sale.customerName && (
-                          <p className="mt-0.5 truncate text-[12px] font-medium text-zinc-700">
-                            {sale.customerName}
-                          </p>
+                          <div className="mt-1 flex items-center gap-1">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-zinc-900 px-2.5 py-0.5">
+                              <span className="text-[9px] text-zinc-400">👤</span>
+                              <span className="text-[11px] font-semibold tracking-tight text-white">{sale.customerName}</span>
+                            </span>
+                          </div>
                         )}
                       </div>
 
