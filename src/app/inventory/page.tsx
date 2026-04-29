@@ -35,21 +35,46 @@ interface CompareResult {
 }
 
 function parsePastedText(text: string): PastedItem[] {
-  return text
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-    .map((line) => {
-      // Support tab, multiple spaces, semicolon, or comma as separator
-      const parts = line.split(/[\t;,]|\s{2,}/).map((p) => p.trim()).filter(Boolean);
-      if (parts.length === 0) return null;
+  const results: PastedItem[] = [];
+
+  // Step 1: Normalize — remove known header/label words and "Stk" suffix
+  const normalized = text
+    .replace(/Modell|Menge|EAN|Notiert|Aktueller Bestand|Differenz|Bestandscheck|Bestandsübersicht|Bestand stimmt überein|Abweichung|Ohne Etikett|Zusammenfassung|Prüfung erforderlich/gi, " ")
+    .replace(/[✅⚠️🏷️📊]/gu, " ")
+    .replace(/\s*Stk\s*/gi, " ")
+    .replace(/[\r\n]+/g, " ")
+    .trim();
+
+  // Step 2: Use regex to extract items: model (letters+digits), quantity (number), optional EAN (10-14 digits)
+  // Pattern: 1-4 uppercase letters followed by 3-6 digits = model number
+  const pattern = /([A-Z]{1,4}\d{3,6})\D{0,4}?(\d{1,4})(?:\D{0,4}?(\d{10,14}))?/g;
+
+  let match;
+  while ((match = pattern.exec(normalized)) !== null) {
+    const model = match[1].toUpperCase();
+    const quantity = parseInt(match[2], 10) || 0;
+    const ean = match[3] ?? "";
+    // Sanity check: avoid false positives (qty should be reasonable, model shouldn't be an EAN)
+    if (model.length >= 4 && quantity <= 9999 && model.length <= 10) {
+      results.push({ model, quantity, ean });
+    }
+  }
+
+  // Fallback: if regex found nothing, try line-by-line
+  if (results.length === 0) {
+    for (const line of text.split("\n")) {
+      const clean = line.trim();
+      if (!clean) continue;
+      const parts = clean.split(/[\t;,]|\s+/).filter(Boolean);
+      if (parts.length < 2) continue;
       const model = parts[0].toUpperCase().replace(/[^A-Z0-9]/g, "");
-      const rawQty = parts[1] ?? "0";
-      const quantity = parseInt(rawQty.replace(/[^0-9]/g, ""), 10) || 0;
+      const quantity = parseInt(parts[1].replace(/[^0-9]/g, ""), 10) || 0;
       const ean = parts[2] ?? "";
-      return { model, quantity, ean };
-    })
-    .filter((item): item is PastedItem => item !== null && item.model.length > 0);
+      if (model.length >= 3) results.push({ model, quantity, ean });
+    }
+  }
+
+  return results;
 }
 
 export default function InventoryPage() {
