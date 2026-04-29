@@ -697,7 +697,12 @@ export default function ProductDetailPage({
                       {new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(sale.soldAt))}
                     </span>
                     {sale.marketplace && (
-                      <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-600">
+                      <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ${
+                        sale.marketplace === "Shopify" ? "bg-emerald-50 text-emerald-700" :
+                        sale.marketplace === "Kaufland" ? "bg-red-50 text-red-600" :
+                        sale.marketplace.includes("eBay") ? "bg-yellow-50 text-yellow-700" :
+                        "bg-blue-50 text-blue-600"
+                      }`}>
                         {sale.marketplace}
                       </span>
                     )}

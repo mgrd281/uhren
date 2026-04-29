@@ -847,7 +847,12 @@ export default function SalesPage() {
                         <p className="mt-0.5 truncate text-[11px] text-zinc-400">
                           {sale.product.brand}
                           {sale.marketplace && (
-                            <span className="ml-1 inline-flex items-center rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500">
+                            <span className={`ml-1 inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium ${
+                              sale.marketplace === "Shopify" ? "bg-emerald-50 text-emerald-700" :
+                              sale.marketplace === "Kaufland" ? "bg-red-50 text-red-600" :
+                              sale.marketplace.includes("eBay") ? "bg-yellow-50 text-yellow-700" :
+                              "bg-blue-50 text-blue-600"
+                            }`}>
                               {sale.marketplace}
                             </span>
                           )}
