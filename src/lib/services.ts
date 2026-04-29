@@ -277,13 +277,22 @@ export async function getDashboardData() {
     .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 5);
 
-  // Top brands by inventory value
-  const invBrandMap = new Map<string, number>();
+  // Top brands by inventory value with stock + sold info
+  const invBrandMap = new Map<string, { value: number; stock: number; sold: number }>();
   for (const p of products) {
-    invBrandMap.set(p.brand, (invBrandMap.get(p.brand) ?? 0) + p.salePriceExpected * p.quantity);
+    const existing = invBrandMap.get(p.brand) ?? { value: 0, stock: 0, sold: 0 };
+    invBrandMap.set(p.brand, {
+      value: existing.value + p.salePriceExpected * p.quantity,
+      stock: existing.stock + p.quantity,
+      sold: existing.sold,
+    });
+  }
+  for (const s of sales) {
+    const existing = invBrandMap.get(s.product.brand);
+    if (existing) existing.sold += s.quantitySold;
   }
   const inventoryByBrand = Array.from(invBrandMap.entries())
-    .map(([brand, value]) => ({ brand, value }))
+    .map(([brand, d]) => ({ brand, value: d.value, stock: d.stock, sold: d.sold }))
     .sort((a, b) => b.value - a.value);
 
   // Recent sales

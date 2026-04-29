@@ -48,7 +48,7 @@ interface DashboardData {
     salesOverTime: { month: string; revenue: number; profit: number }[];
     topProducts: { name: string; totalSold: number; revenue: number }[];
     topBrands: { brand: string; revenue: number }[];
-    inventoryByBrand: { brand: string; value: number }[];
+    inventoryByBrand: { brand: string; value: number; stock: number; sold: number }[];
   };
   recentSales: {
     id: string;
@@ -175,21 +175,42 @@ export default function DashboardPage() {
 
           {/* Brand breakdown */}
           {charts.inventoryByBrand.length > 0 && (
-            <div className="mt-4 max-h-52 overflow-y-auto space-y-2 pr-1">
-              {charts.inventoryByBrand.map((b) => (
-                <div key={b.brand}>
-                  <div className="mb-0.5 flex items-center justify-between">
-                    <span className="text-[10px] font-medium text-zinc-500 truncate max-w-[70%]">{b.brand}</span>
-                    <span className="text-[10px] font-semibold text-zinc-700">{formatCurrency(b.value)}</span>
+            <div className="mt-4 max-h-64 overflow-y-auto space-y-3 pr-0.5">
+              {charts.inventoryByBrand.map((b) => {
+                const totalItems = b.stock + b.sold;
+                const soldPct = totalItems > 0 ? Math.round((b.sold / totalItems) * 100) : 0;
+                return (
+                  <div key={b.brand}>
+                    <div className="mb-1 flex items-center justify-between gap-2">
+                      <span className="truncate text-[11px] font-semibold text-zinc-700 max-w-[55%]">{b.brand}</span>
+                      <span className="shrink-0 text-[10px] font-medium text-zinc-400">{formatCurrency(b.value)}</span>
+                    </div>
+                    {/* progress bar */}
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
+                      <div
+                        className="h-full rounded-full bg-zinc-900 transition-all"
+                        style={{ width: `${Math.round((b.value / kpis.expectedSalesValue) * 100)}%` }}
+                      />
+                    </div>
+                    {/* sold / remaining chips */}
+                    <div className="mt-1 flex gap-2">
+                      <span className="text-[10px] text-zinc-400">
+                        <span className="font-semibold text-emerald-600">{b.sold}</span> verkauft
+                      </span>
+                      <span className="text-zinc-200">·</span>
+                      <span className="text-[10px] text-zinc-400">
+                        <span className="font-semibold text-zinc-700">{b.stock}</span> im Bestand
+                      </span>
+                      {soldPct > 0 && (
+                        <>
+                          <span className="text-zinc-200">·</span>
+                          <span className="text-[10px] font-semibold text-blue-500">{soldPct}% verkauft</span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <div className="h-1 w-full overflow-hidden rounded-full bg-zinc-100">
-                    <div
-                      className="h-full rounded-full bg-zinc-900 transition-all"
-                      style={{ width: `${Math.round((b.value / kpis.expectedSalesValue) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </Link>
