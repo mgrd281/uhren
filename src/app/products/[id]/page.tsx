@@ -1016,6 +1016,18 @@ export default function ProductDetailPage({
                 <Input placeholder="z.B. Abholung vereinbart…" value={saleForm.notes} onChange={(e) => setSaleForm((f) => ({ ...f, notes: e.target.value }))} className="text-[12px]" />
               </div>
 
+              {/* ── Lieferadresse ── */}
+              <div>
+                <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">📍 Lieferadresse <span className="font-normal normal-case text-zinc-300">optional</span></label>
+                <textarea
+                  rows={3}
+                  placeholder={"Max Mustermann\nMusterstraße 1\n12345 Berlin"}
+                  value={saleForm.shippingAddress}
+                  onChange={(e) => setSaleForm((f) => ({ ...f, shippingAddress: e.target.value }))}
+                  className="w-full rounded-xl border border-zinc-200 px-3 py-2.5 text-[13px] outline-none placeholder:text-zinc-300 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100 resize-none bg-white"
+                />
+              </div>
+
               {/* ── Versand Toggle ── */}
               <div className={`rounded-xl border transition-all ${saleForm.versand ? "border-blue-200 bg-blue-50/60" : "border-zinc-100"}`}>
                 <label className="flex cursor-pointer items-center gap-3 px-3.5 py-3">
@@ -1027,19 +1039,7 @@ export default function ProductDetailPage({
                 {saleForm.versand && (
                   <div className="space-y-3 border-t border-blue-100 px-3.5 pb-3.5 pt-3">
 
-                    {/* Lieferadresse — prominent */}
-                    <div>
-                      <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-zinc-500">📍 Lieferadresse</label>
-                      <textarea
-                        rows={3}
-                        placeholder={"Max Mustermann\nMusterstraße 1\n12345 Berlin"}
-                        value={saleForm.shippingAddress}
-                        onChange={(e) => setSaleForm((f) => ({ ...f, shippingAddress: e.target.value }))}
-                        className="w-full rounded-xl border border-blue-200 bg-white px-3 py-2.5 text-[13px] outline-none placeholder:text-zinc-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 resize-none"
-                      />
-                    </div>
-
-                    {/* Kosten */}
+                  {/* Kosten */}
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Versandkosten (€)</label>
