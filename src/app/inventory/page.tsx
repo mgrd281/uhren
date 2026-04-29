@@ -465,7 +465,7 @@ export default function InventoryPage() {
                         <td className="px-5 py-3.5 font-mono text-[11px] text-zinc-400">{item.ean || "—"}</td>
                         <td className="px-5 py-3.5 text-center"><DiffBadge diff={0} /></td>
                       </tr>
-                    ))}}
+                    ))}
                   </tbody>
                 </table>
               </div>
