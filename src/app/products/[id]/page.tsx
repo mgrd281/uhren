@@ -99,6 +99,7 @@ export default function ProductDetailPage({
     versand: false,
     shippingCost: "",
     shippingCarrier: "",
+    trackingNumber: "",
     paymentMethod: "",
     marketplace: "",
     customPayment: "",
@@ -184,6 +185,7 @@ export default function ProductDetailPage({
           marketplace: (saleForm.marketplace === "__custom" ? saleForm.customMarketplace : saleForm.marketplace) || null,
           shippingCost: saleForm.shippingCost ? parseFloat(saleForm.shippingCost) : 0,
           shippingCarrier: saleForm.shippingCarrier || null,
+          trackingNumber: saleForm.trackingNumber || null,
           soldAt: saleForm.soldAt ? new Date(saleForm.soldAt).toISOString() : new Date().toISOString(),
         }),
       });
@@ -205,7 +207,7 @@ export default function ProductDetailPage({
         try { new Audio("/cha-ching.mp3").play(); } catch {}
         toast.success(saleForm.versand ? "Verkauf + Versand gespeichert" : "Verkauf erfolgreich gespeichert");
         setShowSaleModal(false);
-        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false, shippingCost: "", shippingCarrier: "", paymentMethod: "", marketplace: "", customPayment: "", customMarketplace: "" });
+        setSaleForm({ salePrice: "", quantitySold: "1", customerName: "", notes: "", soldAt: "", versand: false, shippingCost: "", shippingCarrier: "", trackingNumber: "", paymentMethod: "", marketplace: "", customPayment: "", customMarketplace: "" });
         reloadProduct();
       } else {
         const err = await res.json();
@@ -1061,6 +1063,17 @@ export default function ProductDetailPage({
                       </button>
                     ))}
                   </div>
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+                    Sendungsnummer (optional)
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="z.B. 1Z999AA10123456784"
+                    value={saleForm.trackingNumber}
+                    onChange={(e) => setSaleForm((f) => ({ ...f, trackingNumber: e.target.value }))}
+                  />
                 </div>
                 </>
               )}
