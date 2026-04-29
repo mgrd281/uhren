@@ -28,12 +28,14 @@ interface ParsedItem {
   ean: string;
   ist: number | null;
   ohneVerpackung: boolean;
+  kartons: number | null;
 }
 
 interface ResultItem extends ParsedItem {
   dbQuantity: number;
   status: "ok" | "diff" | "unknown";
   diff: number;
+  prevQuantity: number | null; // from last saved analysis
 }
 
 function parseLines(text: string): ParsedItem[] {
@@ -53,7 +55,10 @@ function parseLines(text: string): ParsedItem[] {
     const istMatch = line.match(/(\d{1,4})\s*St[\u00fcu]ck?\s+Aktueller\s+Bestand/i);
     const ist = istMatch ? parseInt(istMatch[1], 10) : null;
     const ohneVerpackung = /ohne\s*Verpackung/i.test(line);
-    results.push({ model, soll, ean, ist, ohneVerpackung });
+    // Kartons: detect "X Karton(s)" in line
+    const kartonMatch = line.match(/(\d{1,3})\s*Kartons?/i);
+    const kartons = kartonMatch ? parseInt(kartonMatch[1], 10) : null;
+    results.push({ model, soll, ean, ist, ohneVerpackung, kartons });
   }
   return results;
 }
@@ -138,7 +143,11 @@ export default function InventoryPage() {
         const eff = hasIstValues ? (item.ist ?? item.soll) : dbQty;
         const diff = eff - item.soll;
         const status: ResultItem["status"] = dbQty === -1 ? "unknown" : diff === 0 ? "ok" : "diff";
-        return { ...item, dbQuantity: eff, status, diff };
+        // Find previous value from last saved analysis with same label
+        const prevAnalysis = saved.find((s) => s.label === (brand || ""));
+        const prevItem = prevAnalysis?.items.find((pi) => pi.model === item.model);
+        const prevQuantity = prevItem ? prevItem.dbQuantity : null;
+        return { ...item, dbQuantity: eff, status, diff, prevQuantity };
       });
       setBrandLabel(brand || "");
       setItems(result);
@@ -291,7 +300,7 @@ export default function InventoryPage() {
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4">
             <StatCard label="Soll" value={totalSoll} sub="Gezählt" accent />
-            <StatCard label="Ist" value={totalIst} sub="Im System" />
+            <StatCard label="Im Bestand" value={totalIst} sub="Aktueller Bestand" />
             <StatCard label="Abweichung" value={fehlmenge > 0 ? `-${fehlmenge}` : "0"} sub={fehlmenge > 0 ? `${diffs.length} Modelle` : "Alles korrekt"} />
             <StatCard label="Ohne Verpkg." value={ohneVerp.length} sub="Modelle" />
           </div>
@@ -311,7 +320,9 @@ export default function InventoryPage() {
                     <tr className="border-b border-zinc-100 bg-zinc-50/50">
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Modell</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Notiert</th>
-                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">System</th>
+                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Im Bestand</th>
+                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Wie war es</th>
+                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Kartons</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Diff</th>
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">EAN</th>
                     </tr>
@@ -324,7 +335,20 @@ export default function InventoryPage() {
                           {item.ohneVerpackung && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700">ohne Verpkg.</span>}
                         </td>
                         <td className="px-5 py-3.5 text-center font-semibold text-zinc-700">{item.soll}</td>
-                        <td className="px-5 py-3.5 text-center font-semibold text-zinc-700">{item.dbQuantity}</td>
+                        <td className="px-5 py-3.5 text-center font-bold text-zinc-900">{item.dbQuantity}</td>
+                        <td className="px-5 py-3.5 text-center">
+                          {item.prevQuantity !== null ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] text-zinc-500">
+                              {item.prevQuantity}
+                              {item.prevQuantity !== item.dbQuantity && (
+                                <span className={`font-bold ${item.dbQuantity > item.prevQuantity ? "text-emerald-600" : "text-red-500"}`}>
+                                  {item.dbQuantity > item.prevQuantity ? `▲${item.dbQuantity - item.prevQuantity}` : `▼${item.prevQuantity - item.dbQuantity}`}
+                                </span>
+                              )}
+                            </span>
+                          ) : <span className="text-zinc-300 text-[11px]">—</span>}
+                        </td>
+                        <td className="px-5 py-3.5 text-center text-[11px] text-zinc-500">{item.kartons !== null ? `${item.kartons} Ktn` : "—"}</td>
                         <td className="px-5 py-3.5 text-center"><DiffBadge diff={item.diff} /></td>
                         <td className="px-5 py-3.5 font-mono text-[11px] text-zinc-400">{item.ean || "—"}</td>
                       </tr>
@@ -384,7 +408,9 @@ export default function InventoryPage() {
                   <thead>
                     <tr className="border-b border-zinc-100 bg-zinc-50/50">
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Modell</th>
-                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Menge</th>
+                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Im Bestand</th>
+                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Wie war es</th>
+                      <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Kartons</th>
                       <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-400">EAN</th>
                       <th className="px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-400">Status</th>
                     </tr>
@@ -396,11 +422,24 @@ export default function InventoryPage() {
                           <span className="font-bold text-zinc-900">{item.model}</span>
                           {item.ohneVerpackung && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700">ohne Verpkg.</span>}
                         </td>
-                        <td className="px-5 py-3.5 text-center font-semibold text-zinc-700">{item.soll}</td>
+                        <td className="px-5 py-3.5 text-center font-bold text-zinc-900">{item.dbQuantity}</td>
+                        <td className="px-5 py-3.5 text-center">
+                          {item.prevQuantity !== null ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] text-zinc-500">
+                              {item.prevQuantity}
+                              {item.prevQuantity !== item.dbQuantity && (
+                                <span className={`font-bold ${item.dbQuantity > item.prevQuantity ? "text-emerald-600" : "text-red-500"}`}>
+                                  {item.dbQuantity > item.prevQuantity ? `▲${item.dbQuantity - item.prevQuantity}` : `▼${item.prevQuantity - item.dbQuantity}`}
+                                </span>
+                              )}
+                            </span>
+                          ) : <span className="text-zinc-300 text-[11px]">—</span>}
+                        </td>
+                        <td className="px-5 py-3.5 text-center text-[11px] text-zinc-500">{item.kartons !== null ? `${item.kartons} Ktn` : "—"}</td>
                         <td className="px-5 py-3.5 font-mono text-[11px] text-zinc-400">{item.ean || "—"}</td>
                         <td className="px-5 py-3.5 text-center"><DiffBadge diff={0} /></td>
                       </tr>
-                    ))}
+                    ))}}
                   </tbody>
                 </table>
               </div>
