@@ -720,7 +720,7 @@ export default function ProductDetailPage({
             <span>Warngrenze: {product.lowStockThreshold}</span>
             <span>·</span>
             <span>eBay: {isPostedOnEbay ? "Kleinanzeige" : "Nicht gepostet"}</span>
-            {["Michael Kors", "BOSS", "Emporio Armani", "Armani Exchange", "Diesel"].includes(product.brand) && (
+            {["Michael Kors", "BOSS", "Emporio Armani", "Armani Exchange", "Diesel"].includes(product.brand) && product.kartonAnzahl > 0 && (
               <>
                 <span>·</span>
                 <span className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-semibold text-zinc-700">
