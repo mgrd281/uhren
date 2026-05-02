@@ -81,6 +81,7 @@ interface Product {
   storagePhoto: string | null;
   kartonAnzahl: number;
   hasBox: boolean;
+  excludeFromStock: boolean;
   galleryImages: GalleryImage[];
   sales: Sale[];
   inventoryMoves: Movement[];
@@ -734,6 +735,14 @@ export default function ProductDetailPage({
                 <span>·</span>
                 <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
                   📦 Original-Box
+                </span>
+              </>
+            )}
+            {product.excludeFromStock && (
+              <>
+                <span>·</span>
+                <span className="inline-flex items-center gap-1 rounded-md bg-orange-100 px-2 py-0.5 text-[11px] font-semibold text-orange-600">
+                  📦 Karton · nicht im Bestand
                 </span>
               </>
             )}

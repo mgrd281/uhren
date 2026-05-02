@@ -19,6 +19,7 @@ export const productSchema = z.object({
   storagePhoto: z.string().optional().nullable(),
   kartonAnzahl: z.coerce.number().int().min(0).default(0),
   hasBox: z.boolean().default(false),
+  excludeFromStock: z.boolean().default(false),
 });
 
 export const saleSchema = z.object({

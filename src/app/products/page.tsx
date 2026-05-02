@@ -44,6 +44,7 @@ interface Product {
   ebayStatus: string;
   kartonAnzahl: number;
   hasBox: boolean;
+  excludeFromStock: boolean;
   _count: { sales: number };
   totalRevenue: number;
 }
@@ -73,9 +74,12 @@ export default function ProductsPage() {
       .finally(() => setLoading(false));
   }, [search]);
 
-  const totalValue = products.reduce((s, p) => s + p.salePriceExpected * p.quantity, 0);
-  const totalStock = products.reduce((s, p) => s + p.quantity, 0);
+  const stockProducts = products.filter((p) => !p.excludeFromStock);
+  const kartonProducts = products.filter((p) => p.excludeFromStock);
+  const totalValue = stockProducts.reduce((s, p) => s + p.salePriceExpected * p.quantity, 0);
+  const totalStock = stockProducts.reduce((s, p) => s + p.quantity, 0);
   const totalRevenue = products.reduce((s, p) => s + p.totalRevenue, 0);
+  const totalKartonItems = kartonProducts.reduce((s, p) => s + p.quantity, 0);
   const brands = [...new Set(products.map((p) => p.brand))].sort();
   const KARTON_BRANDS = ["Michael Kors", "BOSS", "Emporio Armani", "Armani Exchange", "Diesel"];
   const totalKartons = products.filter((p) => KARTON_BRANDS.includes(p.brand)).reduce((s, p) => s + (p.kartonAnzahl || 0), 0);
@@ -309,6 +313,19 @@ export default function ProductsPage() {
             </span>
           </div>
         ))}
+        {kartonProducts.length > 0 && (
+          <div className="flex min-w-[120px] flex-col rounded-2xl bg-orange-50 dark:bg-orange-900/15 border border-orange-100 dark:border-orange-800/25 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-orange-500 dark:text-orange-400 lg:text-xs">
+              Kartons
+            </span>
+            <span className="mt-1 text-lg font-bold tracking-tight text-orange-700 dark:text-orange-300 lg:mt-2 lg:text-2xl">
+              {kartonProducts.length}
+            </span>
+            <span className="mt-0.5 text-[10px] text-orange-400 dark:text-orange-500 lg:mt-1 lg:text-xs">
+              {totalKartonItems} Stk. · nicht im Bestand
+            </span>
+          </div>
+        )}
       </div>
 
       {/* ── Search + View Toggle ── */}
@@ -588,6 +605,13 @@ export default function ProductsPage() {
                         <div className="absolute bottom-2 left-2">
                           <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-bold text-emerald-700 shadow-sm">
                             📦 Box
+                          </span>
+                        </div>
+                      )}
+                      {p.excludeFromStock && (
+                        <div className="absolute top-2 left-2">
+                          <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[9px] font-bold text-orange-600 shadow-sm">
+                            Karton
                           </span>
                         </div>
                       )}

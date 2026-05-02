@@ -25,6 +25,7 @@ interface ProductFormData {
   notes: string;
   kartonAnzahl: string;
   hasBox: string;
+  excludeFromStock: string;
 }
 
 const EBAY_STATUSES = ["Nicht gepostet", "eBay Kleinanzeige"];
@@ -81,6 +82,7 @@ export default function ProductForm({
     notes: "",
     kartonAnzahl: "0",
     hasBox: "false",
+    excludeFromStock: "false",
     ...initialData,
   });
 
@@ -122,6 +124,7 @@ export default function ProductForm({
       notes: formData.notes || null,
       kartonAnzahl: parseInt(formData.kartonAnzahl, 10) || 0,
       hasBox: formData.hasBox === "true",
+      excludeFromStock: formData.excludeFromStock === "true",
     };
     try {
       const res = await fetch(`/api/products/${productId}`, {
@@ -196,6 +199,7 @@ export default function ProductForm({
       notes: form.notes || null,
       kartonAnzahl: parseInt(form.kartonAnzahl, 10) || 0,
       hasBox: form.hasBox === "true",
+      excludeFromStock: form.excludeFromStock === "true",
     };
 
     try {
@@ -401,6 +405,19 @@ export default function ProductForm({
               />
               <label htmlFor="hasBox" className="text-sm text-zinc-700 cursor-pointer select-none">
                 Original-Box vorhanden
+              </label>
+            </div>
+            <div className="flex items-center gap-3 pt-1">
+              <input
+                type="checkbox"
+                id="excludeFromStock"
+                checked={form.excludeFromStock === "true"}
+                onChange={(e) => updateField("excludeFromStock", String(e.target.checked))}
+                className="h-4 w-4 rounded border-zinc-300 accent-orange-600 cursor-pointer"
+              />
+              <label htmlFor="excludeFromStock" className="text-sm text-zinc-700 cursor-pointer select-none">
+                Nicht im Bestand zählen
+                <span className="ml-1.5 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-semibold text-orange-600">Karton</span>
               </label>
             </div>
           </div>

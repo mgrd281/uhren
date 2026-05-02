@@ -23,6 +23,7 @@ export async function createProduct(data: {
   notes?: string | null;
   kartonAnzahl?: number;
   hasBox?: boolean;
+  excludeFromStock?: boolean;
 }) {
   const threshold = data.lowStockThreshold ?? 2;
   const product = await prisma.product.create({
@@ -65,6 +66,7 @@ export async function updateProduct(
     notes: string | null;
     kartonAnzahl: number;
     hasBox: boolean;
+    excludeFromStock: boolean;
   }>
 ) {
   const current = await prisma.product.findUniqueOrThrow({ where: { id } });

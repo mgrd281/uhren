@@ -78,6 +78,7 @@ model Product {
   storagePhoto      String?
   kartonAnzahl      Int                 @default(0)
   hasBox            Boolean             @default(false)
+  excludeFromStock  Boolean             @default(false)
   inventoryMoves    InventoryMovement[]
   galleryImages     ProductImage[]
   sales             Sale[]
