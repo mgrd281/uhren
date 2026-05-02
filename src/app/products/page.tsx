@@ -42,6 +42,7 @@ interface Product {
   status: string;
   mainImage: string | null;
   ebayStatus: string;
+  kartonAnzahl: number;
   _count: { sales: number };
   totalRevenue: number;
 }
@@ -520,6 +521,13 @@ export default function ProductsPage() {
                         <div className="absolute right-2 top-2">
                           <span className="rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-bold text-zinc-700 shadow-sm backdrop-blur-sm">
                             {p.quantity}×
+                          </span>
+                        </div>
+                      )}
+                      {["Michael Kors", "BOSS", "Emporio Armani", "Armani Exchange", "Diesel"].includes(p.brand) && p.kartonAnzahl > 0 && (
+                        <div className="absolute bottom-2 right-2">
+                          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-bold text-amber-700 shadow-sm">
+                            📦 {p.kartonAnzahl}
                           </span>
                         </div>
                       )}
