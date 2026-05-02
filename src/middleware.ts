@@ -11,9 +11,10 @@ export const config = {
      * Protect everything except:
      * - /login
      * - /api/auth (NextAuth routes)
+     * - /api/webhooks (Shopify webhook receiver)
      * - /_next (static assets)
      * - /favicon.ico, /icon-*, /apple-touch-icon*, /manifest.json, /sw.js
      */
-    "/((?!login|api/auth|_next|favicon\\.ico|icon-|apple-touch-icon|manifest\\.json|sw\\.js).*)",
+    "/((?!login|api/auth|api/webhooks|_next|favicon\\.ico|icon-|apple-touch-icon|manifest\\.json|sw\\.js).*)",
   ],
 };
