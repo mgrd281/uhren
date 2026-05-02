@@ -34,12 +34,14 @@ html {
 body {
   background: var(--color-background);
   color: var(--color-foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .dark body, html.dark {
   background: #0c0c0e;
   color: #f4f4f5;
-}
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
