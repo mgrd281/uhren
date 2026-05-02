@@ -244,43 +244,43 @@ export default function ProductsPage() {
             {totalStock} Stück
           </span>
         </div>
-        <div className="flex min-w-[120px] flex-col rounded-2xl bg-white border border-zinc-100/80 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
+        <div className="flex min-w-[120px] flex-col rounded-2xl bg-white dark:bg-zinc-800/60 border border-zinc-100/80 dark:border-zinc-700/40 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 lg:text-xs">
             Umsatz
           </span>
-          <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900 lg:mt-2 lg:text-2xl">
+          <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100 lg:mt-2 lg:text-2xl">
             {formatCurrency(totalRevenue)}
           </span>
         </div>
-        <div className="flex min-w-[100px] flex-col rounded-2xl bg-white border border-zinc-100/80 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
+        <div className="flex min-w-[100px] flex-col rounded-2xl bg-white dark:bg-zinc-800/60 border border-zinc-100/80 dark:border-zinc-700/40 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 lg:text-xs">
             Marken
           </span>
-          <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900 lg:mt-2 lg:text-2xl">
+          <span className="mt-1 text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100 lg:mt-2 lg:text-2xl">
             {brands.length}
           </span>
         </div>
         {totalKartons > 0 && (
-          <div className="flex min-w-[120px] flex-col rounded-2xl bg-amber-50 border border-amber-100 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-500 lg:text-xs">
+          <div className="flex min-w-[120px] flex-col rounded-2xl bg-amber-50 dark:bg-amber-900/15 border border-amber-100 dark:border-amber-800/25 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-500 dark:text-amber-400 lg:text-xs">
               Kartons gesamt
             </span>
-            <span className="mt-1 text-lg font-bold tracking-tight text-amber-700 lg:mt-2 lg:text-2xl">
+            <span className="mt-1 text-lg font-bold tracking-tight text-amber-700 dark:text-amber-300 lg:mt-2 lg:text-2xl">
               {totalKartons}
             </span>
-            <span className="mt-0.5 text-[10px] text-amber-400 lg:mt-1 lg:text-xs">
+            <span className="mt-0.5 text-[10px] text-amber-400 dark:text-amber-500 lg:mt-1 lg:text-xs">
               MK · BOSS · Armani · Diesel
             </span>
           </div>
         )}
-        <div className="flex min-w-[120px] flex-col rounded-2xl bg-emerald-50 border border-emerald-100 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500 lg:text-xs">
+        <div className="flex min-w-[120px] flex-col rounded-2xl bg-emerald-50 dark:bg-emerald-900/15 border border-emerald-100 dark:border-emerald-800/25 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500 dark:text-emerald-400 lg:text-xs">
             Mit Box
           </span>
-          <span className="mt-1 text-lg font-bold tracking-tight text-emerald-700 lg:mt-2 lg:text-2xl">
+          <span className="mt-1 text-lg font-bold tracking-tight text-emerald-700 dark:text-emerald-300 lg:mt-2 lg:text-2xl">
             {totalBoxes}
           </span>
-          <span className="mt-0.5 text-[10px] text-emerald-400 lg:mt-1 lg:text-xs">
+          <span className="mt-0.5 text-[10px] text-emerald-400 dark:text-emerald-500 lg:mt-1 lg:text-xs">
             Original-Box vorhanden
           </span>
         </div>

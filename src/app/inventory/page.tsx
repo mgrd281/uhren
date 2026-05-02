@@ -91,9 +91,9 @@ function parseLines(text: string): ParsedItem[] {
 
 function StatCard({ label, value, sub, accent }: { label: string; value: string | number; sub?: string; accent?: boolean }) {
   return (
-    <div className={`rounded-2xl px-5 py-4 ${accent ? "bg-zinc-900 text-white" : "bg-white border border-zinc-100"}`}>
+    <div className={`rounded-2xl px-5 py-4 ${accent ? "bg-zinc-900 text-white" : "bg-white dark:bg-zinc-800/60 border border-zinc-100 dark:border-zinc-700/40"}`}>
       <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">{label}</p>
-      <p className={`mt-1 text-2xl font-bold tracking-tight ${accent ? "text-white" : "text-zinc-900"}`}>{value}</p>
+      <p className={`mt-1 text-2xl font-bold tracking-tight ${accent ? "text-white" : "text-zinc-900 dark:text-zinc-100"}`}>{value}</p>
       {sub && <p className={`mt-0.5 text-xs ${accent ? "text-zinc-500" : "text-zinc-400"}`}>{sub}</p>}
     </div>
   );
