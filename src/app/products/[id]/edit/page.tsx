@@ -36,8 +36,6 @@ export default function EditProductPage({
           mainImage: p.mainImage ?? "",
           ebayStatus: p.ebayStatus ?? "Nicht gepostet",
           notes: p.notes ?? "",
-          kartonAnzahl: String(p.kartonAnzahl ?? 0),
-          hasBox: String(p.hasBox ?? false),
         })
       );
   }, [id, canEdit, router]);

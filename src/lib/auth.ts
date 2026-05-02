@@ -97,14 +97,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return true;
       }
 
-      if (owner.googleUid === googleUid) {
+      if (owner.googleUid === googleUid || owner.email === user.email) {
         return true;
       }
 
       // Check if user has an approved access request
       try {
         const approved = await prisma.accessRequest.findFirst({
-          where: { googleUid, status: "approved" },
+          where: {
+            OR: [
+              { googleUid, status: "approved" },
+              { email: user.email ?? "", status: "approved" },
+            ],
+          },
         });
         if (approved) {
           // Update IP/UA/fingerprint on each login
