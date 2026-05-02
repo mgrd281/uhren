@@ -21,6 +21,12 @@
   border-color: theme(colors.zinc.200);
 }
 
+.dark *,
+.dark *::before,
+.dark *::after {
+  border-color: theme(colors.zinc.800);
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -28,6 +34,12 @@ html {
 body {
   background: var(--color-background);
   color: var(--color-foreground);
+}
+
+.dark body, html.dark {
+  background: #0c0c0e;
+  color: #f4f4f5;
+}
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
