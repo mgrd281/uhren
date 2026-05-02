@@ -156,7 +156,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         console.error("[auth] Failed to save access request:", e);
       }
 
-      return "/login?error=unauthorized";
+      return `/login?error=unauthorized&email=${encodeURIComponent(user.email ?? "")}`;
     },
 
     async jwt({ token }) {

@@ -56,6 +56,26 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const denied = searchParams.get("error") === "unauthorized" || searchParams.get("error") === "AccessDenied";
   const [requestSent, setRequestSent] = useState(false);
+  const pendingEmail = searchParams.get("email") ?? "";
+
+  /* ── Auto-polling: check every 5 s if access was approved ── */
+  useEffect(() => {
+    if (!denied || !pendingEmail) return;
+    let active = true;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/access-requests/check?email=${encodeURIComponent(pendingEmail)}`);
+        const data = await res.json();
+        if (data.status === "approved" && active) {
+          await signIn("google", { callbackUrl: "/dashboard" });
+        }
+      } catch {
+        // ignore network errors, keep polling
+      }
+    };
+    const id = setInterval(poll, 5000);
+    return () => { active = false; clearInterval(id); };
+  }, [denied, pendingEmail]);
 
   /* ── Browser fingerprint (survives VPN) ── */
   useEffect(() => {
@@ -362,6 +382,12 @@ function LoginContent() {
                           Anfrage wird geprüft
                         </span>
                       </div>
+
+                      {pendingEmail && (
+                        <p className="mt-3 text-center text-[10px] leading-relaxed text-white/20">
+                          Zugang wird automatisch erteilt,<br />sobald deine Anfrage genehmigt wurde.
+                        </p>
+                      )}
 
                       {/* Divider */}
                       <div className="mx-auto mt-7 h-px w-full bg-gradient-to-r from-transparent via-white/[0.035] to-transparent" />
