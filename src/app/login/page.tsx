@@ -151,6 +151,13 @@ function LoginContent() {
     catch { setError(true); setLoading(false); }
   }
 
+  async function handleAppleSignIn() {
+    setLoading(true);
+    setError(false);
+    try { await signIn("apple", { callbackUrl: "/dashboard" }); }
+    catch { setError(true); setLoading(false); }
+  }
+
   return (
     <div className="fixed inset-0 bg-[#050506]">
 
@@ -436,6 +443,33 @@ function LoginContent() {
                     </span>
 
                     {/* Expanding underline */}
+                    <span className="h-px w-6 bg-white/[0.04] transition-all duration-600 group-hover:w-14 group-hover:bg-white/[0.1]" />
+                  </button>
+
+                  {/* Divider */}
+                  <div className="mx-auto mt-9 h-px w-full bg-gradient-to-r from-transparent via-white/[0.035] to-transparent" />
+
+                  {/* ── Apple CTA ── */}
+                  <button
+                    onClick={handleAppleSignIn}
+                    disabled={loading}
+                    className="group relative mt-7 flex w-full flex-col items-center gap-6 py-1 disabled:opacity-40 disabled:pointer-events-none"
+                  >
+                    <div className="relative">
+                      <div className="absolute -inset-4 rounded-full bg-white/[0.015] blur-xl transition-all duration-600 group-hover:bg-white/[0.035] group-hover:-inset-5" />
+                      <div className="relative flex h-[56px] w-[56px] items-center justify-center rounded-full border border-white/[0.07] bg-white/[0.03] transition-all duration-500 group-hover:border-white/[0.12] group-hover:bg-white/[0.055] group-hover:shadow-[0_0_24px_-4px_rgba(255,255,255,0.06)] active:scale-[0.96]">
+                        {loading ? (
+                          <div className="h-5 w-5 animate-spin rounded-full border-[1.5px] border-white/10 border-t-white/60" />
+                        ) : (
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-white shrink-0 transition-transform duration-500 group-hover:scale-[1.06]">
+                            <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.39-1.32 2.76-2.53 3.99zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                    <span className="text-[12px] font-normal tracking-[0.06em] text-white/35 transition-colors duration-400 group-hover:text-white/65">
+                      Mit Apple fortfahren
+                    </span>
                     <span className="h-px w-6 bg-white/[0.04] transition-all duration-600 group-hover:w-14 group-hover:bg-white/[0.1]" />
                   </button>
 

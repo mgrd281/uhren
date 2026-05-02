@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
+import Apple from "next-auth/providers/apple";
 import type { NextAuthConfig } from "next-auth";
 
 /**
@@ -12,6 +13,10 @@ export const authConfig = {
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    Apple({
+      clientId: process.env.APPLE_CLIENT_ID!,
+      clientSecret: process.env.APPLE_CLIENT_SECRET!,
     }),
   ],
   pages: {
@@ -44,7 +49,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     ...authConfig.callbacks,
 
     async signIn({ user, account }) {
-      if (account?.provider !== "google" || !account.providerAccountId) {
+      if (!(["google", "apple"].includes(account?.provider ?? "")) || !account.providerAccountId) {
         return false;
       }
 
