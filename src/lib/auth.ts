@@ -107,7 +107,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const { cookies } = await import("next/headers");
           const hdrs = await headers();
           const cks = await cookies();
-          const ip = hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || null;
+          const ip = hdrs.get("cf-connecting-ip") || hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || null;
           const ua = hdrs.get("user-agent") || null;
           const fingerprint = cks.get("device_fp")?.value || null;
           await prisma.accessRequest.update({
@@ -130,9 +130,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const { cookies } = await import("next/headers");
         const hdrs = await headers();
         const cks = await cookies();
-        const ip = hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || null;
+        const ip = hdrs.get("cf-connecting-ip") || hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || null;
         const ua = hdrs.get("user-agent") || null;
-        const country = hdrs.get("x-vercel-ip-country") || null;
+        const country = hdrs.get("cf-ipcountry") || hdrs.get("x-vercel-ip-country") || null;
         const city = hdrs.get("x-vercel-ip-city") || null;
         const fingerprint = cks.get("device_fp")?.value || null;
 
