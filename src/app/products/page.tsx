@@ -84,18 +84,6 @@ export default function ProductsPage() {
   const KARTON_BRANDS = ["Michael Kors", "BOSS", "Emporio Armani", "Armani Exchange", "Diesel"];
   const totalKartons = products.filter((p) => KARTON_BRANDS.includes(p.brand)).reduce((s, p) => s + (p.kartonAnzahl || 0), 0);
   const totalBoxes = products.filter((p) => p.hasBox).length;
-  const BOX_BRANDS = [
-    { brand: "BOSS", label: "BOSS" },
-    { brand: "Diesel", label: "Diesel" },
-    { brand: "Emporio Armani", label: "Emp. Armani" },
-    { brand: "Armani Exchange", label: "Arm. Exchange" },
-  ];
-  const brandBoxCounts = BOX_BRANDS.map(({ brand, label }) => ({
-    brand,
-    label,
-    count: products.filter((p) => p.brand === brand && p.hasBox).length,
-    total: products.filter((p) => p.brand === brand).length,
-  })).filter((b) => b.total > 0);
 
   const filtered = filterBrand
     ? products.filter((p) => p.brand === filterBrand)
@@ -300,19 +288,6 @@ export default function ProductsPage() {
             Original-Box vorhanden
           </span>
         </div>
-        {brandBoxCounts.map(({ brand, label, count, total }) => (
-          <div key={brand} className="flex min-w-[110px] flex-col rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/20 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500 dark:text-emerald-400 lg:text-xs">
-              {label}
-            </span>
-            <span className="mt-1 text-lg font-bold tracking-tight text-emerald-700 dark:text-emerald-300 lg:mt-2 lg:text-2xl">
-              {count}
-            </span>
-            <span className="mt-0.5 text-[10px] text-emerald-400 dark:text-emerald-500 lg:mt-1 lg:text-xs">
-              von {total} mit Box
-            </span>
-          </div>
-        ))}
         {kartonProducts.length > 0 && (
           <div className="flex min-w-[120px] flex-col rounded-2xl bg-orange-50 dark:bg-orange-900/15 border border-orange-100 dark:border-orange-800/25 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-orange-500 dark:text-orange-400 lg:text-xs">

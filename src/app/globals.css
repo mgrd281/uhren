@@ -13,11 +13,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@variant dark (&:where(.dark, .dark *));
+@variant dark (.dark &);
 
-*,
-*::before,
-*::after {
+html.dark,
+html.dark body {
+  background: #0c0c0e;
+  color: #f4f4f5;
+}
   border-color: theme(colors.zinc.200);
 }
 
