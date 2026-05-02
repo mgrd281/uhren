@@ -257,16 +257,16 @@ export default function Sidebar() {
 
       {/* ── Desktop Sidebar ── */}
       <aside
-        className="fixed inset-y-0 left-0 z-40 hidden w-[260px] flex-col border-r border-zinc-100/80 bg-white/60 px-4 py-8 backdrop-blur-2xl lg:flex"
+        className="fixed inset-y-0 left-0 z-40 hidden w-[260px] flex-col border-r border-zinc-100/80 dark:border-zinc-800/50 bg-white/60 dark:bg-zinc-900/80 px-4 py-8 backdrop-blur-2xl lg:flex"
       >
         {/* Brand */}
         <div className="mb-10 px-3">
           <Link href="/dashboard" className="group flex items-center gap-3">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 text-white shadow-lg shadow-zinc-900/25 transition-transform duration-300 group-hover:scale-105">
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-lg shadow-zinc-900/25 transition-transform duration-300 group-hover:scale-105">
               <Watch size={20} />
             </div>
             <div>
-              <h1 className="text-sm font-bold tracking-tight text-zinc-900">
+              <h1 className="text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
                 Luxusuhren
               </h1>
               <p className="text-[11px] font-medium text-zinc-400">Verwaltungssystem</p>
@@ -285,8 +285,8 @@ export default function Sidebar() {
                 className={cn(
                   "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
                   active
-                    ? "bg-zinc-900 text-white shadow-lg shadow-zinc-900/20"
-                    : "text-zinc-500 hover:bg-zinc-100/80 hover:text-zinc-900"
+                    ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-lg shadow-zinc-900/20"
+                    : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 hover:text-zinc-900 dark:hover:text-zinc-100"
                 )}
               >
                 <item.icon
@@ -312,7 +312,7 @@ export default function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="mt-auto border-t border-zinc-100/80 pt-4 space-y-1">
+        <div className="mt-auto border-t border-zinc-100/80 dark:border-zinc-800/50 pt-4 space-y-1">
           {/* Profile card */}
           {session?.user && (
             <div className="flex items-center gap-3 rounded-xl px-3 py-2.5">

@@ -13,54 +13,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
-.dark {
-  --color-background: #0f0f10;
-  --color-foreground: #f4f4f5;
-}
-
-.dark body {
-  background: #0f0f10;
-  color: #f4f4f5;
-}
-
-.dark .bg-white {
-  background-color: #18181b !important;
-}
-
-.dark .bg-white\/60 {
-  background-color: rgba(24,24,27,0.6) !important;
-}
-
-.dark .bg-white\/80 {
-  background-color: rgba(24,24,27,0.85) !important;
-}
-
-.dark .bg-white\/95 {
-  background-color: rgba(24,24,27,0.95) !important;
-}
-
-.dark .border-zinc-100\/80,
-.dark .border-zinc-200\/60,
-.dark .border-zinc-100 {
-  border-color: rgba(63,63,70,0.5) !important;
-}
-
-.dark .text-zinc-900 { color: #f4f4f5 !important; }
-.dark .text-zinc-800 { color: #e4e4e7 !important; }
-.dark .text-zinc-700 { color: #d4d4d8 !important; }
-.dark .text-zinc-600 { color: #a1a1aa !important; }
-.dark .text-zinc-500 { color: #71717a !important; }
-.dark .text-zinc-400 { color: #52525b !important; }
-
-.dark .bg-zinc-50 { background-color: #27272a !important; }
-.dark .bg-zinc-100 { background-color: #27272a !important; }
-.dark .bg-zinc-100\/80 { background-color: rgba(39,39,42,0.8) !important; }
-.dark .hover\:bg-zinc-100\/80:hover { background-color: rgba(39,39,42,0.8) !important; }
-.dark .hover\:bg-zinc-100:hover { background-color: #27272a !important; }
-
-.dark .bg-\[\#fafafa\] { background-color: #0f0f10 !important; }
-
-.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.4) !important; }
+@variant dark (&:where(.dark, .dark *));
 
 *,
 *::before,
