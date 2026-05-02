@@ -76,6 +76,7 @@ model Product {
   shopifyListed     Boolean             @default(false)
   storageLocation   String?
   storagePhoto      String?
+  kartonAnzahl      Int                 @default(0)
   inventoryMoves    InventoryMovement[]
   galleryImages     ProductImage[]
   sales             Sale[]

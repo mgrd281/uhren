@@ -23,6 +23,7 @@ interface ProductFormData {
   mainImage: string;
   ebayStatus: string;
   notes: string;
+  kartonAnzahl: string;
 }
 
 const EBAY_STATUSES = ["Nicht gepostet", "eBay Kleinanzeige"];
@@ -50,6 +51,8 @@ const BRANDS = [
   "Sonstige",
 ];
 
+const KARTON_BRANDS = ["Michael Kors", "BOSS", "Emporio Armani", "Armani Exchange", "Diesel"];
+
 export default function ProductForm({
   initialData,
   productId,
@@ -75,6 +78,7 @@ export default function ProductForm({
     mainImage: "",
     ebayStatus: "Nicht gepostet",
     notes: "",
+    kartonAnzahl: "0",
     ...initialData,
   });
 
@@ -114,6 +118,7 @@ export default function ProductForm({
       lowStockThreshold: parseInt(formData.lowStockThreshold, 10) || 0,
       mainImage: formData.mainImage || null,
       notes: formData.notes || null,
+      kartonAnzahl: parseInt(formData.kartonAnzahl, 10) || 0,
     };
     try {
       const res = await fetch(`/api/products/${productId}`, {
@@ -186,6 +191,7 @@ export default function ProductForm({
       lowStockThreshold: parseInt(form.lowStockThreshold, 10),
       mainImage: form.mainImage || null,
       notes: form.notes || null,
+      kartonAnzahl: parseInt(form.kartonAnzahl, 10) || 0,
     };
 
     try {
@@ -369,6 +375,18 @@ export default function ProductForm({
                 updateField("lowStockThreshold", e.target.value)
               }
             />
+            {KARTON_BRANDS.includes(form.brand) && (
+              <div className="flex flex-col gap-1">
+                <Input
+                  label="Anzahl Kartons"
+                  type="number"
+                  min="0"
+                  value={form.kartonAnzahl}
+                  onChange={(e) => updateField("kartonAnzahl", e.target.value)}
+                />
+                <p className="text-[11px] text-zinc-400">Wird nicht im Bestand gezählt</p>
+              </div>
+            )}
           </div>
         </Card>
 

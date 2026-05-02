@@ -79,6 +79,7 @@ interface Product {
   notes: string | null;
   storageLocation: string | null;
   storagePhoto: string | null;
+  kartonAnzahl: number;
   galleryImages: GalleryImage[];
   sales: Sale[];
   inventoryMoves: Movement[];
@@ -719,6 +720,14 @@ export default function ProductDetailPage({
             <span>Warngrenze: {product.lowStockThreshold}</span>
             <span>·</span>
             <span>eBay: {isPostedOnEbay ? "Kleinanzeige" : "Nicht gepostet"}</span>
+            {["Michael Kors", "BOSS", "Emporio Armani", "Armani Exchange", "Diesel"].includes(product.brand) && (
+              <>
+                <span>·</span>
+                <span className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-semibold text-zinc-700">
+                  📦 {product.kartonAnzahl} Karton{product.kartonAnzahl !== 1 ? "s" : ""}
+                </span>
+              </>
+            )}
             {product.storageLocation && (
               <>
                 <span>·</span>

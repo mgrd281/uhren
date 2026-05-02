@@ -17,6 +17,7 @@ export const productSchema = z.object({
   notes: z.string().optional().nullable(),
   storageLocation: z.string().optional().nullable(),
   storagePhoto: z.string().optional().nullable(),
+  kartonAnzahl: z.coerce.number().int().min(0).default(0),
 });
 
 export const saleSchema = z.object({
