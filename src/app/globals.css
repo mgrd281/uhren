@@ -15,11 +15,9 @@
 
 @variant dark (.dark &);
 
-html.dark,
-html.dark body {
-  background: #0c0c0e;
-  color: #f4f4f5;
-}
+*,
+*::before,
+*::after {
   border-color: theme(colors.zinc.200);
 }
 
