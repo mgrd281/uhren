@@ -76,6 +76,8 @@ export default function ProductsPage() {
   const totalStock = products.reduce((s, p) => s + p.quantity, 0);
   const totalRevenue = products.reduce((s, p) => s + p.totalRevenue, 0);
   const brands = [...new Set(products.map((p) => p.brand))].sort();
+  const KARTON_BRANDS = ["Michael Kors", "BOSS", "Emporio Armani", "Armani Exchange", "Diesel"];
+  const totalKartons = products.filter((p) => KARTON_BRANDS.includes(p.brand)).reduce((s, p) => s + (p.kartonAnzahl || 0), 0);
 
   const filtered = filterBrand
     ? products.filter((p) => p.brand === filterBrand)
@@ -256,6 +258,19 @@ export default function ProductsPage() {
             {brands.length}
           </span>
         </div>
+        {totalKartons > 0 && (
+          <div className="flex min-w-[120px] flex-col rounded-2xl bg-amber-50 border border-amber-100 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-500 lg:text-xs">
+              Kartons gesamt
+            </span>
+            <span className="mt-1 text-lg font-bold tracking-tight text-amber-700 lg:mt-2 lg:text-2xl">
+              {totalKartons}
+            </span>
+            <span className="mt-0.5 text-[10px] text-amber-400 lg:mt-1 lg:text-xs">
+              MK · BOSS · Armani · Diesel
+            </span>
+          </div>
+        )}
       </div>
 
       {/* ── Search + View Toggle ── */}
@@ -573,6 +588,21 @@ export default function ProductsPage() {
                   );
                 })}
               </div>
+              {/* Karton summary card per brand */}
+              {(() => {
+                const brandKartons = items.reduce((s, p) => s + (p.kartonAnzahl || 0), 0);
+                if (!KARTON_BRANDS.includes(brand) || brandKartons === 0) return null;
+                return (
+                  <div className="mt-3 flex items-center gap-3 rounded-2xl border border-amber-100 bg-amber-50 px-5 py-3.5">
+                    <span className="text-xl">📦</span>
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-500">Kartons</p>
+                      <p className="text-2xl font-black tracking-tight text-amber-700">{brandKartons}</p>
+                    </div>
+                    <p className="ml-2 text-[11px] text-amber-400">Wird nicht im Bestand gezählt</p>
+                  </div>
+                );
+              })()}
             </div>
           ))}
         </div>
