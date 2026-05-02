@@ -43,6 +43,7 @@ interface Product {
   mainImage: string | null;
   ebayStatus: string;
   kartonAnzahl: number;
+  hasBox: boolean;
   _count: { sales: number };
   totalRevenue: number;
 }

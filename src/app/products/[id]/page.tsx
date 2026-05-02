@@ -80,6 +80,7 @@ interface Product {
   storageLocation: string | null;
   storagePhoto: string | null;
   kartonAnzahl: number;
+  hasBox: boolean;
   galleryImages: GalleryImage[];
   sales: Sale[];
   inventoryMoves: Movement[];
@@ -725,6 +726,14 @@ export default function ProductDetailPage({
                 <span>·</span>
                 <span className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-semibold text-zinc-700">
                   📦 {product.kartonAnzahl} Karton{product.kartonAnzahl !== 1 ? "s" : ""}
+                </span>
+              </>
+            )}
+            {product.hasBox && (
+              <>
+                <span>·</span>
+                <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+                  📦 Original-Box
                 </span>
               </>
             )}

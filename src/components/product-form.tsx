@@ -24,6 +24,7 @@ interface ProductFormData {
   ebayStatus: string;
   notes: string;
   kartonAnzahl: string;
+  hasBox: string;
 }
 
 const EBAY_STATUSES = ["Nicht gepostet", "eBay Kleinanzeige"];
@@ -79,6 +80,7 @@ export default function ProductForm({
     ebayStatus: "Nicht gepostet",
     notes: "",
     kartonAnzahl: "0",
+    hasBox: "false",
     ...initialData,
   });
 
@@ -119,6 +121,7 @@ export default function ProductForm({
       mainImage: formData.mainImage || null,
       notes: formData.notes || null,
       kartonAnzahl: parseInt(formData.kartonAnzahl, 10) || 0,
+      hasBox: formData.hasBox === "true",
     };
     try {
       const res = await fetch(`/api/products/${productId}`, {
@@ -192,6 +195,7 @@ export default function ProductForm({
       mainImage: form.mainImage || null,
       notes: form.notes || null,
       kartonAnzahl: parseInt(form.kartonAnzahl, 10) || 0,
+      hasBox: form.hasBox === "true",
     };
 
     try {
@@ -387,6 +391,18 @@ export default function ProductForm({
                 <p className="text-[11px] text-zinc-400">Wird nicht im Bestand gezählt</p>
               </div>
             )}
+            <div className="flex items-center gap-3 pt-1">
+              <input
+                type="checkbox"
+                id="hasBox"
+                checked={form.hasBox === "true"}
+                onChange={(e) => updateField("hasBox", String(e.target.checked))}
+                className="h-4 w-4 rounded border-zinc-300 accent-zinc-800 cursor-pointer"
+              />
+              <label htmlFor="hasBox" className="text-sm text-zinc-700 cursor-pointer select-none">
+                Original-Box vorhanden
+              </label>
+            </div>
           </div>
         </Card>
 
