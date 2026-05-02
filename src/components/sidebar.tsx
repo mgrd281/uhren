@@ -17,6 +17,8 @@ import {
   LogOut,
   UserCheck,
   ClipboardList,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { signOut, useSession } from "next-auth/react";
@@ -51,6 +53,20 @@ export default function Sidebar() {
   const role = ((session?.user as unknown as { role?: string })?.role) || "viewer";
   const isOwner = role === "owner";
   const userCanEdit = role === "owner" || role === "manager" || role === "editor";
+
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    const saved = localStorage.getItem("theme");
+    const isDark = saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    setDark(isDark);
+    document.documentElement.classList.toggle("dark", isDark);
+  }, []);
+  function toggleDark() {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("theme", next ? "dark" : "light");
+  }
 
   /* Filter nav items based on role */
   const visibleNav = nav.filter((item) => {
@@ -321,6 +337,13 @@ export default function Sidebar() {
           >
             <LogOut size={18} strokeWidth={1.6} className="shrink-0 text-zinc-400 group-hover:text-red-500" />
             Abmelden
+          </button>
+          <button
+            onClick={toggleDark}
+            className="group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[12px] font-medium text-zinc-400 transition-all duration-200 hover:bg-zinc-100/80 hover:text-zinc-700"
+          >
+            {dark ? <Sun size={16} strokeWidth={1.6} className="shrink-0" /> : <Moon size={16} strokeWidth={1.6} className="shrink-0" />}
+            {dark ? "Heller Modus" : "Dunkler Modus"}
           </button>
         </div>
       </aside>
