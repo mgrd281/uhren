@@ -79,6 +79,7 @@ export default function ProductsPage() {
   const brands = [...new Set(products.map((p) => p.brand))].sort();
   const KARTON_BRANDS = ["Michael Kors", "BOSS", "Emporio Armani", "Armani Exchange", "Diesel"];
   const totalKartons = products.filter((p) => KARTON_BRANDS.includes(p.brand)).reduce((s, p) => s + (p.kartonAnzahl || 0), 0);
+  const totalBoxes = products.filter((p) => p.hasBox).length;
 
   const filtered = filterBrand
     ? products.filter((p) => p.brand === filterBrand)
@@ -272,6 +273,17 @@ export default function ProductsPage() {
             </span>
           </div>
         )}
+        <div className="flex min-w-[120px] flex-col rounded-2xl bg-emerald-50 border border-emerald-100 px-4 py-3 shadow-sm lg:min-w-0 lg:px-6 lg:py-5">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500 lg:text-xs">
+            Mit Box
+          </span>
+          <span className="mt-1 text-lg font-bold tracking-tight text-emerald-700 lg:mt-2 lg:text-2xl">
+            {totalBoxes}
+          </span>
+          <span className="mt-0.5 text-[10px] text-emerald-400 lg:mt-1 lg:text-xs">
+            Original-Box vorhanden
+          </span>
+        </div>
       </div>
 
       {/* ── Search + View Toggle ── */}
@@ -544,6 +556,13 @@ export default function ProductsPage() {
                         <div className="absolute bottom-2 right-2">
                           <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-bold text-amber-700 shadow-sm">
                             📦 {p.kartonAnzahl}
+                          </span>
+                        </div>
+                      )}
+                      {p.hasBox && (
+                        <div className="absolute bottom-2 left-2">
+                          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-bold text-emerald-700 shadow-sm">
+                            📦 Box
                           </span>
                         </div>
                       )}
